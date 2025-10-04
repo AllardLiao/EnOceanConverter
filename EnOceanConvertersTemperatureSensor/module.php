@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-namespace EnOceanConverter;
 // IPS-Stubs nur in der Entwicklungsumgebung laden
 
 if (substr(__DIR__,0, 10) == "/Users/kai") {
@@ -10,8 +9,9 @@ if (substr(__DIR__,0, 10) == "/Users/kai") {
 	include_once __DIR__ . '/../.ips_stubs/autoload.php';
 }
 
-// Make sure IPS is available in the current namespace
-//use IPSModuleStrict;
+use EnOceanConverter\EEPProfiles;
+use EnOceanConverter\EEPConverter;
+use EnOceanConverter\CRC8;	
 
 /**
  * Include Controme helper classes.
