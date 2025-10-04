@@ -18,7 +18,7 @@ class GUIDs
     public const IPS_BUILDIN_A50402   = '{432FF87E-4497-48D6-8ED9-EE7104A50402}';
     public const IPS_BUILDIN_A50403   = '{432FF87E-4497-48D6-8ED9-EE7104A50403}';
 }
-trait EEPProfiles
+class EEPProfiles
 {
     // Temperature & Humidity Sensor Profiles (A5-04-xx)
 
