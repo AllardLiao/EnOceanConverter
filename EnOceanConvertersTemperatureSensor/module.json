@@ -4,9 +4,9 @@
     "type": 3,
     "vendor": "EnOcean",
     "aliases": ["EnOcean Converter Temperature Sensor"],
-    "parentRequirements": ["{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}"], 
+    "parentRequirements": ["{C8792760-65CF-4C53-B5C7-A30FCC84FEFE}'"], 
     "childRequirements": [],
-    "implemented": ["{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}"],
+    "implemented": ["{C8792760-65CF-4C53-B5C7-A30FCC84FEFE}'"],
     "prefix": "ECTS",
     "url": ""
 }

@@ -7,8 +7,8 @@ namespace EnOceanConverter;
 class GUIDs
 {
     // Gemeinsame DataFlow-GUID für Gateway <-> Child
-    public const DATAFLOW             = '{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}';  // Client Socket
-
+    public const PARENT               = '{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}';  // Client Socket
+    public const DATAFLOW             = '{C8792760-65CF-4C53-B5C7-A30FCC84FEFE}';  // Interface
     // --- Modul GUIDs (Instanzen) ---
     public const EC_LIBRARY           = '{63647422-FE17-88E4-252A-402E8E58C4AD}';
     public const EC_TEMPERATUR        = '{029B9532-A614-BBC3-B9D6-904F648DC5F1}';
