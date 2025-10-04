@@ -313,7 +313,8 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 			$this->SendDebug(__FUNCTION__, 'hex2bin failed for: ' . $hexString, 0);
 			return;
 		}
-
+		$this->SendDebug(__FUNCTION__, 'RAW Hex=' . strtoupper(implode(' ', array_map(fn($b) => sprintf('%02X', $b), $telegram))), 0);
+		$this->SendDebug(__FUNCTION__, 'RAW Bin=' . bin2hex($binaryData), 0);
 		$this->SendDataToParent(json_encode([
 			"DataID" => GUIDs::DATAFLOW_TRANSMIT,
 			"Buffer" => base64_encode($binaryData)
