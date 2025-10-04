@@ -288,19 +288,24 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 			0xA5, // RORG 4BS
 			(int)$DB3, (int)$DB2, (int)$DB1, (int)$DB0,
 			(int)$idBytes[0], (int)$idBytes[1], (int)$idBytes[2], (int)$idBytes[3],
-			0x00 // status
+			0x00, 0x01 // status
 		];
 
 		// OptData
 		$optData = [0x01, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00];
+		$type = 0x01;                    // RPS/4BS telegram
+
+		$dataLength = count($data);      // 11
+		$optLength  = count($optData);   // 7
 
 		// Header
-		$header = [0x00, count($data), count($optData), 0x01]; // 0x01 = Radio ERP1
+		$header = [0x00, $dataLength, $optLength, $type];
 		$headerCRC8 = CRC8::crc8($header);
 
 		// Telegram zusammensetzen
 		$telegram = array_merge([0x55], $header, [$headerCRC8], $data, $optData);
-		$telegram[] = CRC8::crc8(array_merge($data, $optData));
+		//$telegram[] = CRC8::crc8(array_merge($data, $optData));
+		$telegram[] = CRC8::crc8($data, $optData);
 
 		// Debug hex
 		$hex = strtoupper(implode(' ', array_map(fn($b) => sprintf('%02X', $b), $telegram)));
@@ -310,7 +315,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		$this->SendDebug(__FUNCTION__, 'Telegram array: ' . implode(' ', array_map(fn($b)=>sprintf('%02X',$b), $telegram)), 0);
 		$binaryData = pack('C*', ...$telegram);
 		$this->SendDebug(__FUNCTION__, 'Binary length: ' . strlen($binaryData), 0);
-		
+
 		$this->SendDataToParent(json_encode([
 			"DataID" => GUIDs::DATAFLOW_TRANSMIT,
 			"Buffer" => base64_encode($binaryData)
