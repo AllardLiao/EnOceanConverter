@@ -117,7 +117,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		$senderIdInt = (int)$SenderID;
 		$tempVarId   = (int)$this->GetBuffer('SourceVarTemp'); // vorher per SetBuffer gespeichert
 		$humVarId    = (int)$this->GetBuffer('SourceVarHum');
-		$this->SendDebug(__FUNCTION__, "sender={$senderIdInt}, tempVar={$tempVarId}, humVar={$humVarId}, DATA: " . print_r($Data[0], true), 0);
+		$this->SendDebug(__FUNCTION__, "sender={$senderIdInt}, tempVar={$tempVarId}, humVar={$humVarId}, DATA-0: " . print_r($Data[0], true), 0);
 
 		if ($Message == VM_UPDATE) {
 			$value = $Data[0];
