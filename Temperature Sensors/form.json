@@ -72,18 +72,6 @@
                     "width": ""
                 },
                 {
-                    "type": "Label",
-                    "bold": false,
-                    "caption": "Source EEP",
-                    "color": 0,
-                    "italic": false,
-                    "link": true,
-                    "name": "SourceEEP",
-                    "underline": false,
-                    "visible": true,
-                    "width": ""
-                },
-                {
                     "type": "ValidationTextBox",
                     "caption": "Source EEP",
                     "enabled": true,
@@ -97,6 +85,31 @@
                 }
             ],
             "visible": true
+        },
+        {
+            "type": "Select",
+            "caption": "Target EEP",
+            "download": "",
+            "enabled": true,
+            "link": false,
+            "name": "TargetEEP",
+            "options": [],
+            "onChange": "",
+            "value": "",
+            "visible": true,
+            "width": "300px"
+        },
+        {
+            "type": "CheckBox",
+            "caption": "Resend active",
+            "download": "",
+            "enabled": true,
+            "link": false,
+            "name": "ResendActive",
+            "onChange": "",
+            "value": false,
+            "visible": true,
+            "width": ""
         }
     ],
     "actions": [],

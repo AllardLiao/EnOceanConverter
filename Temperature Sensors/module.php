@@ -7,6 +7,12 @@ declare(strict_types=1);
 		{
 			//Never delete this line!
 			parent::Create();
+
+			$this->RegisterPropertyString("SourceEEP", "");
+			$this->RegisterPropertyString("AutoDetectEEP", "");
+			$this->RegisterPropertyInteger("SourceDevice", 0);
+			$this->RegisterPropertyInteger("TargetEEP", 0);
+			$this->RegisterPropertyInteger("ResendActive", 0);
 		}
 
 		public function Destroy():void
