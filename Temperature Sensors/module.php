@@ -8,10 +8,10 @@ declare(strict_types=1);
 			//Never delete this line!
 			parent::Create();
 
-			$this->RegisterPropertyInteger("SourceEEP", 1);
+			$this->RegisterPropertyString("SourceEEP", "1");
 			$this->RegisterPropertyBoolean("AutoDetectEEP", true);
 			$this->RegisterPropertyInteger("SourceDevice", 0);
-			$this->RegisterPropertyInteger("TargetEEP", 2);
+			$this->RegisterPropertyString("TargetEEP", "2");
 			$this->RegisterPropertyBoolean("ResendActive", false);
 		}
 
