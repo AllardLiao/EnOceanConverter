@@ -138,7 +138,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		$temp = 18.7;   // °C
 		$hum  = 78.1;   // %
 
-		$this->SendDebug(__FUNCTION__, sprintf('Temp=%d, Hum=%d', $temp, $hum), 0);
+		$this->SendDebug(__FUNCTION__, "sending test: temp=" . $temp . ", hum=" . $hum, 0);
 
 		$this->SendEnOceanTelegram($temp, $hum);
 	}
