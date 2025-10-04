@@ -138,5 +138,24 @@ class CRC8{
         $header = "00 ".self::addLeadingZero(dechex($p_DataLen))." ".self::addLeadingZero(dechex($p_DataOptLen))." ".self::addLeadingZero(dechex($p_Type));
         return $header." ".self::calculate($header);
 	}
+
+    /**
+     * CRC8-Funktion (EEP 2.6x Standard, Polynom 0x31)
+     */
+    public static function crc8(array $bytes): int
+    {
+        $crc = 0;
+        foreach ($bytes as $byte) {
+            $crc ^= $byte;
+            for ($i = 0; $i < 8; $i++) {
+                if ($crc & 0x80) {
+                    $crc = (($crc << 1) ^ 0x31) & 0xFF;
+                } else {
+                    $crc = ($crc << 1) & 0xFF;
+                }
+            }
+        }
+        return $crc;
+    }
 }
 

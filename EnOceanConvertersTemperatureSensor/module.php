@@ -11,7 +11,8 @@ if (substr(__DIR__,0, 10) == "/Users/kai") {
 
 use EnOceanConverter\EEPProfiles;
 use EnOceanConverter\EEPConverter;
-use EnOceanConverter\CRC8;	
+use EnOceanConverter\CRC8;
+use EnOceanConverter\GUIDs;
 
 /**
  * Include Controme helper classes.
@@ -117,7 +118,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 			$value = $Data[0];
 
 			$sourceProfile = $this->ReadPropertyString('SourceEEP');
-
+			$this->SendDebug(__FUNCTION__, "Senders: $SenderID and " . $this->GetBuffer('SourceVarTemp') . " / " . $this->GetBuffer('SourceVarHum'), 0);
 			// unterscheiden: kommt Wert aus Temp- oder Humidity-Quelle?
 			if ($SenderID == $this->GetBuffer('SourceVarTemp')) {
 				$this->SetValue('Temperature', $this->decodeTemperature($sourceProfile, (float)$value));
@@ -127,7 +128,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 			}
 
 			// Timer setzen (5 Sekunden warten, dann send)
-			$this->SetTimerInterval('SendDelayed', 5000);
+			//$this->SetTimerInterval('SendDelayed', 5000);
 		}
     }
 
@@ -155,16 +156,91 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		return false;
 	}
 
-	private function SendEnOceanTelegram($temp, $hum)
+	private function SendEnOceanTelegram(float $temperature, float $humidity): void
 	{
 		if (!$this->isSocketActive()) {
 			$this->SendDebug(__FUNCTION__, 'Socket nicht verbunden oder nicht aktiv - Telegramm nicht gesendet.', 0);
 			return;
 		}
 
-		$telegram = $this->buildTelegram($temp, $hum);
-		$socketId = @IPS_GetInstance($this->InstanceID)['ConnectionID'];
-		CSCK_SendText($socketId, $telegram);
+		$targetEEP  = $this->ReadPropertyString('TargetEEP');
+		$deviceID   = $this->ReadPropertyString('TargetDeviceID'); // z. B. "EC-00-A5-01"
+
+		$DB3 = 0; // Temperature
+		$DB2 = 0; // Humidity
+		$DB1 = 0; // Reserved
+		$DB0 = 0x08; // Learnbit/T21/NU Default
+
+		switch ($targetEEP) {
+			case EEPProfiles::A5_04_01: // 8 Bit Temp (0–40°C), 8 Bit Hum (0–100%)
+				$DB3 = (int)round(($temperature - 0) * 255 / 40);
+				$DB2 = (int)round($humidity * 255 / 100);
+				break;
+
+			case EEPProfiles::A5_04_02: // 8 Bit Temp (-20–60°C), 8 Bit Hum (0–100%)
+				$DB3 = (int)round(($temperature + 20) * 255 / 80);
+				$DB2 = (int)round($humidity * 255 / 100);
+				break;
+
+			case EEPProfiles::A5_04_03: // 10 Bit Temp (-20–60°C), 7 Bit Hum (0–100%)
+				$DB3 = (($temperature + 20) * 1023 / 80) & 0xFF; // low 8 bit
+				$DB2 = (int)round($humidity * 127 / 100);
+				// obere 2 Temp-Bits in DB2 reinschieben
+				$DB2 = ($DB2 & 0x7F) | ((int)(($temperature + 20) * 1023 / 80) >> 8) << 7;
+				break;
+
+			case EEPProfiles::A5_04_04: // 12 Bit Temp (-40–120°C), 8 Bit Hum (0–100%)
+				$rawTemp = (int)round(($temperature + 40) * 4095 / 160);
+				$DB3 = $rawTemp & 0xFF;             // lower 8 bit
+				$DB2 = (int)round($humidity * 255 / 100);
+				$DB1 = ($rawTemp >> 8) & 0x0F;      // upper 4 bit in DB1
+				break;
+
+			default:
+				$this->SendDebug(__FUNCTION__, 'Unknown TargetEEP: ' . $targetEEP, 0);
+				return;
+		}
+
+		// Device ID in Bytes
+		$idBytes = array_map('hexdec', explode('-', str_replace('EC-', '', $deviceID)));
+		while (count($idBytes) < 4) {
+			array_unshift($idBytes, 0x00);
+		}
+
+		// Data Block (ERP1: RORG + DB3..0 + Sender-ID + Status)
+		$data = [
+			0xA5,      // RORG = 4BS
+			$DB3, $DB2, $DB1, $DB0,
+			$idBytes[0], $idBytes[1], $idBytes[2], $idBytes[3],
+			0x00       // Status
+		];
+
+		// OptData (Standard: SubTelNum=1, DestID=FF FF FF FF, RSSI=FF, Security=0)
+		$optData = [0x01, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00];
+
+		// Header bauen
+		$header = [
+			0x00,
+			count($data),
+			count($optData),
+			0x01 // Radio ERP1
+		];
+		$headerCRC8 = CRC8::crc8($header);
+
+		// Komplettes Telegram
+		$telegram = array_merge([0x55], $header, [$headerCRC8], $data, $optData);
+		$telegram[] = CRC8::crc8(array_merge($data, $optData));
+
+		// Senden
+		$binaryData = hex2bin(implode('', array_map(fn($b) => sprintf('%02X', $b), $telegram)));
+
+		$this->SendDataToParent(json_encode([
+			'DataID' => GUIDs::DATAFLOW_TRANSMIT,
+			'Buffer' => $binaryData
+		]));
+
+		$this->SendDebug(__FUNCTION__, 'EEP=' . $targetEEP . ' Telegram: ' .
+			strtoupper(implode(' ', array_map(fn($b) => sprintf('%02X', $b), $telegram))), 0);
 	}
 
 	private function buildTelegram(float $temp, float $hum): string
