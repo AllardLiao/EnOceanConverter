@@ -193,13 +193,8 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		$targetProfile = $this->ReadPropertyString('TargetEEP');
 		$this->SendDebug(__FUNCTION__, 'Timestamps: temp=' . $temp . ', hum=' . $hum, 0);
 
-		// EnOcean-encoding für Target-Profil
-		$encodedTemp = $this->encodeTemperature($targetProfile, (float)$temp);
-		$encodedHum  = $this->encodeHumidity($targetProfile, (float)$hum);
-		$this->SendDebug(__FUNCTION__, sprintf('Encoded: temp=%d, hum=%d', $encodedTemp, $encodedHum), 0);
-
 		// Senden (deine vorhandene Funktion)
-		$this->SendEnOceanTelegram($encodedTemp, $encodedHum);
+		$this->SendEnOceanTelegram($temp, $hum);
 	}
 
 	private function isSocketActive(): bool
