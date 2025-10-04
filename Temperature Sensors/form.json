@@ -60,18 +60,6 @@
             "name": "EEP",
             "items": [
                 {
-                    "type": "CheckBox",
-                    "caption": "Auto-detect/-correct EEP",
-                    "download": "",
-                    "enabled": true,
-                    "link": false,
-                    "name": "AutoDetectEEP",
-                    "onChange": "",
-                    "value": false,
-                    "visible": true,
-                    "width": ""
-                },
-                {
                     "type": "Select",
                     "caption": "Source EEP",
                     "download": "",
@@ -100,6 +88,18 @@
                     "value": "1",
                     "visible": true,
                     "width": "300px"
+                },
+                {
+                    "type": "CheckBox",
+                    "caption": "Auto-detect/-correct Source EEP",
+                    "download": "",
+                    "enabled": true,
+                    "link": false,
+                    "name": "AutoDetectEEP",
+                    "onChange": "",
+                    "value": false,
+                    "visible": true,
+                    "width": ""
                 }
             ],
             "visible": true
