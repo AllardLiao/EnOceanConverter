@@ -145,10 +145,32 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		$this->SendEnOceanTelegram($convertedTemp, $convertedHum);
 	}
 
-	private function sendEnOceanTelegram(float $temp, float $hum): void
+	private function isSocketActive(): bool
+	{
+		$parentID = @IPS_GetInstance($this->InstanceID)['ConnectionID'];
+		if ($parentID > 0) {
+			$status = IPS_GetInstance($parentID)['InstanceStatus'];
+			return $status == IS_ACTIVE; // 102 = aktiv
+		}
+		return false;
+	}
+
+	private function SendEnOceanTelegram($temp, $hum)
+	{
+		if (!$this->isSocketActive()) {
+			$this->SendDebug(__FUNCTION__, 'Socket nicht verbunden oder nicht aktiv - Telegramm nicht gesendet.', 0);
+			return;
+		}
+
+		$telegram = $this->buildTelegram($temp, $hum);
+		$socketId = @IPS_GetInstance($this->InstanceID)['ConnectionID'];
+		CSCK_SendText($socketId, $telegram);
+	}
+
+	private function buildTelegram(float $temp, float $hum): string
 	{
 		if (!$this->ReadPropertyBoolean('ResendActive')) {
-			return;
+			return '';
 		}
 		$profile = $this->ReadPropertyString('TargetEEP');
 		$deviceId = $this->ReadPropertyString('TargetDeviceID');
@@ -179,8 +201,8 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 				$db3 = 0;
 				break;
 			default:
-				$this->SendDebug('sendEnOceanTelegram', 'Unbekanntes Profil: ' . $profile, 0);
-				return;
+				$this->SendDebug(__FUNCTION__, 'Unbekanntes Profil: ' . $profile, 0);
+				return '';
 		}
 		// Erstellung des Telegramms
 		$telegram = sprintf(
@@ -192,13 +214,8 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		// Zusammenstellung des vollständigen Telegramms
 		$sendText = strtoupper("55 " . CRC8::getHeader(strlen($telegram), strlen($crc)) . " " . $telegram . " " . $crc);
 		// Senden des Telegramms
-		$socketID = $this->ReadPropertyInteger('ClientSocketID');
-		if ($socketID > 0) {
-			//CSCK_SendText($socketID, $sendText);
-			$this->SendDebug('sendEnOceanTelegram', 'Telegram gesendet: ' . $sendText, 0);
-		} else {
-			$this->SendDebug('sendEnOceanTelegram', 'Kein Client Socket konfiguriert', 0);
-		}
+		$this->SendDebug(__FUNCTION__, 'Telegram gebaut: ' . $sendText, 0);
+		return $sendText;
 	}
 
 	function decodeTemperature($profile, $raw) {
