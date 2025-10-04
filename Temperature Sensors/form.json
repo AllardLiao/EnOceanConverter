@@ -50,7 +50,7 @@
             "link": false,
             "name": "SourceDevice",
             "onChange": "",
-            "validModules": "[]",
+            "validModules": "[{432FF87E-4497-48D6-8ED9-EE7104A50401}, {432FF87E-4497-48D6-8ED9-EE7104A50402}, {432FF87E-4497-48D6-8ED9-EE7104A50403}]",
             "value": 0,
             "visible": true,
             "width": "400px"
