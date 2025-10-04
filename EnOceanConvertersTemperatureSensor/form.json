@@ -94,11 +94,10 @@
                     "multiline": false,
                     "name": "TargetDeviceID",
                     "onChange": "",
-                    "validate": "",
                     "value": "EC:00:C8:01",
                     "visible": true,
                     "width": "300px",
-                    "regex": "^([0-9A-F]{2}:){3}[0-9A-F]{2}$"
+                    "validate": "^([0-9A-F]{2}:){3}[0-9A-F]{2}$"
                 },
                 {
                     "type": "Label",
