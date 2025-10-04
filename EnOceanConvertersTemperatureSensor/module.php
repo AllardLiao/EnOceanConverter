@@ -306,20 +306,11 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		$hex = strtoupper(implode(' ', array_map(fn($b) => sprintf('%02X', $b), $telegram)));
 		$this->SendDebug(__FUNCTION__, 'EEP=' . $targetEEP . ' Telegram: ' . $hex, 0);
 
-		// Binary und senden (DataID = DATAFLOW_TRANSMIT)
-		/*** $hexString = implode('', array_map(fn($b) => sprintf('%02X', $b), $telegram));
-		$binaryData = hex2bin($hexString);
-		if ($binaryData === false) {
-			$this->SendDebug(__FUNCTION__, 'hex2bin failed for: ' . $hexString, 0);
-			return;
-		}
-		$this->SendDebug(__FUNCTION__, 'RAW Hex=' . strtoupper(implode(' ', array_map(fn($b) => sprintf('%02X', $b), $telegram))), 0);
-		$this->SendDebug(__FUNCTION__, 'RAW Bin=' . bin2hex($binaryData), 0);
-		*/
-
 		// Telegram-Bytes in Binärstring packen
+		$this->SendDebug(__FUNCTION__, 'Telegram array: ' . implode(' ', array_map(fn($b)=>sprintf('%02X',$b), $telegram)), 0);
 		$binaryData = pack('C*', ...$telegram);
-
+		$this->SendDebug(__FUNCTION__, 'Binary length: ' . strlen($binaryData), 0);
+		
 		$this->SendDataToParent(json_encode([
 			"DataID" => GUIDs::DATAFLOW_TRANSMIT,
 			"Buffer" => base64_encode($binaryData)
