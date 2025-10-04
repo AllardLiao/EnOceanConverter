@@ -61,7 +61,7 @@
             "items": [
                 {
                     "type": "CheckBox",
-                    "caption": "Auto-detect EEP",
+                    "caption": "Auto-detect/-correct EEP",
                     "download": "",
                     "enabled": true,
                     "link": false,
@@ -133,10 +133,13 @@
             "value": "2",
             "visible": true,
             "width": "300px"
-        },
+        }
+
+    ],
+    "actions": [
         {
             "type": "CheckBox",
-            "caption": "Resend active",
+            "caption": "Activate resend of converted telegrams",
             "download": "",
             "enabled": true,
             "link": false,
@@ -147,6 +150,21 @@
             "width": ""
         }
     ],
-    "actions": [],
-    "status": []
+    "status": [
+        {
+            "code": 104,
+            "icon": "inactive",
+            "caption": "Module is inactive - converted telegrams will NOT be resent"
+        },
+        {
+            "code": 102,
+            "icon": "active",
+            "caption": "Module is active - converted telegrams will be resent"
+        },
+        {
+            "code": 200,
+            "icon": "error",
+            "caption": "Invalid configuration"
+        }
+    ]
 }
