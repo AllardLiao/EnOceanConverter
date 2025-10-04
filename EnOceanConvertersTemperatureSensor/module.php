@@ -106,6 +106,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 
     public function MessageSink($TimeStamp, $SenderID, $Message, $Data): void
     {
+		$this->SendDebug('MessageSink', 'SenderID: ' . $SenderID . ', Message: ' . $Message . ', Data: ' . print_r($Data, true), 0);
         if ($Message == VM_UPDATE) {
             // Wert aus der Quellinstanz holen
             $value = $Data[0];
