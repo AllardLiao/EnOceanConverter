@@ -20,4 +20,9 @@ declare(strict_types=1);
 			//Never delete this line!
 			parent::ApplyChanges();
 		}
+
+		private function resend(): bool
+		{
+			return true;
+		}
 	}
