@@ -120,6 +120,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 				$this->sendTeachInTelegram();
 				break;
 			case 'sendTestTelegram':
+				$this->SendDebug(__FUNCTION__, 'Send Test Telegram', 0);
 				$this->sendTestTelegram();
 				break;
             default:
