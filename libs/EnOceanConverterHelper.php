@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace EnOceanConverter;
 
-trait EEPConverter
+class EEPConverter
 {
     private const PROFILE_DATA = [
         EEPProfiles::A5_04_01 => ['minTemp' => 0, 'maxTemp' => 40, 'bitsTemp' => 8, 'minHum' => 0, 'maxHum' => 100, 'bitsHum' => 8],
