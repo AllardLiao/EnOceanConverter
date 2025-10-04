@@ -161,24 +161,24 @@
         {
             "type": "Button",
             "caption": "Send teach-in telegram",
+            "name": "SendTeachIn",
             "confirm": "",
             "download": "",
             "enabled": true,
             "link": false,
-            "name": "IPS_RequestAction($id,'SendTeachIn', true);",
-            "onClick": "",
+            "onClick": "IPS_RequestAction($id,'SendTeachIn', true);",
             "visible": true,
             "width": ""
         },
         {
             "type": "Button",
             "caption": "Send test telegram (t=18,7°C, h=78,1%)",
+            "name": "sendTestTelegram",
             "confirm": "",
             "download": "",
             "enabled": true,
             "link": false,
-            "name": "IPS_RequestAction($id,'sendTestTelegram', true);",
-            "onClick": "",
+            "onClick": "IPS_RequestAction($id,'sendTestTelegram', true);",
             "visible": true,
             "width": ""
         }
