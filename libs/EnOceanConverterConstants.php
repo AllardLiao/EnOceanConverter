@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace EnOceanConverter;
 
-class EEPProfiles
+trait EEPProfiles
 {
     // Temperature & Humidity Sensor Profiles (A5-04-xx)
 
