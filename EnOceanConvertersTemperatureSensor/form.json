@@ -48,23 +48,23 @@
                     "options": [
                         {
                             "caption": "A5-04-01 (PTM 215B)",
-                            "value": "1"
+                            "value": "A5-04-01"
                         },
                         {
                             "caption": "A5-04-02 (PTM 216B)",
-                            "value": "2"
+                            "value": "A5-04-02"
                         },
                         {
                             "caption": "A5-04-03 (PTM 217B)",
-                            "value": "3"
+                            "value": "A5-04-03"
                         },
                         {
                             "caption": "A5-04-04 (PTM 218B)",
-                            "value": "4"
+                            "value": "A5-04-04"
                         }
                     ],
                     "onChange": "",
-                    "value": "1",
+                    "value": "A5-04-01",
                     "visible": true,
                     "width": "300px"
                 },
