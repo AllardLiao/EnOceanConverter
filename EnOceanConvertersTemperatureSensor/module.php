@@ -112,8 +112,6 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 
     public function MessageSink($TimeStamp, $SenderID, $Message, $Data): void
     {
-		$this->SendDebug('MessageSink', 'SenderID: ' . $SenderID . ', Message: ' . $Message . ', Data: ' . print_r($Data, true), 0);
-		
 		$senderIdInt = (int)$SenderID;
 		$tempVarId   = (int)$this->GetBuffer('SourceVarTemp'); // vorher per SetBuffer gespeichert
 		$humVarId    = (int)$this->GetBuffer('SourceVarHum');
@@ -126,12 +124,12 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 			// unterscheiden: kommt Wert aus Temp- oder Humidity-Quelle?
 			if ($senderIdInt === $tempVarId) {
 				$this->SendDebug(__FUNCTION__, 'Temp update raw: ' . var_export($value, true), 0);
-				$this->SetValue('Temperature', $this->decodeTemperature($sourceProfile, (float)$value));
+				$this->SetValue('Temperature', (float)$value);
 			}
 			// Falls Update der Humidity-Variable
 			if ($senderIdInt === $humVarId) {
 				$this->SendDebug(__FUNCTION__, 'Hum update raw: ' . var_export($value, true), 0);
-				$this->SetValue('Humidity', $this->decodeHumidity($sourceProfile, (float)$value));
+				$this->SetValue('Humidity', (float)$value);
 			}
 
 			// Timer setzen (5 Sekunden warten, dann send)
