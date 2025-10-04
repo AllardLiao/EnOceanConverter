@@ -165,7 +165,19 @@
             "download": "",
             "enabled": true,
             "link": false,
-            "name": "SendTeachIn",
+            "name": "IPS_RequestAction($id,'SendTeachIn', true);",
+            "onClick": "",
+            "visible": true,
+            "width": ""
+        },
+        {
+            "type": "Button",
+            "caption": "Send test telegram (t=18,7°C, h=78,1%)",
+            "confirm": "",
+            "download": "",
+            "enabled": true,
+            "link": false,
+            "name": "IPS_RequestAction($id,'sendTestTelegram', true);",
             "onClick": "",
             "visible": true,
             "width": ""

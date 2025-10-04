@@ -116,10 +116,51 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 			case 'SendTelegramDelayed':
 				$this->SendTelegramDelayed();
 				break;
+			case 'SendTeachIn':
+				$this->sendTeachInTelegram();
+				break;
+			case 'sendTestTelegram':
+				$this->sendTestTelegram();
+				break;
             default:
                 parent::RequestAction($ident, $value);
         }
     }
+
+	/**
+	 * Sendet ein Test-Telegramm (Temp=20°C, Hum=50%)
+	 */
+	public function sendTestTelegram(): void
+	{
+		$targetProfile = $this->ReadPropertyString('TargetEEP');
+		$temp = 18.7;   // °C
+		$hum  = 78.1;   // %
+
+		$encodedTemp = $this->encodeTemperature($targetProfile, $temp);
+		$encodedHum  = $this->encodeHumidity($targetProfile, $hum);
+
+		$this->SendDebug(__FUNCTION__, sprintf('Temp=%d, Hum=%d', $encodedTemp, $encodedHum), 0);
+
+		$this->SendEnOceanTelegram($encodedTemp, $encodedHum);
+	}
+
+	/**
+	 * Sendet ein Teach-in-Telegramm
+	 */
+	public function sendTeachInTelegram(): void
+	{
+		// Teach-in Telegramme bei EnOcean werden je nach EEP anders codiert.
+		// Beispiel: wir senden ein "Teach-in Request" über den Client-Socket.
+		// RORG: F6, Data=0x00…0xFF je nach EEP (hier Dummy)
+		$teachInData = "F6 00 00 00 00 00 00 00"; // Dummy, anpassen nach EEP
+
+		$this->SendDebug('sendTeachInTelegram', 'Teach-in Data: ' . $teachInData, 0);
+
+		$this->SendDataToParent(json_encode([
+			'DataID' => "{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}", // TX GUID
+			'Buffer' => utf8_encode($teachInData),
+		]));
+	}
 
     public function MessageSink($TimeStamp, $SenderID, $Message, $Data): void
     {
