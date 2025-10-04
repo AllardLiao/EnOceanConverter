@@ -35,6 +35,11 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		$this->RegisterPropertyBoolean("ResendActive", false);
 		$this->RegisterPropertyString("TargetDeviceID", "EC-00-A5-01");
 
+		$this->MaintainVariable("Temperature", "Temperatur", VARIABLETYPE_FLOAT, "~Temperature", 1, true);
+		$this->SetValue("Temperature", 0.0);
+		$this->MaintainVariable('Humidity', 'Luftfeuchtigkeit', VARIABLETYPE_FLOAT, '~Humidity.F', 2, true);
+		$this->SetValue('Humidity', 0.0);
+
 		$this->SetStatus(104);
 	}
 
@@ -59,10 +64,10 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 			foreach ($variables as $vid) {
 				$vinfo = IPS_GetVariable($vid);
 				// z.B. nach Profil erkennen
-				if ($vinfo['VariableProfile'] === '~EEP_A50403_TMP' || $vinfo['VariableProfile'] === '~EEP_A50402_TMP' || $vinfo['VariableProfile'] === '~EEP_A50401_TMP' || $vinfo['VariableProfile'] === 'Temperature') {
+				if ($vinfo['VariableProfile'] === '~EEP_A50403_TMP' || $vinfo['VariableProfile'] === '~EEP_A50402_TMP' || $vinfo['VariableProfile'] === '~EEP_A50401_TMP' || $vinfo['VariableProfile'] === '~Temperature') {
 					$this->SetBuffer('SourceVarTemp', (string)$vid);
 				}
-				if ($vinfo['VariableProfile'] === '~EEP_A50403_HUM' || $vinfo['VariableProfile'] === '~EEP_A50402_HUM' || $vinfo['VariableProfile'] === '~EEP_A50401_HUM' || $vinfo['VariableProfile'] === 'Humidity') {
+				if ($vinfo['VariableProfile'] === '~EEP_A50403_HUM' || $vinfo['VariableProfile'] === '~EEP_A50402_HUM' || $vinfo['VariableProfile'] === '~EEP_A50401_HUM' || $vinfo['VariableProfile'] === '~Humidity.F' || $vinfo['VariableProfile'] === '~Humidity') {
 					$this->SetBuffer('SourceVarHum', (string)$vid);
 				}
 			}
@@ -107,19 +112,23 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
     public function MessageSink($TimeStamp, $SenderID, $Message, $Data): void
     {
 		$this->SendDebug('MessageSink', 'SenderID: ' . $SenderID . ', Message: ' . $Message . ', Data: ' . print_r($Data, true), 0);
-        if ($Message == VM_UPDATE) {
-            // Wert aus der Quellinstanz holen
-            $value = $Data[0];
+		
+		if ($Message == VM_UPDATE) {
+			$value = $Data[0];
 
-            $sourceProfile = $this->ReadPropertyString('SourceEEP');
-            $targetProfile = $this->ReadPropertyString('TargetEEP');
+			$sourceProfile = $this->ReadPropertyString('SourceEEP');
 
-            // Konvertierung je nach Typ
-            $convertedTemp = $this->encodeTemperature($targetProfile, $this->decodeTemperature($sourceProfile, (float)$value));
-            $convertedHum  = $this->encodeHumidity($targetProfile, $this->decodeHumidity($sourceProfile, (float)$value));
+			// unterscheiden: kommt Wert aus Temp- oder Humidity-Quelle?
+			if ($SenderID == $this->GetBuffer('SourceVarTemp')) {
+				$this->SetValue('Temperature', $this->decodeTemperature($sourceProfile, (float)$value));
+			}
+			if ($SenderID == $this->GetBuffer('SourceVarHum')) {
+				$this->SetValue('Humidity', $this->decodeHumidity($sourceProfile, (float)$value));
+			}
 
-            $this->SendEnOceanTelegram($convertedTemp, $convertedHum);
-        }
+			// Timer setzen (5 Sekunden warten, dann send)
+			$this->SetTimerInterval('SendDelayed', 5000);
+		}
     }
 
 	private function sendEnOceanTelegram(float $temp, float $hum): void
