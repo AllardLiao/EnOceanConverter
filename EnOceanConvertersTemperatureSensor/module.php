@@ -190,7 +190,6 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 
 		$temp = $this->GetValue('Temperature');
 		$hum  = $this->GetValue('Humidity');
-		$targetProfile = $this->ReadPropertyString('TargetEEP');
 		$this->SendDebug(__FUNCTION__, 'Timestamps: temp=' . $temp . ', hum=' . $hum, 0);
 
 		// Senden (deine vorhandene Funktion)
@@ -216,7 +215,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		}
 
 		$targetEEP  = $this->ReadPropertyString('TargetEEP');
-		$deviceID   = $this->ReadPropertyString('TargetDeviceID'); // z. B. "EC-00-A5-01" oder "EC00A501"
+		$deviceID   = $this->ReadPropertyString('TargetDeviceID'); // z. B. "EC:00:A5:01" oder "EC00A501"
 
 		// -> benutze die vorhandenen encode-Funktionen, um die RAW-Integer zu bekommen
 		try {
