@@ -112,6 +112,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 
     public function RequestAction(string $ident, mixed $value): void
     {
+		$this->SendDebug(__FUNCTION__, 'RequestAction: ' . $ident . ' → ' . print_r($value, true), 0);
         switch($ident) {
 			case 'SendTelegramDelayed':
 				$this->SendTelegramDelayed();
