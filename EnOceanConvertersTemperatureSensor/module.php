@@ -138,12 +138,9 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		$temp = 18.7;   // °C
 		$hum  = 78.1;   // %
 
-		$encodedTemp = $this->encodeTemperature($targetProfile, $temp);
-		$encodedHum  = $this->encodeHumidity($targetProfile, $hum);
+		$this->SendDebug(__FUNCTION__, sprintf('Temp=%d, Hum=%d', $temp, $hum), 0);
 
-		$this->SendDebug(__FUNCTION__, sprintf('Temp=%d, Hum=%d', $encodedTemp, $encodedHum), 0);
-
-		$this->SendEnOceanTelegram($encodedTemp, $encodedHum);
+		$this->SendEnOceanTelegram($temp, $hum);
 	}
 
 	/**
@@ -215,7 +212,123 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		return false;
 	}
 
+	// SendEnOceanTelegram: sanitizing device id + sauberes Packing mit encode*-Funktionen
 	private function SendEnOceanTelegram(float $temperature, float $humidity): void
+	{
+		if (!$this->isSocketActive()) {
+			$this->SendDebug(__FUNCTION__, 'Socket nicht verbunden oder nicht aktiv - Telegramm nicht gesendet.', 0);
+			return;
+		}
+
+		$targetEEP  = $this->ReadPropertyString('TargetEEP');
+		$deviceID   = $this->ReadPropertyString('TargetDeviceID'); // z. B. "EC-00-A5-01" oder "EC00A501"
+
+		// -> benutze die vorhandenen encode-Funktionen, um die RAW-Integer zu bekommen
+		try {
+			$rawTemp = $this->encodeTemperature($targetEEP, $temperature); // z.B. 0..255 oder 0..1023 oder 0..4095
+			$rawHum  = $this->encodeHumidity($targetEEP, $humidity);       // z.B. 0..255 oder 0..127
+		} catch (\Exception $e) {
+			$this->SendDebug(__FUNCTION__, 'Encode Fehler: ' . $e->getMessage(), 0);
+			return;
+		}
+
+		// Default DBs
+		$DB0 = 0x08; // Status-Byte (wie vorher)
+		$DB1 = 0;
+		$DB2 = 0;
+		$DB3 = 0;
+
+		switch ($targetEEP) {
+			case EEPProfiles::A5_04_01: // 8 Bit Temp, 8 Bit Hum
+			case EEPProfiles::A5_04_02: // 8 Bit Temp, 8 Bit Hum
+				$DB3 = ((int)$rawTemp) & 0xFF;
+				$DB2 = ((int)$rawHum) & 0xFF;
+				break;
+
+			case EEPProfiles::A5_04_03: // 10 Bit Temp, 7 Bit Hum
+				$rawTempFull = (int)$rawTemp; // 0..1023
+				$rawHum7     = (int)$rawHum;  // 0..127
+
+				$DB3 = $rawTempFull & 0xFF;                // low 8 bits
+				$upper2 = ($rawTempFull >> 8) & 0x03;      // upper 2 bits (0..3)
+
+				// DB2: bits 0..6 = humidity (7 bit), bits 7..6 = upper2  -> shift left by 6
+				$DB2 = ($rawHum7 & 0x7F) | (($upper2 & 0x03) << 6);
+				break;
+
+			case EEPProfiles::A5_04_04: // 12 Bit Temp, 8 Bit Hum
+				$rawTemp12 = (int)$rawTemp; // 0..4095
+				$DB3 = $rawTemp12 & 0xFF;            // lower 8 bit
+				$DB2 = ((int)$rawHum) & 0xFF;        // humidity full 8 bit
+				$DB1 = ($rawTemp12 >> 8) & 0x0F;     // upper 4 bit of 12-bit temp into DB1
+				break;
+
+			default:
+				$this->SendDebug(__FUNCTION__, 'Unknown TargetEEP: ' . $targetEEP, 0);
+				return;
+		}
+
+		// Device ID: robust parsen (alle non-hex löschen, dann in 2er-chunks splitten)
+		$clean = preg_replace('/[^0-9A-Fa-f]/', '', (string)$deviceID);
+		if ($clean === '') {
+			$this->SendDebug(__FUNCTION__, 'DeviceID leer oder nicht hex: ' . $deviceID, 0);
+			return;
+		}
+		// evtl. führende 0 ergänzen, falls ungerade Anzahl Ziffern
+		if (strlen($clean) % 2 !== 0) {
+			$clean = '0' . $clean;
+		}
+		$chunks = str_split($clean, 2);
+		$idBytes = array_map('hexdec', $chunks);
+
+		// Wir brauchen genau 4 Bytes: wenn mehr -> rechte (letzte) 4, wenn weniger -> links mit 0 auffüllen
+		if (count($idBytes) > 4) {
+			$idBytes = array_slice($idBytes, -4);
+		}
+		while (count($idBytes) < 4) {
+			array_unshift($idBytes, 0x00);
+		}
+
+		// Data Block (ERP1 4BS): RORG + DB3..DB0 + Sender-ID(4) + Status
+		$data = [
+			0xA5, // RORG 4BS
+			(int)$DB3, (int)$DB2, (int)$DB1, (int)$DB0,
+			(int)$idBytes[0], (int)$idBytes[1], (int)$idBytes[2], (int)$idBytes[3],
+			0x00 // status
+		];
+
+		// OptData
+		$optData = [0x01, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00];
+
+		// Header
+		$header = [0x00, count($data), count($optData), 0x01]; // 0x01 = Radio ERP1
+		$headerCRC8 = CRC8::crc8($header);
+
+		// Telegram zusammensetzen
+		$telegram = array_merge([0x55], $header, [$headerCRC8], $data, $optData);
+		$telegram[] = CRC8::crc8(array_merge($data, $optData));
+
+		// Debug hex
+		$hex = strtoupper(implode(' ', array_map(fn($b) => sprintf('%02X', $b), $telegram)));
+		$this->SendDebug(__FUNCTION__, 'EEP=' . $targetEEP . ' Telegram: ' . $hex, 0);
+
+		// Binary und senden (DataID = DATAFLOW_TRANSMIT)
+		$hexString = implode('', array_map(fn($b) => sprintf('%02X', $b), $telegram));
+		$binaryData = hex2bin($hexString);
+		if ($binaryData === false) {
+			$this->SendDebug(__FUNCTION__, 'hex2bin failed for: ' . $hexString, 0);
+			return;
+		}
+
+		$this->SendDataToParent(json_encode([
+			"DataID" => GUIDs::DATAFLOW_TRANSMIT,
+			"Buffer" => $binaryData
+		]));
+
+		$this->SendDebug(__FUNCTION__, 'Sent raw binary, hex: ' . $hex, 0);
+	}
+
+	private function SendEnOceanTelegramOLD(float $temperature, float $humidity): void
 	{
 		if (!$this->isSocketActive()) {
 			$this->SendDebug(__FUNCTION__, 'Socket nicht verbunden oder nicht aktiv - Telegramm nicht gesendet.', 0);
