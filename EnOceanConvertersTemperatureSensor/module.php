@@ -114,16 +114,24 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
     {
 		$this->SendDebug('MessageSink', 'SenderID: ' . $SenderID . ', Message: ' . $Message . ', Data: ' . print_r($Data, true), 0);
 		
+		$senderIdInt = (int)$SenderID;
+		$tempVarId   = (int)$this->GetBuffer('SourceVarTemp'); // vorher per SetBuffer gespeichert
+		$humVarId    = (int)$this->GetBuffer('SourceVarHum');
+		$this->SendDebug(__FUNCTION__, "sender={$senderIdInt}, tempVar={$tempVarId}, humVar={$humVarId}", 0);
+
 		if ($Message == VM_UPDATE) {
 			$value = $Data[0];
 
 			$sourceProfile = $this->ReadPropertyString('SourceEEP');
 			$this->SendDebug(__FUNCTION__, "Senders: $SenderID and " . $this->GetBuffer('SourceVarTemp') . " / " . $this->GetBuffer('SourceVarHum'), 0);
 			// unterscheiden: kommt Wert aus Temp- oder Humidity-Quelle?
-			if ($SenderID == $this->GetBuffer('SourceVarTemp')) {
+			if ($senderIdInt === $tempVarId) {
+				$this->SendDebug(__FUNCTION__, 'Temp update raw: ' . var_export($value, true), 0);
 				$this->SetValue('Temperature', $this->decodeTemperature($sourceProfile, (float)$value));
 			}
-			if ($SenderID == $this->GetBuffer('SourceVarHum')) {
+			// Falls Update der Humidity-Variable
+			if ($senderIdInt === $humVarId) {
+				$this->SendDebug(__FUNCTION__, 'Hum update raw: ' . var_export($value, true), 0);
 				$this->SetValue('Humidity', $this->decodeHumidity($sourceProfile, (float)$value));
 			}
 
