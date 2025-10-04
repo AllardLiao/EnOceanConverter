@@ -1,0 +1,12 @@
+{
+    "id": "{63647422-FE17-88E4-252A-402E8E58C4AD}",
+    "name": "EnOcean Converter",
+    "author": "Kai J. Oey",
+    "url": "https://github.com/AllardLiao/EnOceanConverter",
+    "compatibility": {
+        "version": "7.1"
+    },
+    "version": "0.1",
+    "build": 0,
+    "date": 0
+}

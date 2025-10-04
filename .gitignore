@@ -1,0 +1,24 @@
+# Node / NPM
+node_modules/
+npm-debug.log
+
+# VSCode & traits
+.vscode/
+.style/
+.ips_stubs/
+
+# PHP / Logs
+*.log
+
+# Mac Files
+.DS_Store
+
+# Temporary files
+*.tmp
+temp
+
+# Deprecated files
+
+
+# Others
+claude.tar.gz
