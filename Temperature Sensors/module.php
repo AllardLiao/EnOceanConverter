@@ -13,6 +13,7 @@ declare(strict_types=1);
 			$this->RegisterPropertyInteger("SourceDevice", 0);
 			$this->RegisterPropertyString("TargetEEP", "2");
 			$this->RegisterPropertyBoolean("ResendActive", false);
+			$this->RegisterPropertyString("TargetDeviceID", "EC-00-A5-01");
 		}
 
 		public function Destroy():void

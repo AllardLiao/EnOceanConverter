@@ -112,8 +112,19 @@
             "value": "2",
             "visible": true,
             "width": "300px"
+        },
+        {
+            "type": "ValidationTextBox",
+            "caption": "Target Device ID",
+            "enabled": true,
+            "multiline": false,
+            "name": "TargetDeviceID",
+            "onChange": "",
+            "validate": "",
+            "value": "EC-00-A5-01",
+            "visible": true,
+            "width": "300px"
         }
-
     ],
     "actions": [
         {
