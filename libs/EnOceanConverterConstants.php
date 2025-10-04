@@ -9,7 +9,7 @@ class GUIDs
     // Gemeinsame DataFlow-GUID für Gateway <-> Child
     public const PARENT               = '{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}';  // Client Socket
     public const DATAFLOW_RECEIVE     = '{018EF6B5-AB94-40C6-AA53-46943E824ACF}';  // RX
-    public const DATAFLOW_TRANSMIT    = '{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}';  // TX
+    public const DATAFLOW_TRANSMIT    = '{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}';  // TX {79827379-F36E-4ADA-8A95-5F8D1DC92FA9}
     // --- Modul GUIDs (Instanzen) ---
     public const EC_LIBRARY           = '{63647422-FE17-88E4-252A-402E8E58C4AD}';
     public const EC_TEMPERATUR        = '{029B9532-A614-BBC3-B9D6-904F648DC5F1}';
