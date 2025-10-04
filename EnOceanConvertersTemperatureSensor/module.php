@@ -34,12 +34,14 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		$this->SetBuffer("SourceVarHum", "0");
 		$this->RegisterPropertyString("TargetEEP", "2");
 		$this->RegisterPropertyBoolean("ResendActive", false);
-		$this->RegisterPropertyString("TargetDeviceID", "EC-00-A5-01");
+		$this->RegisterPropertyString("TargetDeviceID", "EC:00:C8:01");
 
 		$this->MaintainVariable("Temperature", "Temperatur", VARIABLETYPE_FLOAT, "~Temperature", 1, true);
 		$this->SetValue("Temperature", 0.0);
 		$this->MaintainVariable('Humidity', 'Luftfeuchtigkeit', VARIABLETYPE_FLOAT, '~Humidity.F', 2, true);
 		$this->SetValue('Humidity', 0.0);
+        // Timer für verzögertes Senden (5s nach letztem Update)
+		$this->RegisterTimer("ECTSSendDelayed" . $this->InstanceID, 5 * 1000, 'IPS_RequestAction(' . $this->InstanceID . ', "SendTelegramDelayed", true);');
 
 		$this->SetStatus(104);
 	}
@@ -115,40 +117,40 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		$senderIdInt = (int)$SenderID;
 		$tempVarId   = (int)$this->GetBuffer('SourceVarTemp'); // vorher per SetBuffer gespeichert
 		$humVarId    = (int)$this->GetBuffer('SourceVarHum');
-		$this->SendDebug(__FUNCTION__, "sender={$senderIdInt}, tempVar={$tempVarId}, humVar={$humVarId}, DATA-0: " . print_r($Data[0], true), 0);
-
+		$this->SendDebug(__FUNCTION__, "sender={$senderIdInt} (tempVar={$tempVarId}, humVar={$humVarId}) with DATA-0: " . print_r($Data[0], true), 0);
+		// Save received values in own variables
 		if ($Message == VM_UPDATE) {
 			$value = $Data[0];
-
 			$sourceProfile = $this->ReadPropertyString('SourceEEP');
 			// unterscheiden: kommt Wert aus Temp- oder Humidity-Quelle?
 			if ($senderIdInt === $tempVarId) {
-				$this->SendDebug(__FUNCTION__, 'Temp update raw: ' . var_export($value, true), 0);
 				$this->SetValue('Temperature', (float)$value);
 			}
 			// Falls Update der Humidity-Variable
 			if ($senderIdInt === $humVarId) {
-				$this->SendDebug(__FUNCTION__, 'Hum update raw: ' . var_export($value, true), 0);
 				$this->SetValue('Humidity', (float)$value);
 			}
-
 			// Timer setzen (5 Sekunden warten, dann send)
-			//$this->SetTimerInterval('SendDelayed', 5000);
+            $this->SetTimerInterval("ECTSSendDelayed" . $this->InstanceID, 5 * 1000);
 		}
     }
 
-	public function SendDelayed()
+	public function SendTelegramDelayed()
 	{
-		$this->SetTimerInterval('SendDelayed', 0); // Timer wieder stoppen
+		$this->SetTimerInterval("ECTSSendDelayed" . $this->InstanceID, 0); // Timer wieder stoppen
 
 		$temp = $this->GetValue('Temperature');
 		$hum  = $this->GetValue('Humidity');
 		$targetProfile = $this->ReadPropertyString('TargetEEP');
+		$this->SendDebug(__FUNCTION__, 'Timestamps: temp=' . $temp . ', hum=' . $hum, 0);
 
-		$convertedTemp = $this->encodeTemperature($targetProfile, $temp);
-		$convertedHum  = $this->encodeHumidity($targetProfile, $hum);
+		// EnOcean-encoding für Target-Profil
+		$encodedTemp = $this->encodeTemperature($targetProfile, (float)$temp);
+		$encodedHum  = $this->encodeHumidity($targetProfile, (float)$hum);
+		$this->SendDebug(__FUNCTION__, sprintf('Encoded: temp=%d, hum=%d', $encodedTemp, $encodedHum), 0);
 
-		$this->SendEnOceanTelegram($convertedTemp, $convertedHum);
+		// Senden (deine vorhandene Funktion)
+		$this->SendEnOceanTelegram($encodedTemp, $encodedHum);
 	}
 
 	private function isSocketActive(): bool
@@ -169,12 +171,12 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		}
 
 		$targetEEP  = $this->ReadPropertyString('TargetEEP');
-		$deviceID   = $this->ReadPropertyString('TargetDeviceID'); // z. B. "EC-00-A5-01"
+		$deviceID   = $this->ReadPropertyString('TargetDeviceID'); // z. B. "EC00A501"
 
-		$DB3 = 0; // Temperature
-		$DB2 = 0; // Humidity
-		$DB1 = 0; // Reserved
-		$DB0 = 0x08; // Learnbit/T21/NU Default
+		$DB3 = 0;
+		$DB2 = 0;
+		$DB1 = 0;
+		$DB0 = 0x08;
 
 		switch ($targetEEP) {
 			case EEPProfiles::A5_04_01: // 8 Bit Temp (0–40°C), 8 Bit Hum (0–100%)
@@ -207,7 +209,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		}
 
 		// Device ID in Bytes
-		$idBytes = array_map('hexdec', explode('-', str_replace('EC-', '', $deviceID)));
+		$idBytes = array_map('hexdec', explode(':', $deviceID));
 		while (count($idBytes) < 4) {
 			array_unshift($idBytes, 0x00);
 		}
@@ -299,7 +301,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		return $sendText;
 	}
 
-	function decodeTemperature($profile, $raw) {
+	function decodeTemperature(string $profile, $raw): float {
 		switch($profile) {
 			case EEPProfiles::A5_04_01: // 8 Bit, 0…40°C
 				return 0 + (40 - 0) * ($raw / 255);
@@ -314,7 +316,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		}
 	}
 
-	function decodeHumidity($profile, $raw) {
+	function decodeHumidity(string $profile, $raw): float {
 		switch($profile) {
 			case EEPProfiles::A5_04_01:
 			case EEPProfiles::A5_04_02:
@@ -327,7 +329,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		}
 	}
 
-	function encodeTemperature($profile, float $temperature): int {
+	function encodeTemperature(string $profile, float $temperature): int {
 		switch ($profile) {
 			case EEPProfiles::A5_04_01:
 				return (int)round(($temperature - 0) * 255 / 40);
@@ -338,11 +340,11 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 			case EEPProfiles::A5_04_04:
 				return (int)round(($temperature + 40) * 4095 / 160);
 			default:
-				throw new \Exception("Unbekanntes Profil: $profile");
+				throw new \Exception("Unbekanntes EEP Profil: $profile");
 		}
 	}
 
-	function encodeHumidity($profile, float $humidity): int {
+	function encodeHumidity(string $profile, float $humidity): int {
 		switch ($profile) {
 			case EEPProfiles::A5_04_01:
 			case EEPProfiles::A5_04_02:
@@ -351,7 +353,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 			case EEPProfiles::A5_04_03:
 				return (int)round($humidity * 127 / 100);
 			default:
-				throw new \Exception("Unbekanntes Profil: $profile");
+				throw new \Exception("Unbekanntes EEP Profil: $profile");
 		}
 	}
 }

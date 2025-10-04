@@ -9,7 +9,7 @@
         },
         {
             "type": "Label",
-            "caption": "It supports the following devices as source\n- A5-04-01 (PTM 215B)\n- A5-04-02 (PTM 216B)\n- A5-04-03 (PTM 217B)",
+            "caption": "It supports the following EEP as source\n- A5-04-01 (PTM 215B)\n- A5-04-02 (PTM 216B)\n- A5-04-03 (PTM 217B)",
             "width": 0,
             "height": 0,
             "align": "left"
@@ -95,7 +95,7 @@
                     "name": "TargetDeviceID",
                     "onChange": "",
                     "validate": "",
-                    "value": "EC00A501",
+                    "value": "EC:00:C8:01",
                     "visible": true,
                     "width": "300px"
                 },
