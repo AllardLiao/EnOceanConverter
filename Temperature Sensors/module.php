@@ -11,7 +11,7 @@ if (substr(__DIR__,0, 10) == "/Users/kai") {
 }
 
 // Make sure IPS is available in the current namespace
-use IPSModuleStrict;
+//use IPSModuleStrict;
 
 /**
  * Include Controme helper classes.
