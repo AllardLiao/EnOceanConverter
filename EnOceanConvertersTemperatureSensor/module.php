@@ -37,9 +37,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		$this->RegisterPropertyString("TargetDeviceID", "EC:00:C8:01");
 
 		$this->MaintainVariable("Temperature", "Temperatur", VARIABLETYPE_FLOAT, "~Temperature", 1, true);
-		$this->SetValue("Temperature", 0.0);
 		$this->MaintainVariable('Humidity', 'Luftfeuchtigkeit', VARIABLETYPE_FLOAT, '~Humidity.F', 2, true);
-		$this->SetValue('Humidity', 0.0);
         // Timer für verzögertes Senden (2s nach letztem Update)
 		$this->RegisterTimer("ECTSSendDelayed" . $this->InstanceID, 2 * 1000, 'IPS_RequestAction(' . $this->InstanceID . ', "SendTelegramDelayed", true);');
 
