@@ -59,11 +59,10 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 			foreach ($variables as $vid) {
 				$vinfo = IPS_GetVariable($vid);
 				// z.B. nach Profil erkennen
-				$this->SendDebug(__FUNCTION__, "var-check: " . print_r($vinfo, true), 0);
-				if ($vinfo['VariableProfile'] === 'Temperature') {
+				if ($vinfo['VariableProfile'] === '~EEP_A50403_TMP' || $vinfo['VariableProfile'] === '~EEP_A50402_TMP' || $vinfo['VariableProfile'] === '~EEP_A50401_TMP' || $vinfo['VariableProfile'] === 'Temperature') {
 					$this->SetBuffer('SourceVarTemp', (string)$vid);
 				}
-				if ($vinfo['VariableProfile'] === 'Humidity') {
+				if ($vinfo['VariableProfile'] === '~EEP_A50403_HUM' || $vinfo['VariableProfile'] === '~EEP_A50402_HUM' || $vinfo['VariableProfile'] === '~EEP_A50401_HUM' || $vinfo['VariableProfile'] === 'Humidity') {
 					$this->SetBuffer('SourceVarHum', (string)$vid);
 				}
 			}
