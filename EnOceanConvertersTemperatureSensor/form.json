@@ -84,6 +84,37 @@
             "visible": true
         },
         {
+            "type": "RowLayout",
+            "name": "Target",
+            "items": [
+                {
+                    "type": "ValidationTextBox",
+                    "caption": "Simulated Device ID",
+                    "enabled": true,
+                    "multiline": false,
+                    "name": "TargetDeviceID",
+                    "onChange": "",
+                    "validate": "",
+                    "value": "EC00A501",
+                    "visible": true,
+                    "width": "300px"
+                },
+                {
+                    "type": "Label",
+                    "bold": false,
+                    "caption": "You can choose a hex id of your choice. Only take care, that the id is unique in your setup!",
+                    "color": 0,
+                    "italic": false,
+                    "link": true,
+                    "name": "",
+                    "underline": false,
+                    "visible": true,
+                    "width": ""
+                }
+            ],
+            "visible": true
+        },
+        {
             "type": "Select",
             "caption": "Target EEP",
             "download": "",
@@ -112,37 +143,6 @@
             "value": "2",
             "visible": true,
             "width": "300px"
-        },
-        {
-            "type": "RowLayout",
-            "name": "Target",
-            "items": [
-                {
-                    "type": "ValidationTextBox",
-                    "caption": "Target Device ID",
-                    "enabled": true,
-                    "multiline": false,
-                    "name": "TargetDeviceID",
-                    "onChange": "",
-                    "validate": "",
-                    "value": "EC-00-A5-01",
-                    "visible": true,
-                    "width": "300px"
-                },
-                {
-                    "type": "Label",
-                    "bold": false,
-                    "caption": "You can choose a hex id of your choice. Only take care, that the id is unique in your setup!",
-                    "color": 0,
-                    "italic": false,
-                    "link": true,
-                    "name": "",
-                    "underline": false,
-                    "visible": true,
-                    "width": ""
-                }
-            ],
-            "visible": true
         },
         {
             "type": "CheckBox",
