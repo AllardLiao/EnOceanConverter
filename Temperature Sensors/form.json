@@ -72,17 +72,35 @@
                     "width": ""
                 },
                 {
-                    "type": "ValidationTextBox",
+                    "type": "Select",
                     "caption": "Source EEP",
+                    "download": "",
                     "enabled": true,
-                    "multiline": false,
-                    "name": "SourceEEPManual",
+                    "link": false,
+                    "name": "SourceEEP",
+                    "options": [
+                        {
+                            "caption": "A5-04-01 (PTM 215B)",
+                            "value": "1"
+                        },
+                        {
+                            "caption": "A5-04-02 (PTM 216B)",
+                            "value": "2"
+                        },
+                        {
+                            "caption": "A5-04-03 (PTM 217B)",
+                            "value": "3"
+                        },
+                        {
+                            "caption": "A5-04-04 (PTM 218B)",
+                            "value": "4"
+                        }
+                    ],
                     "onChange": "",
-                    "validate": "",
-                    "value": "A5-04-01",
+                    "value": "1",
                     "visible": true,
                     "width": "300px"
-                }
+                },
             ],
             "visible": true
         },
@@ -112,7 +130,7 @@
                 }
             ],
             "onChange": "",
-            "value": "",
+            "value": "2",
             "visible": true,
             "width": "300px"
         },
