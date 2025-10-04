@@ -316,7 +316,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 
 		$this->SendDataToParent(json_encode([
 			"DataID" => GUIDs::DATAFLOW_TRANSMIT,
-			"Buffer" => utf8_encode($binaryData)
+			"Buffer" => base64_encode($binaryData)
 		]));
 
 		$this->SendDebug(__FUNCTION__, 'Sent raw binary, hex: ' . $hex, 0);
