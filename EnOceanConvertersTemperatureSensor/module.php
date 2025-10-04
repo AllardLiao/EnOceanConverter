@@ -55,7 +55,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
         $sourceID = $this->ReadPropertyInteger('SourceDevice');
 
 		if ($sourceID > 0) {
-			$variables = IPS_GetVariableList($sourceID);
+			$variables = IPS_GetChildrenIDs($sourceID);
 			foreach ($variables as $vid) {
 				$vinfo = IPS_GetVariable($vid);
 				// z.B. nach Profil erkennen
