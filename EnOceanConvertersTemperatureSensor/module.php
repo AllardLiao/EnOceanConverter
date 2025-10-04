@@ -40,8 +40,8 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		$this->SetValue("Temperature", 0.0);
 		$this->MaintainVariable('Humidity', 'Luftfeuchtigkeit', VARIABLETYPE_FLOAT, '~Humidity.F', 2, true);
 		$this->SetValue('Humidity', 0.0);
-        // Timer für verzögertes Senden (5s nach letztem Update)
-		$this->RegisterTimer("ECTSSendDelayed" . $this->InstanceID, 5 * 1000, 'IPS_RequestAction(' . $this->InstanceID . ', "SendTelegramDelayed", true);');
+        // Timer für verzögertes Senden (2s nach letztem Update)
+		$this->RegisterTimer("ECTSSendDelayed" . $this->InstanceID, 2 * 1000, 'IPS_RequestAction(' . $this->InstanceID . ', "SendTelegramDelayed", true);');
 
 		$this->SetStatus(104);
 	}
@@ -112,6 +112,17 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		$this->SetStatus($status);
 	}
 
+    public function RequestAction(string $ident, mixed $value): void
+    {
+        switch($ident) {
+			case 'SendTelegramDelayed':
+				$this->SendTelegramDelayed();
+				break;
+            default:
+                parent::RequestAction($ident, $value);
+        }
+    }
+
     public function MessageSink($TimeStamp, $SenderID, $Message, $Data): void
     {
 		$senderIdInt = (int)$SenderID;
@@ -131,7 +142,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 				$this->SetValue('Humidity', (float)$value);
 			}
 			// Timer setzen (5 Sekunden warten, dann send)
-            $this->SetTimerInterval("ECTSSendDelayed" . $this->InstanceID, 5 * 1000);
+            $this->SetTimerInterval("ECTSSendDelayed" . $this->InstanceID, 2 * 1000);
 		}
     }
 
