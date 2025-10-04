@@ -132,7 +132,7 @@
                 {
                     "type": "Label",
                     "bold": false,
-                    "caption": "You can choose a hex id of your choice. Only take care, that the set id is unique in your setup!",
+                    "caption": "You can choose a hex id of your choice. Only take care, that the id is unique in your setup!",
                     "color": 0,
                     "italic": false,
                     "link": true,
@@ -143,9 +143,7 @@
                 }
             ],
             "visible": true
-        }
-    ],
-    "actions": [
+        },
         {
             "type": "CheckBox",
             "caption": "Activate resend of converted telegrams",
@@ -155,6 +153,20 @@
             "name": "ResendActive",
             "onChange": "",
             "value": false,
+            "visible": true,
+            "width": ""
+        }
+    ],
+    "actions": [
+        {
+            "type": "Button",
+            "caption": "Send teach-in telegram",
+            "confirm": "",
+            "download": "",
+            "enabled": true,
+            "link": false,
+            "name": "SendTeachIn",
+            "onClick": "",
             "visible": true,
             "width": ""
         }
