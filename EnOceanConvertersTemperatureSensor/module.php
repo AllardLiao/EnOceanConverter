@@ -21,7 +21,6 @@ require_once __DIR__ . '/../libs/EnOceanConverterHelper.php';
 
 class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 {
-	//use EEPProfiles;
 	use EEPConverter;
 
 	public function Create():void
