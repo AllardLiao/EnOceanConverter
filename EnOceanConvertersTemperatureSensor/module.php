@@ -157,7 +157,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		$this->SendDebug('sendTeachInTelegram', 'Teach-in Data: ' . $teachInData, 0);
 
 		$this->SendDataToParent(json_encode([
-			'DataID' => "{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}", // TX GUID
+			'DataID' => GUIDs::DATAFLOW_TRANSMIT, // TX GUID
 			'Buffer' => utf8_encode($teachInData),
 		]));
 	}
