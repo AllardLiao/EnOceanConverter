@@ -11,7 +11,7 @@ if (substr(__DIR__,0, 10) == "/Users/kai") {
 }
 
 // Make sure IPS is available in the current namespace
-use IPSModuleStrict;
+//use IPSModuleStrict;
 
 /**
  * Include Controme helper classes.
@@ -21,8 +21,6 @@ require_once __DIR__ . '/../libs/EnOceanConverterHelper.php';
 
 class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 {
-	use EEPConverter;
-
 	public function Create():void
 	{
 		//Never delete this line!
