@@ -3,7 +3,7 @@
     "name": "EnOceanConvertersTemperatureSensor",
     "type": 3,
     "vendor": "EnOcean",
-    "aliases": [],
+    "aliases": ["EnOcean Converter Temperature Sensor"],
     "parentRequirements": [],
     "childRequirements": [],
     "implemented": [],
