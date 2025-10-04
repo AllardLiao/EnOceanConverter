@@ -1,7 +1,7 @@
 <?php
 
 declare(strict_types=1);
-	class EnOceanConverters extends IPSModuleStrict
+	class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 	{
 		public function Create():void
 		{
