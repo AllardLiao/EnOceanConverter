@@ -131,6 +131,20 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		}
     }
 
+	public function SendDelayed()
+	{
+		$this->SetTimerInterval('SendDelayed', 0); // Timer wieder stoppen
+
+		$temp = $this->GetValue('Temperature');
+		$hum  = $this->GetValue('Humidity');
+		$targetProfile = $this->ReadPropertyString('TargetEEP');
+
+		$convertedTemp = $this->encodeTemperature($targetProfile, $temp);
+		$convertedHum  = $this->encodeHumidity($targetProfile, $hum);
+
+		$this->SendEnOceanTelegram($convertedTemp, $convertedHum);
+	}
+
 	private function sendEnOceanTelegram(float $temp, float $hum): void
 	{
 		if (!$this->ReadPropertyBoolean('ResendActive')) {
