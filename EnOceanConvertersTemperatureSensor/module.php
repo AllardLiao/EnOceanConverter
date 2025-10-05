@@ -227,7 +227,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		}
 
 		// Default DBs
-		$DB0 = 0x04; // Status-Byte = Datentelegramm
+		$DB0 = 0x08; // Status-Byte = Datentelegramm
 		if ($teachIn) {
 			$DB0 = 0x00; // Teach-in
 		}
