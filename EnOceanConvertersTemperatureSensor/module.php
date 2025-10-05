@@ -312,7 +312,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		$binaryData = pack('C*', ...$telegram);
 		$this->SendDebug(__FUNCTION__, 'Binary length: ' . strlen($binaryData), 0);
 
-		CSCK_SendText(SOCKET, $this->crc8->hexstr($SendText));
+		//CSCK_SendText(SOCKET, $this->crc8->hexstr($SendText));
 
 		$this->SendDataToParent(json_encode([
 			"DataID" => GUIDs::DATAFLOW_TRANSMIT,
