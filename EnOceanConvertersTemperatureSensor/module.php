@@ -308,7 +308,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 
 		// Header
 		//$header = [0x00, $dataLen2Bytes[0], $dataLen2Bytes[1], $optLength, $type];
-		$header = [0x00, 0x00, 0x0A, 0x07, 0x01];
+		$header = [0x00, 0x0A, 0x07, 0x01];
 		$headerCRC8 = CRC8::crc8($header);
 
 		// Telegram zusammensetzen
