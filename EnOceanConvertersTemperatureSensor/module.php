@@ -315,7 +315,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		// Telegram zusammensetzen
 		$telegram = array_merge([0x55], $header, [$headerCRC8], $data, $optData);
 		//$telegram[] = CRC8::crc8(array_merge($data, $optData));
-		$telegram[] = CRC8::crc8($data, $optData);
+		$telegram[] = CRC8::calculate(array_merge($data, $optData));
 
 		// Telegram-Bytes in Binärstring packen
 		$this->SendDebug(__FUNCTION__, 'Telegram array: ' . implode(' ', array_map(fn($b)=>sprintf('%02X',$b), $telegram)), 0);
@@ -399,11 +399,11 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 			count($optData),
 			0x01 // Radio ERP1
 		];
-		$headerCRC8 = CRC8::crc8($header);
+		$headerCRC8 = CRC8::calculate($header);
 
 		// Komplettes Telegram
 		$telegram = array_merge([0x55], $header, [$headerCRC8], $data, $optData);
-		$telegram[] = CRC8::crc8(array_merge($data, $optData));
+		$telegram[] = CRC8::calculate(array_merge($data, $optData));
 		$this->SendDebug(__FUNCTION__, 'Created Telegram: ' . print_r($telegram, true), 0);
 
 		// Senden
