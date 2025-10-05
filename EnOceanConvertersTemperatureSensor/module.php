@@ -207,7 +207,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 	}
 
 	// SendEnOceanTelegram: sanitizing device id + sauberes Packing mit encode*-Funktionen
-	private function SendEnOceanTelegram(float $temperature, float $humidity): void
+	private function SendEnOceanTelegram(float $temperature, float $humidity, bool $teachIn = true): void
 	{
 		if (!$this->isSocketActive()) {
 			$this->SendDebug(__FUNCTION__, 'Socket nicht verbunden oder nicht aktiv - Telegramm nicht gesendet.', 0);
@@ -227,7 +227,10 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		}
 
 		// Default DBs
-		$DB0 = 0x08; // Status-Byte = Datentelegramm
+		$DB0 = 0x04; // Status-Byte = Datentelegramm
+		if ($teachIn) {
+			$DB0 = 0x00; // Teach-in
+		}
 		$DB1 = 0;
 		$DB2 = 0;
 		$DB3 = 0;
@@ -242,10 +245,8 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 			case EEPProfiles::A5_04_03: // 10 Bit Temp, 7 Bit Hum
 				$rawTempFull = (int)$rawTemp; // 0..1023
 				$rawHum7     = (int)$rawHum;  // 0..127
-
 				$DB3 = $rawTempFull & 0xFF;                // low 8 bits
 				$upper2 = ($rawTempFull >> 8) & 0x03;      // upper 2 bits (0..3)
-
 				// DB2: bits 0..6 = humidity (7 bit), bits 7..6 = upper2  -> shift left by 6
 				$DB2 = ($rawHum7 & 0x7F) | (($upper2 & 0x03) << 6);
 				break;
@@ -507,7 +508,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 			case EEPProfiles::A5_04_04:
 				return (int)round(($temperature + 40) * 4095 / 160);
 			default:
-				throw new \Exception("Unbekanntes EEP Profil: $profile");
+				throw new Exception("Unbekanntes EEP Profil: $profile");
 		}
 	}
 
@@ -520,7 +521,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 			case EEPProfiles::A5_04_03:
 				return (int)round($humidity * 127 / 100);
 			default:
-				throw new \Exception("Unbekanntes EEP Profil: $profile");
+				throw new Exception("Unbekanntes EEP Profil: $profile");
 		}
 	}
 }
