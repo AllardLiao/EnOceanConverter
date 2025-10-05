@@ -287,7 +287,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		$data = [
 			0xA5, // RORG 4BS
 			(int)$DB3, (int)$DB2, (int)$DB1, (int)$DB0,
-			(int)$idBytes[0], (int)$idBytes[1], (int)$idBytes[2], (int)$idBytes[3],
+			(int)$idBytes[3], (int)$idBytes[2], (int)$idBytes[1], (int)$idBytes[0],
 			0x00, 0x01 // status
 		];
 
@@ -307,21 +307,17 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		//$telegram[] = CRC8::crc8(array_merge($data, $optData));
 		$telegram[] = CRC8::crc8($data, $optData);
 
-		// Debug hex
-		$hex = strtoupper(implode(' ', array_map(fn($b) => sprintf('%02X', $b), $telegram)));
-		$this->SendDebug(__FUNCTION__, 'EEP=' . $targetEEP . ' Telegram: ' . $hex, 0);
-
 		// Telegram-Bytes in Binärstring packen
 		$this->SendDebug(__FUNCTION__, 'Telegram array: ' . implode(' ', array_map(fn($b)=>sprintf('%02X',$b), $telegram)), 0);
 		$binaryData = pack('C*', ...$telegram);
 		$this->SendDebug(__FUNCTION__, 'Binary length: ' . strlen($binaryData), 0);
 
+		CSCK_SendText(SOCKET, $this->crc8->hexstr($SendText));
+
 		$this->SendDataToParent(json_encode([
 			"DataID" => GUIDs::DATAFLOW_TRANSMIT,
 			"Buffer" => base64_encode($binaryData)
 		]));
-
-		$this->SendDebug(__FUNCTION__, 'Sent raw binary, hex: ' . $hex, 0);
 	}
 
 	private function SendEnOceanTelegramOLD(float $temperature, float $humidity): void
