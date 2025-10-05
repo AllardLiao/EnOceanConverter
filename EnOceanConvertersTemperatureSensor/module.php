@@ -288,18 +288,20 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 			0xA5, // RORG 4BS
 			(int)$DB3, (int)$DB2, (int)$DB1, (int)$DB0,
 			(int)$idBytes[3], (int)$idBytes[2], (int)$idBytes[1], (int)$idBytes[0],
-			0x00, 0x01 // status
+			0x00  // status
 		];
 
 		// OptData
 		$optData = [0x01, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00];
 		$type = 0x01;                    // RPS/4BS telegram
 
-		$dataLength = count($data);      // 11
+		$dataLength = count($data);      // 10
+	    // Data Length in 2 Bytes (Big Endian)
+	    $dataLen2Bytes = [($dataLength >> 8) & 0xFF, $dataLength & 0xFF];
 		$optLength  = count($optData);   // 7
 
 		// Header
-		$header = [0x00, $dataLength, $optLength, $type];
+		$header = [0x00, $dataLen2Bytes[0], $dataLen2Bytes[1], $optLength, $type];
 		$headerCRC8 = CRC8::crc8($header);
 
 		// Telegram zusammensetzen
