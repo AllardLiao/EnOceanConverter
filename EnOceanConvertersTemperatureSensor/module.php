@@ -227,7 +227,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		}
 
 		// Default DBs
-		$DB0 = 0x08; // Status-Byte (wie vorher)
+		$DB0 = 0x08; // Status-Byte = Datentelegramm
 		$DB1 = 0;
 		$DB2 = 0;
 		$DB3 = 0;
@@ -235,7 +235,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		switch ($targetEEP) {
 			case EEPProfiles::A5_04_01: // 8 Bit Temp, 8 Bit Hum
 			case EEPProfiles::A5_04_02: // 8 Bit Temp, 8 Bit Hum
-				$DB3 = ((int)$rawTemp) & 0xFF;
+				$DB1 = ((int)$rawTemp) & 0xFF;
 				$DB2 = ((int)$rawHum) & 0xFF;
 				break;
 
