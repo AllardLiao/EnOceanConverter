@@ -315,7 +315,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		// Telegram zusammensetzen
 		$telegram = array_merge([0x55], $header, [$headerCRC8], $data, $optData);
 		//$telegram[] = CRC8::crc8(array_merge($data, $optData));
-		$telegram[] = CRC8::crc8(array_merge($data, $optData));
+		$telegram[] = CRC8::crc8($data, $optData);
 
 		// Telegram-Bytes in Binärstring packen
 		$this->SendDebug(__FUNCTION__, 'Telegram array: ' . implode(' ', array_map(fn($b)=>sprintf('%02X',$b), $telegram)), 0);
