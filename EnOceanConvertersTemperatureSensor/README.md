@@ -35,14 +35,16 @@ It supports the following EEP
 ### 4. Einrichten der Instanzen in IP-Symcon
 
 Unter 'Instanz hinzufügen' kann das 'EnOcean Converters Temperature Sensor'-Modul mithilfe des Schnellfilters gefunden werden.  
-- Weitere Informationen zum Hinzufügen von Instanzen in der [Dokumentation der Instanzen](https://www.symcon.de/service/dokumentation/konzepte/instanzen/#Instanz_hinzufügen)
+Weitere Informationen zum Hinzufügen von Instanzen in der [Dokumentation der Instanzen](https://www.symcon.de/service/dokumentation/konzepte/instanzen/#Instanz_hinzufügen)
 
 __Konfigurationsseite__:
 
-Name     | Beschreibung
--------- | ------------------
-Device ID         |
-         |
+Name              | Beschreibung
+----------------- | ------------------------------------------------------------
+Device ID         | ID des simulierten Geräts
+Source ID         | ID des Geräts, von dem die Ausgangswerte genommen werden
+Source EEP        | EEP des Source-Geräts
+Target EEP        | EEP mit dem das Telegram gesendet werden soll
 
 ### 5. Statusvariablen und Profile
 
@@ -50,29 +52,25 @@ Die Statusvariablen/Kategorien werden automatisch angelegt. Das Löschen einzeln
 
 #### Statusvariablen
 
-Name   | Typ     | Beschreibung
------- | ------- | ------------
-       |         |
-       |         |
+Name        | Typ     | Beschreibung
+----------- | ------- | --------------------
+Temperature | Float   | Temperatur
+Humidity    | Float   | Luftfeuchtigkeit
 
 #### Profile
 
-Name   | Typ
------- | -------
-       |
-       |
+Name         | Typ
+------------ | -----------------------------
+˜Temperature | Temperatur
+˜Humidity.F  | Luftfeuchtigkeit (in float)
 
 ### 6. Visualisierung
 
-Die Funktionalität, die das Modul in der Visualisierung bietet.
+Keine Funktionalität in der Visualisierung.
 
 ### 7. PHP-Befehlsreferenz
 
-`boolean ECTS_BeispielFunktion(integer $InstanzID);`
-Erklärung der Funktion.
-
-Beispiel:
-`ECTS_BeispielFunktion(12345);`
+Keine aufrufbaren Funktionen
 
 
 
