@@ -307,8 +307,15 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		$binaryData = pack('C*', ...$telegram);
 		$this->SendDebug(__FUNCTION__, 'Binary length: ' . strlen($binaryData), 0);
 		$parentID = @IPS_GetInstance($this->InstanceID)['ConnectionID'];
-		if ($parentID > 0) {
-			CSCK_SendText($parentID, $binaryData);
+		if ($parentID > 1) {
+
+			$data = [
+				'DataID' => GUIDs::DATAFLOW_TRANSMIT,
+				'Buffer' => bin2hex($binaryData) 
+			];
+			$this->SendDataToParent(json_encode($data));
+
+			//CSCK_SendText($parentID, $binaryData);
 			$this->SendDebug(__FUNCTION__, 'Sent Telegram to Socket (len='.strlen($binaryData).')', 0);
 		} else {
 			$this->SendDebug(__FUNCTION__, 'Kein Parent verbunden!', 0);

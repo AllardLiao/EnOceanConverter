@@ -19,7 +19,7 @@ class GUIDs
     public const IPS_BUILDIN_A50403   = '{432FF87E-4497-48D6-8ED9-EE7104A50403}';
 
     /**
-     * Liefert alle Profile als Array
+     * Liefert alle unterstützten EEP als Array
      *
      * @return string[]
      */
