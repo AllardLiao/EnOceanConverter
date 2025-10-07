@@ -71,5 +71,4 @@ Beispiel:
 
 
 
-    "parentRequirements": ["{018EF6B5-AB94-40C6-AA53-46943E824ACF}", "{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}"], 
-    
+
