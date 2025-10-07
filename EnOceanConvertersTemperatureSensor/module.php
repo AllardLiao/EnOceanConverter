@@ -375,7 +375,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
         $form = file_get_contents(__DIR__ . '/form.json');
         // Unterstützte Devices einfügnen
 		$validModules = GUIDs::allTemperatureIpsGuids();
-        $form = str_replace('<!---VALID_MODULES-->', json_encode($validModules), $form);
+        $form = str_replace('<!---VALID_MODULES-->', str_replace('"', "'", json_encode($validModules)), $form);
 		$this->SendDebug(__FUNCTION__, 'GetConfigurationForm: ' . $form, 0);
 		return $form;
 	}
