@@ -319,6 +319,8 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 
 		// Telegram-Bytes in Binärstring packen
 		$this->SendDebug(__FUNCTION__, 'Telegram array: ' . implode(' ', array_map(fn($b)=>sprintf('%02X',$b), $telegram)), 0);
+		$this->SendDebug(__FUNCTION__, 'Header CRC=' . sprintf('%02X', $headerCRC8), 0);
+		$this->SendDebug(__FUNCTION__, 'Data CRC=' . sprintf('%02X', end($telegram)), 0);
 		$binaryData = pack('C*', ...$telegram);
 		$this->SendDebug(__FUNCTION__, 'Binary length: ' . strlen($binaryData), 0);
 
