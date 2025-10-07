@@ -134,13 +134,10 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 	 */
 	public function sendTestTelegram(): void
 	{
-		$targetProfile = $this->ReadPropertyString('TargetEEP');
 		$temp = 18.7;   // °C
 		$hum  = 78.1;   // %
-
 		$this->SendDebug(__FUNCTION__, "sending test: temp=" . $temp . ", hum=" . $hum, 0);
-
-		$this->SendEnOceanTelegram($temp, $hum);
+		$this->SendEnOceanTelegram($temp, $hum, false);
 	}
 
 	/**
@@ -148,17 +145,10 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 	 */
 	public function sendTeachInTelegram(): void
 	{
-		// Teach-in Telegramme bei EnOcean werden je nach EEP anders codiert.
-		// Beispiel: wir senden ein "Teach-in Request" über den Client-Socket.
-		// RORG: F6, Data=0x00…0xFF je nach EEP (hier Dummy)
-		$teachInData = "F6 00 00 00 00 00 00 00"; // Dummy, anpassen nach EEP
-
-		$this->SendDebug('sendTeachInTelegram', 'Teach-in Data: ' . $teachInData, 0);
-
-		$this->SendDataToParent(json_encode([
-			'DataID' => GUIDs::DATAFLOW_TRANSMIT, // TX GUID
-			'Buffer' => utf8_encode($teachInData),
-		]));
+		$temp = 18.6;   // °C
+		$hum  = 68.1;   // %
+		$this->SendDebug(__FUNCTION__, "sending teach-in with: temp=" . $temp . ", hum=" . $hum, 0);
+		$this->SendEnOceanTelegram($temp, $hum, true);
 	}
 
     public function MessageSink($TimeStamp, $SenderID, $Message, $Data): void
@@ -207,7 +197,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 	}
 
 	// SendEnOceanTelegram: sanitizing device id + sauberes Packing mit encode*-Funktionen
-	private function SendEnOceanTelegram(float $temperature, float $humidity, bool $teachIn = true): void
+	private function SendEnOceanTelegram(float $temperature, float $humidity, bool $teachIn = false): void
 	{
 		if (!$this->isSocketActive()) {
 			$this->SendDebug(__FUNCTION__, 'Socket nicht verbunden oder nicht aktiv - Telegramm nicht gesendet.', 0);
@@ -291,39 +281,27 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 			(int)$idBytes[0], (int)$idBytes[1], (int)$idBytes[2], (int)$idBytes[3],
 			0x00  // status
 		];
-		/*** $data = [0xA5, 
-				 0x00, 0x92, 0x7D, 0x0F, 
-				 0xEC, 0x00, 0xC8, 0x01, 
-				 0x00
-		]; */
-		//		 , 0x01, 0xFF, 0xFF, 0xFF, 0xFF, 0x53, 0x00];
-
 		// OptData
 		$optData = [0x01, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00];
 		$type = 0x01;                    // RPS/4BS telegram
-
 		$dataLength = count($data);      // 10
 	    // Data Length in 2 Bytes (Big Endian)
-	    $dataLen2Bytes = [($dataLength >> 8) & 0xFF, $dataLength & 0xFF];
+		$dataLen2Bytes = [($dataLength >> 8) & 0xFF, $dataLength & 0xFF];
 		$optLength  = count($optData);   // 7
-
 		// Header
 		$header = [$dataLen2Bytes[0], $dataLen2Bytes[1], $optLength, $type];
 		//$header = [0x00, 0x0A, 0x07, 0x01];
 		$headerCRC8 = CRC8::calculate($header);
-
 		// Telegram zusammensetzen
 		$telegram = array_merge([0x55], $header, [$headerCRC8], $data, $optData);
 		//$telegram[] = CRC8::crc8(array_merge($data, $optData));
 		$telegram[] = CRC8::calculate(array_merge($data, $optData));
-
 		// Telegram-Bytes in Binärstring packen
 		$this->SendDebug(__FUNCTION__, 'Telegram array: ' . implode(' ', array_map(fn($b)=>sprintf('%02X',$b), $telegram)), 0);
 		$this->SendDebug(__FUNCTION__, 'Header CRC=' . sprintf('%02X', $headerCRC8), 0);
 		$this->SendDebug(__FUNCTION__, 'Data CRC=' . sprintf('%02X', end($telegram)), 0);
 		$binaryData = pack('C*', ...$telegram);
 		$this->SendDebug(__FUNCTION__, 'Binary length: ' . strlen($binaryData), 0);
-
 		$parentID = @IPS_GetInstance($this->InstanceID)['ConnectionID'];
 		if ($parentID > 0) {
 			CSCK_SendText($parentID, $binaryData);
