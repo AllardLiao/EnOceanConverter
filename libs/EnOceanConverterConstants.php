@@ -9,7 +9,7 @@ class GUIDs
     // Gemeinsame DataFlow-GUID für Gateway <-> Child
     public const PARENT               = '{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}';  // Client Socket
     public const DATAFLOW_RECEIVE     = '{018EF6B5-AB94-40C6-AA53-46943E824ACF}';  // RX
-    public const DATAFLOW_TRANSMIT    = '{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}';  // TX {79827379-F36E-4ADA-8A95-5F8D1DC92FA9}
+    public const DATAFLOW_TRANSMIT    = '{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}';  // TX 
     // --- Modul GUIDs (Instanzen) ---
     public const EC_LIBRARY           = '{63647422-FE17-88E4-252A-402E8E58C4AD}';
     public const EC_TEMPERATUR        = '{029B9532-A614-BBC3-B9D6-904F648DC5F1}';
@@ -17,6 +17,20 @@ class GUIDs
     public const IPS_BUILDIN_A50401   = '{432FF87E-4497-48D6-8ED9-EE7104A50401}';
     public const IPS_BUILDIN_A50402   = '{432FF87E-4497-48D6-8ED9-EE7104A50402}';
     public const IPS_BUILDIN_A50403   = '{432FF87E-4497-48D6-8ED9-EE7104A50403}';
+
+    /**
+     * Liefert alle Profile als Array
+     *
+     * @return string[]
+     */
+    public static function allTemperatureIpsGuids(): array
+    {
+        return [
+            self::IPS_BUILDIN_A50401,
+            self::IPS_BUILDIN_A50402,
+            self::IPS_BUILDIN_A50403
+        ];
+    }
 }
 class EEPProfiles
 {
@@ -39,13 +53,13 @@ class EEPProfiles
      *
      * @return string[]
      */
-    public static function all(): array
+    public static function allTemperatureProfiles(): array
     {
         return [
             self::A5_04_01,
             self::A5_04_02,
             self::A5_04_03,
-            self::A5_04_04,
+            self::A5_04_04
         ];
     }
 }

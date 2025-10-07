@@ -369,4 +369,14 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 				throw new Exception("Unbekanntes EEP Profil: $profile");
 		}
 	}
+
+	public function GetConfigurationForm(): string {
+        // 5. HTML Template laden & Platzhalter ersetzen
+        $form = file_get_contents(__DIR__ . '/form.json');
+        // Unterstützte Devices einfügnen
+		$validModules = GUIDs::allTemperatureIpsGuids();
+        $form = str_replace('<!---VALID_MODULES-->', implode(", ", $validModules), $form);
+		return $form;
+	}
+
 }
