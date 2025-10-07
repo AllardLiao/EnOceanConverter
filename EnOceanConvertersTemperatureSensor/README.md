@@ -1,5 +1,5 @@
 # Temperature Sensors
-Beschreibung des Moduls.
+Simulation of EnOcean temperature & humidity sensors
 
 ### Inhaltsverzeichnis
 
@@ -13,27 +13,35 @@ Beschreibung des Moduls.
 
 ### 1. Funktionsumfang
 
-*
+* This module sends EnOcean temperature & humidity telegrams.
+ 
+It supports the following EEP 
+- A5-04-01 (PTM 215B)
+- A5-04-02 (PTM 216B)
+- A5-04-03 (PTM 217B)
+- A5-04-04 (PTM 218B)
 
 ### 2. Voraussetzungen
 
 - IP-Symcon ab Version 7.1
+- Present "real" temperature sensors to take the source values for temperature and humidity
 
 ### 3. Software-Installation
 
-* Über den Module Store das 'Temperature Sensors'-Modul installieren.
+* Über den Module Store das 'EnOcean Converters Temperature Sensor'-Modul installieren.
 * Alternativ über das Module Control folgende URL hinzufügen
+* https://github.com/AllardLiao/EnOceanConverter.git
 
 ### 4. Einrichten der Instanzen in IP-Symcon
 
- Unter 'Instanz hinzufügen' kann das 'Temperature Sensors'-Modul mithilfe des Schnellfilters gefunden werden.  
-	- Weitere Informationen zum Hinzufügen von Instanzen in der [Dokumentation der Instanzen](https://www.symcon.de/service/dokumentation/konzepte/instanzen/#Instanz_hinzufügen)
+Unter 'Instanz hinzufügen' kann das 'EnOcean Converters Temperature Sensor'-Modul mithilfe des Schnellfilters gefunden werden.  
+- Weitere Informationen zum Hinzufügen von Instanzen in der [Dokumentation der Instanzen](https://www.symcon.de/service/dokumentation/konzepte/instanzen/#Instanz_hinzufügen)
 
 __Konfigurationsseite__:
 
 Name     | Beschreibung
 -------- | ------------------
-         |
+Device ID         |
          |
 
 ### 5. Statusvariablen und Profile

@@ -124,6 +124,9 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 				$this->SendDebug(__FUNCTION__, 'Send Test Telegram', 0);
 				$this->sendTestTelegram();
 				break;
+			case 'selectAvailableDeviceId':
+				$this->selectAvailableDeviceId();
+				break;
             default:
                 parent::RequestAction($ident, $value);
         }

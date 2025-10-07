@@ -2,26 +2,43 @@
     "elements": [
         {
             "type": "Label",
-            "caption": "This module is for temperature sensors A5-04-xx.",
+            "caption": "This module sends EEP A5-04-0x telegrams.",
             "width": 0,
             "height": 0,
             "align": "left"
         },
         {
-            "type": "Label",
-            "caption": "It supports the following EEP as source\n- A5-04-01 (PTM 215B)\n- A5-04-02 (PTM 216B)\n- A5-04-03 (PTM 217B)",
-            "width": 0,
-            "height": 0,
-            "align": "left"
-        },
-        {
-            "type": "Label",
-            "caption": "It supports the following EEP as target:\n- A5-04-01 (PTM 215B)\n- A5-04-02 (PTM 216B)\n- A5-04-03 (PTM 217B)\n- A5-04-04 (PTM 218B)",
-            "width": 0,
-            "height": 0,
-            "align": "left"
-        },
-        {
+            "type": "RowLayout",
+            "name": "Target",
+            "items": [
+                {
+                    "type": "ValidationTextBox",
+                    "caption": "Device ID",
+                    "enabled": true,
+                    "multiline": false,
+                    "name": "TargetDeviceID",
+                    "onChange": "",
+                    "value": "EC:00:C8:01",
+                    "visible": true,
+                    "width": "300px",
+                    "validate": "^([0-9A-F]{2}:){3}[0-9A-F]{2}$"
+                },
+                {
+                    "type": "Label",
+                    "bold": false,
+                    "caption": "You can choose a hex id of your choice. Only take care, that the id is unique in your setup!\nThe range 00:00:00:00 to 00:00:FF:FF is reserved by EnOcean - IDs which start with EC:... should work out.",
+                    "color": 0,
+                    "italic": false,
+                    "link": true,
+                    "name": "",
+                    "underline": false,
+                    "visible": true,
+                    "width": ""
+                }
+
+            ],
+            "visible": true
+        },        {
             "type": "SelectInstance",
             "caption": "Source Device",
             "download": "",
@@ -77,38 +94,7 @@
                     "name": "AutoDetectEEP",
                     "onChange": "",
                     "value": false,
-                    "visible": true,
-                    "width": ""
-                }
-            ],
-            "visible": true
-        },
-        {
-            "type": "RowLayout",
-            "name": "Target",
-            "items": [
-                {
-                    "type": "ValidationTextBox",
-                    "caption": "Simulated Device ID",
-                    "enabled": true,
-                    "multiline": false,
-                    "name": "TargetDeviceID",
-                    "onChange": "",
-                    "value": "EC:00:C8:01",
-                    "visible": true,
-                    "width": "300px",
-                    "validate": "^([0-9A-F]{2}:){3}[0-9A-F]{2}$"
-                },
-                {
-                    "type": "Label",
-                    "bold": false,
-                    "caption": "You can choose a hex id of your choice. Only take care, that the id is unique in your setup!\nThe range 00:00:00:00 to 00:00:FF:FF is reserved by EnOcean - IDs which start with EC:... should work out.",
-                    "color": 0,
-                    "italic": false,
-                    "link": true,
-                    "name": "",
-                    "underline": false,
-                    "visible": true,
+                    "visible": false,
                     "width": ""
                 }
             ],
