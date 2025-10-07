@@ -43,7 +43,7 @@ class EEPConverter
 class CRC8{
 
 	// Aus EnOcean Doku (ESP3 Spec V1.17, Aug. 2011)
-	private $crc8_table = array(
+	private static $crc8_table = array(
 		0x00, 0x07, 0x0e, 0x09, 0x1c, 0x1b, 0x12, 0x15,
 		0x38, 0x3f, 0x36, 0x31, 0x24, 0x23, 0x2a, 0x2d,
 		0x70, 0x77, 0x7e, 0x79, 0x6c, 0x6b, 0x62, 0x65,
@@ -78,47 +78,10 @@ class CRC8{
 		0xe6, 0xe1, 0xe8, 0xef, 0xfa, 0xfd, 0xf4, 0xf3
 	);
 
-	private static function hexstr($hexstr) {
-        $hexstr = str_replace(' ', '', $hexstr);
-        $hexstr = str_replace('\x', '', $hexstr);
-        $retstr = pack('H*', $hexstr);
-        return $retstr;
-	}
-
-	private static function strhex($string) {
-        $hexstr = unpack('H*', $string);
-        return array_shift($hexstr);
-	}
-
-	private static function fill8digits($p){
-		$ret = $p;
-		for ($i=0; $i<(8-strlen($p)); $i++){
-            $ret="0".$ret;
-		}
-		return $ret;
-	}
-
-	private static function binxor($a, $b) {
-		$x = self::fill8digits(base_convert($a, 16, 2));
-		$y = self::fill8digits(base_convert($b, 16, 2));
-		$result = "";
-		for ($i=0; $i<8; $i++){
-            if (((substr($x, $i, 1)==1) and (substr($y, $i, 1)==0)) or ((substr($x, $i, 1)==0) and (substr($y, $i, 1)==1))){
-                $result .= "1";
-            }
-			else{
-                $result .= "0";
-			}
-		}
-		//echo ($x)."^".($y)."=".$result;
-		return $result;
-	}
-
-	public static function calculate($data1){
-        $hex = self::hexstr($data1);
-        $crc = dechex(0);
-        for ($i=0;$i<strlen($hex);$i++){
-            $crc = dechex(self::$crc8_table[bindec(self::binxor($crc, self::strhex($hex[$i])))]);
+	public static function calculate(array $bytes): int{
+        $crc = 0;
+        foreach ($bytes as $byte) {
+            $crc = self::$crc8_table[($crc ^ $byte) & 0xFF];
         }
         return $crc;
 	}
