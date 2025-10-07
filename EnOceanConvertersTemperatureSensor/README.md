@@ -13,24 +13,24 @@ Simulation of EnOcean temperature & humidity sensors
 
 ### 1. Funktionsumfang
 
-* This module sends EnOcean temperature & humidity telegrams.
+This module sends EnOcean temperature & humidity telegrams.
  
 It supports the following EEP 
-- A5-04-01 (PTM 215B)
-- A5-04-02 (PTM 216B)
-- A5-04-03 (PTM 217B)
-- A5-04-04 (PTM 218B)
+* A5-04-01 (PTM 215B)
+* A5-04-02 (PTM 216B)
+* A5-04-03 (PTM 217B)
+* A5-04-04 (PTM 218B)
 
 ### 2. Voraussetzungen
 
-- IP-Symcon ab Version 7.1
-- Present "real" temperature sensors to take the source values for temperature and humidity
+* IP-Symcon ab Version 7.1
+* Present "real" temperature sensors to take the source values for temperature and humidity
 
 ### 3. Software-Installation
 
 * Über den Module Store das 'EnOcean Converters Temperature Sensor'-Modul installieren.
 * Alternativ über das Module Control folgende URL hinzufügen
-* https://github.com/AllardLiao/EnOceanConverter.git
+  https://github.com/AllardLiao/EnOceanConverter.git
 
 ### 4. Einrichten der Instanzen in IP-Symcon
 
