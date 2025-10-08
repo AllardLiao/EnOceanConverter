@@ -16,7 +16,7 @@
                     "caption": "Device ID",
                     "enabled": true,
                     "multiline": false,
-                    "name": "TargetDeviceID",
+                    "name": "DeviceID",
                     "onChange": "",
                     "value": "0",
                     "visible": true,
@@ -25,7 +25,7 @@
                 },
                 {
                     "type": "Button",
-                    "caption": "Next available Device-Id",
+                    "caption": "Select available device id",
                     "confirm": "",
                     "download": "",
                     "enabled": true,
@@ -37,7 +37,8 @@
                 }
             ],
             "visible": true
-        },        {
+        },        
+        {
             "type": "SelectInstance",
             "caption": "Source Device",
             "download": "",

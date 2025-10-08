@@ -32,7 +32,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		$this->RegisterPropertyInteger("SourceDevice", 0);
 		$this->RegisterPropertyString("TargetEEP", "2");
 		$this->RegisterPropertyBoolean("ResendActive", false);
-		$this->RegisterPropertyInteger("TargetDeviceID", 0);
+		$this->RegisterPropertyInteger("DeviceID", 0);
 
 		$this->SetBuffer("SourceVarTemp", "0");
 		$this->SetBuffer("SourceVarHum", "0");
@@ -120,7 +120,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 				$this->sendTestTelegram();
 				break;
 			case "selectFreeDeviceID":
-				$this->UpdateFormField('TargetDeviceID', 'value', $this->selectFreeDeviceID());
+				$this->UpdateFormField('DeviceID', 'value', $this->selectFreeDeviceID());
 				break;
             default:
                 parent::RequestAction($ident, $value);
@@ -179,7 +179,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		$this->SetTimerInterval("ECTSSendDelayed" . $this->InstanceID, 0); // Timer wieder stoppen
 		$temp = $this->GetValue('Temperature');
 		$hum  = $this->GetValue('Humidity');
-		$this->SendDebug(__FUNCTION__, 'Simulate telegram for ' . $this->InstanceID . '/' . $this->ReadPropertyString("TargetDeviceID") . ': temp=' . $temp . ', hum=' . $hum, 0);
+		$this->SendDebug(__FUNCTION__, 'Simulate telegram for ' . $this->InstanceID . '/' . $this->ReadPropertyString("DeviceID") . ': temp=' . $temp . ', hum=' . $hum, 0);
 		$this->SendEnOceanTelegram($temp, $hum);
 	}
 
@@ -202,7 +202,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		}
 
 		$targetEEP  = $this->ReadPropertyString('TargetEEP');
-		$deviceID   = $this->ReadPropertyString('TargetDeviceID'); 
+		$deviceID   = $this->ReadPropertyString('DeviceID'); 
 
 		// Parameter in Ziel-Protokoll umwandeln
 		try {
@@ -214,7 +214,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		}
 
 		$data = EEPProfiles::gatewayBaseData();
-		$data['DeviceID'] = $this->ReadPropertyInteger("TargetDeviceID");
+		$data['DeviceID'] = $this->ReadPropertyInteger("DeviceID");
 		if ($teachIn) {
 			$data['DataByte0'] = 0x00; // Status-Byte = Teach-in
 		} else {
