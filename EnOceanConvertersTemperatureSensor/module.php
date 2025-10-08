@@ -302,19 +302,17 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		$telegram[] = CRC8::calculate(array_merge($data, $optData));
 		// Telegram-Bytes in Binärstring packen
 		$this->SendDebug(__FUNCTION__, 'Telegram array: ' . implode(' ', array_map(fn($b)=>sprintf('%02X',$b), $telegram)), 0);
-		$this->SendDebug(__FUNCTION__, 'Header CRC=' . sprintf('%02X', $headerCRC8), 0);
-		$this->SendDebug(__FUNCTION__, 'Data CRC=' . sprintf('%02X', end($telegram)), 0);
+		//$this->SendDebug(__FUNCTION__, 'Header CRC=' . sprintf('%02X', $headerCRC8), 0);
+		//$this->SendDebug(__FUNCTION__, 'Data CRC=' . sprintf('%02X', end($telegram)), 0);
 		$binaryData = pack('C*', ...$telegram);
-		$this->SendDebug(__FUNCTION__, 'Binary length: ' . strlen($binaryData), 0);
+		//$this->SendDebug(__FUNCTION__, 'Binary length: ' . strlen($binaryData), 0);
 		$parentID = @IPS_GetInstance($this->InstanceID)['ConnectionID'];
 		if ($parentID > 1) {
-
 			$data = [
 				'DataID' => GUIDs::DATAFLOW_TRANSMIT,
 				'Buffer' => bin2hex($binaryData) 
 			];
 			$this->SendDataToParent(json_encode($data));
-
 			//CSCK_SendText($parentID, $binaryData);
 			$this->SendDebug(__FUNCTION__, 'Sent Telegram to Socket (len='.strlen($binaryData).')', 0);
 		} else {
