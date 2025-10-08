@@ -27,10 +27,10 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		//Never delete this line!
 		parent::Create();
 
-		$this->RegisterPropertyString("SourceEEP", "1");
+		$this->RegisterPropertyString("SourceEEP", "A5-04-03");
 		$this->RegisterPropertyBoolean("AutoDetectEEP", true);
 		$this->RegisterPropertyInteger("SourceDevice", 0);
-		$this->RegisterPropertyString("TargetEEP", "2");
+		$this->RegisterPropertyString("TargetEEP", "A5-04-01");
 		$this->RegisterPropertyBoolean("ResendActive", false);
 		$this->RegisterPropertyInteger("DeviceID", 0);
 
@@ -103,6 +103,12 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 			$this->SendDebug('RegisterMessage', 'Humidity variable ID not set', 0);
 		}
 		// Status setzen
+		if ($status == 102) {
+			if (!$this->ReadAttributeBoolean('ResendActive')) {
+				$this->SetStatus(104); // 104 = Quelle verbunden, aber kein Resend
+				return;
+			}
+		}
 		$this->SetStatus($status);
 	}
 
