@@ -104,7 +104,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		}
 		// Status setzen
 		if ($status == 102) {
-			if (!$this->ReadAttributeBoolean('ResendActive')) {
+			if (!$this->ReadPropertyBoolean('ResendActive')) {
 				$this->SetStatus(104); // 104 = Quelle verbunden, aber kein Resend
 				return;
 			}
