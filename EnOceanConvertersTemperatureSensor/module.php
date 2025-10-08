@@ -260,7 +260,11 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		$data['DataByte2'] = $DB2;
 		$data['DataByte3'] = $DB3;
 
-		$this->SendDataToParent(json_encode($data));
+		try {
+			@$this->SendDataToParent(json_encode($data));
+		} catch (Exception $e) {
+			$this->SendDebug(__FUNCTION__, 'Error sending data to parent: ' . $e->getMessage(), 0);
+		}
 		$this->SendDebug(__FUNCTION__, 'Sent telegram to gateway (' . print_r($data, true) . ')', 0);
 	}
 
