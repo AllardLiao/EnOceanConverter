@@ -119,9 +119,6 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 			case 'sendTestTelegram':
 				$this->sendTestTelegram();
 				break;
-			case 'selectAvailableDeviceId':
-				$this->selectAvailableDeviceId();
-				break;
 			case "selectFreeDeviceID":
 				$this->UpdateFormField('TargetDeviceID', 'value', $this->selectFreeDeviceID());
 				break;
