@@ -12,17 +12,20 @@
             "name": "Target",
             "items": [
                 {
-                    "type": "ValidationTextBox",
+                    "type": "NumberSpinner",
                     "caption": "Device ID",
+                    "digits": 0,
                     "enabled": true,
-                    "multiline": false,
+                    "hex": false,
+                    "maximum": 256,
+                    "minimum": 0,
+                    "moreDigits": false,
                     "name": "DeviceID",
                     "onChange": "",
-                    "value": "0",
+                    "suffix": "",
+                    "value": 0,
                     "visible": true,
-                    "width": "300px",
-                    "validate": "^(?:[1-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-6])$"
-                },
+                    "width": "300px"                },
                 {
                     "type": "Button",
                     "caption": "Select available device id",

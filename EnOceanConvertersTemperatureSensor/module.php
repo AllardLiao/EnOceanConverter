@@ -126,7 +126,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 				$this->sendTestTelegram();
 				break;
 			case "selectFreeDeviceID":
-				//$this->UpdateFormField('DeviceID', 'value', $this->selectFreeDeviceID());
+				$this->UpdateFormField('DeviceID', 'value', $this->selectFreeDeviceID());
 				break;
             default:
                 parent::RequestAction($ident, $value);
