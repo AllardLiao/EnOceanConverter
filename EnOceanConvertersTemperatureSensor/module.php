@@ -268,7 +268,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		$this->SendDebug(__FUNCTION__, 'Sent telegram to gateway (' . print_r($data, true) . ')', 0);
 	}
 
-	function decodeTemperature(string $profile, $raw): float {
+	function decodeTemperature(string $profile, float $raw): float {
 		switch($profile) {
 			case EEPProfiles::A5_04_01: // 8 Bit, 0…40°C
 				return 0 + (40 - 0) * ($raw / 255);
@@ -283,7 +283,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		}
 	}
 
-	function decodeHumidity(string $profile, $raw): float {
+	function decodeHumidity(string $profile, float $raw): float {
 		switch($profile) {
 			case EEPProfiles::A5_04_01:
 			case EEPProfiles::A5_04_02:
