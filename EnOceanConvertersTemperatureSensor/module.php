@@ -84,7 +84,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 				$status = 102; // Verbindung erfolgreich
 			} else {
 				$this->SendDebug('RegisterMessage', 'Failed to register Temp variable: ' . $sourceIDTemp, 0);
-				$status = 201; // Keine Verbindung
+				$status = 201; 
 			}
 		} else {
 			$this->SendDebug('RegisterMessage', 'Temp variable ID not set', 0);
@@ -97,7 +97,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 				if ($status !== 201) $status = 102;
 			} else {
 				$this->SendDebug('RegisterMessage', 'Failed to register Humidity variable: ' . $sourceIDHum, 0);
-				$status = 201; // Priorität: Fehler
+				$status = 201; 
 			}
 		} else {
 			$this->SendDebug('RegisterMessage', 'Humidity variable ID not set', 0);

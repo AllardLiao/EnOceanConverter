@@ -188,7 +188,7 @@
         {
             "code": 201,
             "icon": "error",
-            "caption": "Could not connect to source device"
+            "caption": "Could not connect to source device temperature and/or humidity variable"
         }
     ]
 }
