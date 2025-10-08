@@ -30,16 +30,17 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		$this->RegisterPropertyString("SourceEEP", "1");
 		$this->RegisterPropertyBoolean("AutoDetectEEP", true);
 		$this->RegisterPropertyInteger("SourceDevice", 0);
-		$this->SetBuffer("SourceVarTemp", "0");
-		$this->SetBuffer("SourceVarHum", "0");
 		$this->RegisterPropertyString("TargetEEP", "2");
 		$this->RegisterPropertyBoolean("ResendActive", false);
-		$this->RegisterPropertyString("TargetDeviceID", "EC:00:C8:01");
+		$this->RegisterPropertyInteger("TargetDeviceID", 0);
+
+		$this->SetBuffer("SourceVarTemp", "0");
+		$this->SetBuffer("SourceVarHum", "0");
 
 		$this->MaintainVariable("Temperature", "Temperatur", VARIABLETYPE_FLOAT, "~Temperature", 1, true);
 		$this->MaintainVariable('Humidity', 'Luftfeuchtigkeit', VARIABLETYPE_FLOAT, '~Humidity.F', 2, true);
-        // Timer für verzögertes Senden (2s nach letztem Update)
-		$this->RegisterTimer("ECTSSendDelayed" . $this->InstanceID, 2 * 1000, 'IPS_RequestAction(' . $this->InstanceID . ', "SendTelegramDelayed", true);');
+
+		$this->RegisterTimer("ECTSSendDelayed" . $this->InstanceID, 0, 'IPS_RequestAction(' . $this->InstanceID . ', "SendTelegramDelayed", true);');
 
 		$this->SetStatus(104);
 	}
@@ -54,7 +55,6 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 	{
 		//Never delete this line!
 		parent::ApplyChanges();
-		
         // Alte Nachrichten abmelden
         $this->UnregisterMessage(0, 0);
 
@@ -74,12 +74,9 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 				}
 			}
 		}
-
 		$sourceIDTemp = intval($this->GetBuffer('SourceVarTemp'));
 		$sourceIDHum  = intval($this->GetBuffer('SourceVarHum'));
-
 		$status = 104; // Standard: Quelle nicht gesetzt
-
 		// Temp Variable
 		if ($sourceIDTemp > 0) {
 			if ($this->RegisterMessage($sourceIDTemp, VM_UPDATE)) {
@@ -92,7 +89,6 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		} else {
 			$this->SendDebug('RegisterMessage', 'Temp variable ID not set', 0);
 		}
-
 		// Humidity Variable
 		if ($sourceIDHum > 0) {
 			if ($this->RegisterMessage($sourceIDHum, VM_UPDATE)) {
@@ -106,7 +102,6 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		} else {
 			$this->SendDebug('RegisterMessage', 'Humidity variable ID not set', 0);
 		}
-
 		// Status setzen
 		$this->SetStatus($status);
 	}
@@ -126,6 +121,9 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 				break;
 			case 'selectAvailableDeviceId':
 				$this->selectAvailableDeviceId();
+				break;
+			case "selectFreeDeviceID":
+				$this->UpdateFormField('TargetDeviceID', 'value', $this->selectFreeDeviceID());
 				break;
             default:
                 parent::RequestAction($ident, $value);
@@ -173,7 +171,9 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 				$this->SetValue('Humidity', (float)$value);
 			}
 			// Timer setzen (2 Sekunden warten, dann send) - verhindert das doppelte Senden des Telegramms, wenn beide Variablen fast gleichzeitig aktualisiert werden
-            $this->SetTimerInterval("ECTSSendDelayed" . $this->InstanceID, 2 * 1000);
+            if ($this->ReadPropertyBoolean("ResendActive")) {
+				$this->SetTimerInterval("ECTSSendDelayed" . $this->InstanceID, 2 * 1000);
+			}
 		}
     }
 
@@ -186,7 +186,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		$this->SendEnOceanTelegram($temp, $hum);
 	}
 
-	private function isSocketActive(): bool
+	private function isGatewayActive(): bool
 	{
 		$parentID = @IPS_GetInstance($this->InstanceID)['ConnectionID'];
 		if ($parentID > 0) {
@@ -199,15 +199,15 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 	// SendEnOceanTelegram: sanitizing device id + sauberes Packing mit encode*-Funktionen
 	private function SendEnOceanTelegram(float $temperature, float $humidity, bool $teachIn = false): void
 	{
-		if (!$this->isSocketActive()) {
-			$this->SendDebug(__FUNCTION__, 'Socket nicht verbunden oder nicht aktiv - Telegramm nicht gesendet.', 0);
+		if (!$this->isGatewayActive()) {
+			$this->SendDebug(__FUNCTION__, 'Gateway nicht verbunden oder nicht aktiv - Telegramm nicht gesendet.', 0);
 			return;
 		}
 
 		$targetEEP  = $this->ReadPropertyString('TargetEEP');
-		$deviceID   = $this->ReadPropertyString('TargetDeviceID'); // z. B. "EC:00:A5:01" 
+		$deviceID   = $this->ReadPropertyString('TargetDeviceID'); 
 
-		// -> benutze die vorhandenen encode-Funktionen, um die RAW-Integer zu bekommen
+		// Parameter in Ziel-Protokoll umwandeln
 		try {
 			$rawTemp = $this->encodeTemperature($targetEEP, $temperature); 
 			$rawHum  = $this->encodeHumidity($targetEEP, $humidity);      
@@ -216,10 +216,12 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 			return;
 		}
 
-		// Default DBs
-		$DB0 = 0x0F; // Status-Byte = Datentelegramm
+		$data = EEPProfiles::gatewayBaseData();
+		$data['DeviceID'] = $this->ReadPropertyInteger("TargetDeviceID");
 		if ($teachIn) {
-			$DB0 = 0x00; // Teach-in
+			$data['DataByte0'] = 0x00; // Status-Byte = Teach-in
+		} else {
+			$data['DataByte0'] = 0x0F; // Status-Byte = Datentelegramm
 		}
 		$DB1 = 0;
 		$DB2 = 0;
@@ -252,68 +254,12 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 				$this->SendDebug(__FUNCTION__, 'Unknown TargetEEP: ' . $targetEEP, 0);
 				return;
 		}
+		$data['DataByte1'] = $DB1;
+		$data['DataByte2'] = $DB2;
+		$data['DataByte3'] = $DB3;
 
-		// Device ID: robust parsen (alle non-hex löschen, dann in 2er-chunks splitten)
-		$clean = preg_replace('/[^0-9A-Fa-f]/', '', (string)$deviceID);
-		if ($clean === '') {
-			$this->SendDebug(__FUNCTION__, 'DeviceID leer oder nicht hex: ' . $deviceID, 0);
-			return;
-		}
-		// evtl. führende 0 ergänzen, falls ungerade Anzahl Ziffern
-		if (strlen($clean) % 2 !== 0) {
-			$clean = '0' . $clean;
-		}
-		$chunks = str_split($clean, 2);
-		$idBytes = array_map('hexdec', $chunks);
-
-		// Wir brauchen genau 4 Bytes: wenn mehr -> rechte (letzte) 4, wenn weniger -> links mit 0 auffüllen
-		if (count($idBytes) > 4) {
-			$idBytes = array_slice($idBytes, -4);
-		}
-		while (count($idBytes) < 4) {
-			array_unshift($idBytes, 0x00);
-		}
-
-		// Data Block (ERP1 4BS): RORG + DB3..DB0 + Sender-ID(4) + Status
-		$data = [
-			0xA5, // RORG 4BS
-			(int)$DB3, (int)$DB2, (int)$DB1, (int)$DB0,
-			(int)$idBytes[0], (int)$idBytes[1], (int)$idBytes[2], (int)$idBytes[3],
-			0x00  // status
-		];
-		// OptData
-		$optData = [0x01, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00];
-		$type = 0x01;                    // RPS/4BS telegram
-		$dataLength = count($data);      // 10
-	    // Data Length in 2 Bytes (Big Endian)
-		$dataLen2Bytes = [($dataLength >> 8) & 0xFF, $dataLength & 0xFF];
-		$optLength  = count($optData);   // 7
-		// Header
-		$header = [$dataLen2Bytes[0], $dataLen2Bytes[1], $optLength, $type];
-		//$header = [0x00, 0x0A, 0x07, 0x01];
-		$headerCRC8 = CRC8::calculate($header);
-		// Telegram zusammensetzen
-		$telegram = array_merge([0x55], $header, [$headerCRC8], $data, $optData);
-		//$telegram[] = CRC8::crc8(array_merge($data, $optData));
-		$telegram[] = CRC8::calculate(array_merge($data, $optData));
-		// Telegram-Bytes in Binärstring packen
-		$this->SendDebug(__FUNCTION__, 'Telegram array: ' . implode(' ', array_map(fn($b)=>sprintf('%02X',$b), $telegram)), 0);
-		//$this->SendDebug(__FUNCTION__, 'Header CRC=' . sprintf('%02X', $headerCRC8), 0);
-		//$this->SendDebug(__FUNCTION__, 'Data CRC=' . sprintf('%02X', end($telegram)), 0);
-		$binaryData = pack('C*', ...$telegram);
-		//$this->SendDebug(__FUNCTION__, 'Binary length: ' . strlen($binaryData), 0);
-		$parentID = @IPS_GetInstance($this->InstanceID)['ConnectionID'];
-		if ($parentID > 1) {
-			$data = [
-				'DataID' => GUIDs::DATAFLOW_TRANSMIT,
-				'Buffer' => bin2hex($binaryData) 
-			];
-			$this->SendDataToParent(json_encode($data));
-			//CSCK_SendText($parentID, $binaryData);
-			$this->SendDebug(__FUNCTION__, 'Sent Telegram to Socket (len='.strlen($binaryData).')', 0);
-		} else {
-			$this->SendDebug(__FUNCTION__, 'Kein Parent verbunden!', 0);
-		}
+		$this->SendDataToParent(json_encode($data));
+		$this->SendDebug(__FUNCTION__, 'Sent telegram to gateway (' . print_r($data, true) . ')', 0);
 	}
 
 	function decodeTemperature(string $profile, $raw): float {
@@ -382,4 +328,21 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		return $form;
 	}
 
+	protected function selectFreeDeviceID()
+	{
+		$Gateway = @IPS_GetInstance($this->InstanceID)["ConnectionID"];
+		if($Gateway == 0) return;
+		$Devices = IPS_GetInstanceListByModuleType(3);             # alle Geräte
+		$DeviceArray = array();
+		foreach ($Devices as $Device){
+			if(IPS_GetInstance($Device)["ConnectionID"] == $Gateway){
+				$config = json_decode(IPS_GetConfiguration($Device));
+				if(!property_exists($config, 'DeviceID'))continue;
+				if(is_integer($config->DeviceID)) $DeviceArray[] = $config->DeviceID;
+			}
+		}
+	
+		for($ID = 1; $ID<=256; $ID++)if(!in_array($ID,$DeviceArray))break;
+		return $ID == 256?0:$ID;
+	}
 }
