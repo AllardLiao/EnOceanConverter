@@ -161,7 +161,7 @@
         },
         {
             "type": "Button",
-            "caption": "Send test telegram (t=18,7°C, h=78,1%)",
+            "caption": "Send test telegram",
             "name": "sendTestTelegram",
             "confirm": "",
             "download": "",
