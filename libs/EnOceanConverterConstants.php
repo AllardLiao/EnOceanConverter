@@ -62,7 +62,7 @@ class EEPProfiles
     }
 
     private const GatewayBaseData      = '{
-        "DataID":"'.GUIDs::DATAFLOW_TRANSMIT.'",
+        "DataID":"{70E3075F-A35D-4DEB-AC20-C929A156FE48}",
         "Device":0xA5, 
         "Status":0,
         "DeviceID":0,
