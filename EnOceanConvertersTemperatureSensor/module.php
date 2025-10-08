@@ -77,7 +77,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		$sourceIDTemp = intval($this->GetBuffer('SourceVarTemp'));
 		$sourceIDHum  = intval($this->GetBuffer('SourceVarHum'));
 		$status = 104; // Standard: Quelle nicht gesetzt
-		// Temp Variable
+		// Listener für Temp Variable
 		if ($sourceIDTemp > 0) {
 			if ($this->RegisterMessage($sourceIDTemp, VM_UPDATE)) {
 				$this->SendDebug('RegisterMessage', 'Temp variable registered: ' . $sourceIDTemp, 0);
@@ -89,7 +89,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		} else {
 			$this->SendDebug('RegisterMessage', 'Temp variable ID not set', 0);
 		}
-		// Humidity Variable
+		// Listener für Humidity Variable
 		if ($sourceIDHum > 0) {
 			if ($this->RegisterMessage($sourceIDHum, VM_UPDATE)) {
 				$this->SendDebug('RegisterMessage', 'Humidity variable registered: ' . $sourceIDHum, 0);
@@ -126,7 +126,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 				$this->sendTestTelegram();
 				break;
 			case "selectFreeDeviceID":
-				$this->UpdateFormField('DeviceID', 'value', $this->selectFreeDeviceID());
+				//$this->UpdateFormField('DeviceID', 'value', $this->selectFreeDeviceID());
 				break;
             default:
                 parent::RequestAction($ident, $value);
@@ -208,7 +208,6 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		}
 
 		$targetEEP  = $this->ReadPropertyString('TargetEEP');
-		$deviceID   = $this->ReadPropertyString('DeviceID'); 
 
 		// Parameter in Ziel-Protokoll umwandeln
 		try {
@@ -327,7 +326,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
         // Unterstützte Devices einfügnen
 		$validModules = GUIDs::allTemperatureIpsGuids();
 		$form = str_replace('<!---VALID_MODULES-->', json_encode($validModules), $form);
-		$this->SendDebug(__FUNCTION__, 'GetConfigurationForm: ' . $form, 0);
+		//$this->SendDebug(__FUNCTION__, 'GetConfigurationForm: ' . $form, 0);
 		return $form;
 	}
 
