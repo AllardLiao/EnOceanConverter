@@ -113,7 +113,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 
     public function RequestAction(string $ident, mixed $value): void
     {
-		$this->SendDebug(__FUNCTION__, 'RequestAction: ' . $ident . ' → ' . print_r($value, true), 0);
+		//$this->SendDebug(__FUNCTION__, 'RequestAction: ' . $ident . ' → ' . print_r($value, true), 0);
         switch($ident) {
 			case 'SendTelegramDelayed':
 				$this->SendTelegramDelayed();
@@ -122,7 +122,6 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 				$this->sendTeachInTelegram();
 				break;
 			case 'sendTestTelegram':
-				$this->SendDebug(__FUNCTION__, 'Send Test Telegram', 0);
 				$this->sendTestTelegram();
 				break;
 			case 'selectAvailableDeviceId':
@@ -173,7 +172,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 			if ($senderIdInt === $humVarId) {
 				$this->SetValue('Humidity', (float)$value);
 			}
-			// Timer setzen (5 Sekunden warten, dann send)
+			// Timer setzen (2 Sekunden warten, dann send) - verhindert das doppelte Senden des Telegramms, wenn beide Variablen fast gleichzeitig aktualisiert werden
             $this->SetTimerInterval("ECTSSendDelayed" . $this->InstanceID, 2 * 1000);
 		}
     }
@@ -181,12 +180,9 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 	public function SendTelegramDelayed()
 	{
 		$this->SetTimerInterval("ECTSSendDelayed" . $this->InstanceID, 0); // Timer wieder stoppen
-
 		$temp = $this->GetValue('Temperature');
 		$hum  = $this->GetValue('Humidity');
-		$this->SendDebug(__FUNCTION__, 'Timestamps: temp=' . $temp . ', hum=' . $hum, 0);
-
-		// Senden (deine vorhandene Funktion)
+		$this->SendDebug(__FUNCTION__, 'Simulate telegram for ' . $this->InstanceID . '/' . $this->GetValue("TargetDeviceID") . ': temp=' . $temp . ', hum=' . $hum, 0);
 		$this->SendEnOceanTelegram($temp, $hum);
 	}
 
@@ -209,12 +205,12 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		}
 
 		$targetEEP  = $this->ReadPropertyString('TargetEEP');
-		$deviceID   = $this->ReadPropertyString('TargetDeviceID'); // z. B. "EC:00:A5:01" oder "EC00A501"
+		$deviceID   = $this->ReadPropertyString('TargetDeviceID'); // z. B. "EC:00:A5:01" 
 
 		// -> benutze die vorhandenen encode-Funktionen, um die RAW-Integer zu bekommen
 		try {
-			$rawTemp = $this->encodeTemperature($targetEEP, $temperature); // z.B. 0..255 oder 0..1023 oder 0..4095
-			$rawHum  = $this->encodeHumidity($targetEEP, $humidity);       // z.B. 0..255 oder 0..127
+			$rawTemp = $this->encodeTemperature($targetEEP, $temperature); 
+			$rawHum  = $this->encodeHumidity($targetEEP, $humidity);      
 		} catch (\Exception $e) {
 			$this->SendDebug(__FUNCTION__, 'Encode Fehler: ' . $e->getMessage(), 0);
 			return;
