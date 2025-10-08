@@ -182,7 +182,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		$this->SetTimerInterval("ECTSSendDelayed" . $this->InstanceID, 0); // Timer wieder stoppen
 		$temp = $this->GetValue('Temperature');
 		$hum  = $this->GetValue('Humidity');
-		$this->SendDebug(__FUNCTION__, 'Simulate telegram for ' . $this->InstanceID . '/' . $this->GetValue("TargetDeviceID") . ': temp=' . $temp . ', hum=' . $hum, 0);
+		$this->SendDebug(__FUNCTION__, 'Simulate telegram for ' . $this->InstanceID . '/' . $this->ReadPropertyString("TargetDeviceID") . ': temp=' . $temp . ', hum=' . $hum, 0);
 		$this->SendEnOceanTelegram($temp, $hum);
 	}
 
