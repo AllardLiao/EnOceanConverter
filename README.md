@@ -15,3 +15,8 @@ __Temperature Sensors__ ([Dokumentation](EnOceanConvertersTemperatureSensor))
 * EnOcean EEP A50404 - IPS-Modul gibt es (noch) nicht
   - A5-04-04 Range -40°C to +120°C 12bit measurement and 0% to 100%    
  
+__Temperature Sensors__ ([Dokumentation](EnOceanConvertersTemperatureSensor))  
+* EnOcean EEP A50401RX = {432FF87E-4497-48D6-8ED9-EE7104A50401}
+  - A5-04-01 Range 0°C to +40°C and 0% to 100%
+
+ 
