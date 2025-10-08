@@ -332,13 +332,12 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		$Devices = IPS_GetInstanceListByModuleType(3);             # alle Geräte
 		$DeviceArray = array();
 		foreach ($Devices as $Device){
-			if(IPS_GetInstance($Device)["ConnectionID"] == $Gateway){
+			if(IPS_GetInstance($Device)["ConnectionID"] == $Gateway["InstanceID"]){
 				$config = json_decode(IPS_GetConfiguration($Device));
 				if(!property_exists($config, 'DeviceID'))continue;
 				if(is_integer($config->DeviceID)) $DeviceArray[] = $config->DeviceID;
 			}
-		}
-	
+		}	
 		for($ID = 1; $ID<=256; $ID++)if(!in_array($ID,$DeviceArray))break;
 		return $ID == 256?0:$ID;
 	}
