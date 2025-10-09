@@ -45,7 +45,7 @@
             "validModules": <!---VALID_MODULES-->,
             "value": 0,
             "visible": true,
-            "width": "400px"
+            "width": "600px"
         },
         {
             "type": "RowLayout",
