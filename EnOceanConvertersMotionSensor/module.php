@@ -273,16 +273,176 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 
 		switch ($targetEEP) {
 			case EEPProfiles::A5_07_01: 
+				// A5-07-01 (Occupancy / Supply voltage)
+				// DB3: Supply voltage (0..250 valid; 251-255 reserved/error)
+				// DB2: Not used (= 0)
+				// DB1: PIR Status (0..127 PIR off, 128..255 PIR on)
+				// DB0:
+				//   DB0.3 LRN (0 = Teach-in, 1 = Data)
+				//   DB0.2..DB0.1 not used (=0)
+				//   DB0.0 SVA (Supply voltage availability: 0 = not supported, 1 = supported)
+				// DB3: take encoded voltage, clamp to 0..250 (250 = max valid; >250 could be error codes)
+				$DB3 = is_numeric($rawVol) ? intval($rawVol) : 0;
+				if ($DB3 < 0) {
+					$DB3 = 0;
+				} elseif ($DB3 > 250) {
+					// wenn >250, setze auf 250 (oder handle als error-code falls gewünscht)
+					$DB3 = 250;
+				}
+				// DB2: not used
+				$DB2 = 0;
+				// DB1: PIR status
+				// Spez: 0..127 -> PIR off, 128..255 -> PIR on
+				// Wir setzen DB1 in erster Linie anhand der boolschen $PIR-Flag.
+				// Falls EEPConverter schon eine Skala liefert, versuchen wir diese zu respektieren, sonst einfache Zuordnung.
+				if (is_numeric($rawPir)) {
+					$db1Candidate = intval($rawPir);
+					// normalize candidate into allowed byte range 0..255
+					if ($db1Candidate < 0) $db1Candidate = 0;
+					if ($db1Candidate > 255) $db1Candidate = 255;
+					if ($PIR) {
+						// sicherstellen, dass Wert im "on"-Bereich ist
+						if ($db1Candidate < 128) $db1Candidate = 128;
+					} else {
+						// sicherstellen, dass Wert im "off"-Bereich ist
+						if ($db1Candidate > 127) $db1Candidate = 0;
+					}
+					$DB1 = $db1Candidate;
+				} else {
+					// rawPir nicht numerisch -> reiner boolean-Fallback
+					$DB1 = $PIR ? 128 : 0;
+				}
+				// DB0: Bits zusammenbauen
+				// LRN (DB0.3): 0 = Teach-in, 1 = Data
+				$lrn = $teachIn ? 0 : 1;
+				// SVA (DB0.0): 1 wenn Versorgungswert angegeben/unterstützt (wir prüfen rawVol)
+				$sva = is_numeric($rawVol) ? 1 : 0;
+				$DB0 = ($lrn << 3) | ($sva ? 1 : 0);
+				// restliche Bits bleiben 0 (gemäß Spezifikation)
 				break;
 			case EEPProfiles::A5_07_02: 
+				// A5-07-02 (Motion + Supply Voltage only)
+				// DB3: Supply Voltage
+				$DB3 = is_numeric($rawVol) ? intval($rawVol) : 0;
+				if ($DB3 < 0) {
+					$DB3 = 0;
+				} elseif ($DB3 > 250) {
+					$DB3 = 250; // 251-255 reserved
+				}
+				// DB2 + DB1: Not used
+				$DB2 = 0;
+				$DB1 = 0;
+				// DB0: PIR + LRN
+				$pirBit = $PIR ? 1 : 0;             // DB0.7 = PIR status
+				$lrn    = $teachIn ? 0 : 1;         // DB0.3 = LRN Bit
+				$DB0 = ($pirBit << 7) | ($lrn << 3);
 				break;
 			case EEPProfiles::A5_07_03: 
+				// A5-07-03 (Motion, Supply Voltage, Illumination)
+				// DB3: Supply Voltage
+				$DB3 = is_numeric($rawVol) ? intval($rawVol) : 0;
+				if ($DB3 < 0) {
+					$DB3 = 0;
+				} elseif ($DB3 > 250) {
+					$DB3 = 250; // 251-255 reserved for error
+				}
+				// Illumination: 10-bit linear 0..1000
+				$ill = is_numeric($rawIll) ? intval($rawIll) : 0;
+				if ($ill < 0) $ill = 0;
+				if ($ill > 1000) $ill = 1001; // over range
+				$DB2 = ($ill >> 2) & 0xFF;           // high 8 bits
+				$DB1 = ($ill & 0x03) << 6;           // low 2 bits in DB1.7..6
+				// DB1.5..0 bleiben 0
+				// DB0: PIR + LRN
+				$pirBit = $PIR ? 1 : 0;              // DB0.7 = PIR status
+				$lrn    = $teachIn ? 0 : 1;          // DB0.3 = LRN
+				$DB0 = ($pirBit << 7) | ($lrn << 3);
 				break;
 			case EEPProfiles::A5_08_01: 
+				// A5-08-01: Motion + Temp + Lux + Voltage
+				// DB3: Supply Voltage (linear, 0..255 -> 0..5.1 V)
+				$DB3 = is_numeric($rawVol) ? intval($rawVol) : 0;
+				if ($DB3 < 0) {
+					$DB3 = 0;
+				} elseif ($DB3 > 255) {
+					$DB3 = 255;
+				}
+				// DB2: Illumination (linear, 0..255 -> 0..510 lx)
+				$DB2 = is_numeric($rawIll) ? intval($rawIll) : 0;
+				if ($DB2 < 0) {
+					$DB2 = 0;
+				} elseif ($DB2 > 255) {
+					$DB2 = 255;
+				}
+				// DB1: Temperature (linear, 0..255 -> 0..+51 °C)
+				$DB1 = is_numeric($rawTemp) ? intval($rawTemp) : 0;
+				if ($DB1 < 0) {
+					$DB1 = 0;
+				} elseif ($DB1 > 255) {
+					$DB1 = 255;
+				}
+				// DB0: [7..4]=0 | [3]=LRN | [2]=0 | [1]=PIR | [0]=Occupancy Button
+				$lrnBit     = $teachIn ? 0 : 1;  // DB0.3
+				$pirBit     = $PIR ? 0 : 1;      // Achtung: 0 = PIR on, 1 = PIR off
+				$buttonBit  = 1;                 // Default: released
+				$DB0 = ($lrnBit << 3) | ($pirBit << 1) | $buttonBit;
 				break;
 			case EEPProfiles::A5_08_02: 
+				// A5-08-02: Supply voltage + Illumination + Temperature + PIR + LRN
+				// DB3: Supply Voltage (0..255 -> 0..5.1 V)
+				$DB3 = is_numeric($rawVol) ? intval($rawVol) : 0;
+				if ($DB3 < 0) {
+					$DB3 = 0;
+				} elseif ($DB3 > 255) {
+					$DB3 = 255;
+				}
+				// DB2: Illumination (0..255 -> 0..1020 lx)
+				$DB2 = is_numeric($rawIll) ? intval($rawIll) : 0;
+				if ($DB2 < 0) {
+					$DB2 = 0;
+				} elseif ($DB2 > 255) {
+					$DB2 = 255;
+				}
+				// DB1: Temperature (0..255 -> 0..+51 °C)
+				$DB1 = is_numeric($rawTemp) ? intval($rawTemp) : 0;
+				if ($DB1 < 0) {
+					$DB1 = 0;
+				} elseif ($DB1 > 255) {
+					$DB1 = 255;
+				}
+				// DB0: [7..4]=0 | [3]=LRN | [2]=0 | [1]=PIR | [0]=ignored
+				$lrnBit = $teachIn ? 0 : 1;       // DB0.3: 0=Teach-in, 1=Data
+				$pir    = $PIR ? 0 : 1;           // DB0.1: 0=PIR on, 1=PIR off
+				$DB0 = ($lrnBit << 3) | ($pir << 1);
 				break;
 			case EEPProfiles::A5_08_03: 
+				// A5-08-03: Supply voltage + Illumination + Temperature + PIR + LRN
+				// DB3: Supply Voltage (0..255 -> 0..5.1 V)
+				$DB3 = is_numeric($rawVol) ? intval($rawVol) : 0;
+				if ($DB3 < 0) {
+					$DB3 = 0;
+				} elseif ($DB3 > 255) {
+					$DB3 = 255;
+				}
+				// DB2: Illumination (0..255 -> 0..1530 lx)
+				$DB2 = is_numeric($rawIll) ? intval($rawIll) : 0;
+				if ($DB2 < 0) {
+					$DB2 = 0;
+				} elseif ($DB2 > 255) {
+					$DB2 = 255;
+				}
+				// DB1: Temperature (0..255 -> -30..+50 °C)
+				// Mapping ist linear: 0 → -30 °C, 255 → +50 °C
+				$DB1 = is_numeric($rawTemp) ? intval($rawTemp) : 0;
+				if ($DB1 < 0) {
+					$DB1 = 0;
+				} elseif ($DB1 > 255) {
+					$DB1 = 255;
+				}
+				// DB0: [7..4]=0 | [3]=LRN | [2]=0 | [1]=PIR | [0]=ignored
+				$lrnBit = $teachIn ? 0 : 1;   // DB0.3: 0=Teach-in, 1=Data
+				$pir    = $PIR ? 0 : 1;       // DB0.1: 0=PIR on, 1=PIR off
+				$DB0 = ($lrnBit << 3) | ($pir << 1);
 				break;
 
 			default:
