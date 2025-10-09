@@ -210,7 +210,7 @@ class EEPConverter
                 throw new \Exception("Unbekanntes EEP Lux-Profil: $profile");
         }
     }
-    
+
     /**
      * Konvertiert einen Temperaturwert von einem Profil in ein anderes
      *
@@ -249,4 +249,49 @@ class EEPConverter
     }
 }
 
+trait MessagesHelper
+{
+	private function registerECMessage(string $name, int $vid, int $currentStatus): int
+	{
+		if ($vid > 0) {
+			if ($this->RegisterMessage($vid, VM_UPDATE)) {
+				$this->SendDebug(__FUNCTION__, $name . ' messages registered: ' . $vid, 0);
+				// Status auf 102 nur, wenn noch nicht 201 gesetzt
+				if ($currentStatus !== 201) $currentStatus = 102;
+			} else {
+				$this->SendDebug(__FUNCTION__, 'Failed to register ' . $name .	 ' messages: ' . $vid, 0);
+				$currentStatus = 201; // Priorität: Fehler
+			}
+		} else {
+			$this->SendDebug(__FUNCTION__, $name . ' message ID not set',	 0);
+			$this->SetValue($name, 0); // Variable zurücksetzen - denn es konnte keine Quell-Variable gefunden werden.
+			// Status unverändert: einige Profile haben nicht alle Variablen, ist also ok
+		}
+		return $currentStatus;
+	}
 
+    private function unregisterAllECMessages(): bool
+    {
+        return $this->UnregisterMessage(0, 0);
+    }
+}
+
+trait DeviceIDHelper
+{
+	private function selectFreeDeviceID()
+	{
+		$Gateway = @IPS_GetInstance($this->InstanceID)["ConnectionID"];
+		if($Gateway == 0) return;
+		$Devices = IPS_GetInstanceListByModuleType(3);             # alle Geräte
+		$DeviceArray = array();
+		foreach ($Devices as $Device){
+			if(IPS_GetInstance($Device)["ConnectionID"] == $Gateway){
+				$config = json_decode(IPS_GetConfiguration($Device));
+				if(!property_exists($config, 'DeviceID'))continue;
+				if(is_integer($config->DeviceID)) $DeviceArray[] = $config->DeviceID;
+			}
+		}	
+		for($ID = 1; $ID<=256; $ID++)if(!in_array($ID,$DeviceArray))break;
+		return $ID == 256?0:$ID;
+	}
+}

@@ -69,3 +69,7 @@ Keine Funktionalität in der Visualisierung.
 ### 7. PHP-Befehlsreferenz
 
 Keine aufrufbaren Funktionen
+
+### 8. Limitations
+
+In den EEP Profilen A5-08-xx wird der Occupancy Button nicht ausgewertet

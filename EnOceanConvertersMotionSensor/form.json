@@ -1,44 +1,40 @@
 {
     "elements": [
         {
-            "type": "Label",
-            "caption": "This module sends EEP A5-07-03 (motion) telegrams.",
-            "width": 0,
-            "height": 0,
-            "align": "left"
-        },
-        {
             "type": "RowLayout",
             "name": "Target",
             "items": [
                 {
-                    "type": "ValidationTextBox",
+                    "type": "NumberSpinner",
                     "caption": "Device ID",
+                    "digits": 0,
                     "enabled": true,
-                    "multiline": false,
-                    "name": "TargetDeviceID",
+                    "hex": false,
+                    "maximum": 256,
+                    "minimum": 0,
+                    "moreDigits": false,
+                    "name": "DeviceID",
                     "onChange": "",
-                    "value": "0",
+                    "suffix": "",
+                    "value": 0,
                     "visible": true,
-                    "width": "300px",
-                    "validate": "^(?:[1-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-6])$"
-                },
+                    "width": "300px"                },
                 {
-                    "type": "Label",
-                    "bold": false,
-                    "caption": "You can choose a hex id of your choice. Only take care, that the id is unique in your setup!\nThe range 00:00:00:00 to 00:00:FF:FF is reserved by EnOcean - IDs which start with EC:... should work out.",
-                    "color": 0,
-                    "italic": false,
-                    "link": true,
+                    "type": "Button",
+                    "caption": "Select available device id",
+                    "confirm": "",
+                    "download": "",
+                    "enabled": true,
+                    "link": false,
                     "name": "",
-                    "underline": false,
+                    "onClick": "IPS_RequestAction($id,'selectFreeDeviceID', true);",
                     "visible": true,
                     "width": ""
                 }
-
             ],
             "visible": true
-        },        {
+        },       
+        {
             "type": "SelectInstance",
             "caption": "Source Device",
             "download": "",
@@ -121,28 +117,66 @@
     ],
     "actions": [
         {
-            "type": "Button",
-            "caption": "Send teach-in telegram",
-            "name": "SendTeachIn",
-            "confirm": "",
-            "download": "",
-            "enabled": true,
-            "link": false,
-            "onClick": "IPS_RequestAction($id,'SendTeachIn', true);",
-            "visible": true,
-            "width": ""
+            "type": "RowLayout",
+            "name": "techin",
+            "items": [
+                {
+                    "type": "Button",
+                    "caption": "Send teach-in telegram",
+                    "name": "SendTeachIn",
+                    "confirm": "",
+                    "download": "",
+                    "enabled": true,
+                    "link": false,
+                    "onClick": "IPS_RequestAction($id,'SendTeachIn', true);",
+                    "visible": true,
+                    "width": ""
+                },
+                {
+                    "type": "Label",
+                    "bold": false,
+                    "caption": " ",
+                    "color": 0,
+                    "italic": false,
+                    "link": true,
+                    "name": "ResultTechIn",
+                    "underline": false,
+                    "visible": true,
+                    "width": ""
+                }
+            ],
+            "visible": true
         },
         {
-            "type": "Button",
-            "caption": "Send test telegram (PIR=true, lx=1212)",
-            "name": "sendTestTelegram",
-            "confirm": "",
-            "download": "",
-            "enabled": true,
-            "link": false,
-            "onClick": "IPS_RequestAction($id,'sendTestTelegram', true);",
-            "visible": true,
-            "width": ""
+            "type": "RowLayout",
+            "name": "SendTest",
+            "items": [
+                {
+                    "type": "Button",
+                    "caption": "Send test telegram",
+                    "name": "sendTestTelegram",
+                    "confirm": "",
+                    "download": "",
+                    "enabled": true,
+                    "link": false,
+                    "onClick": "IPS_RequestAction($id,'sendTestTelegram', true);",
+                    "visible": true,
+                    "width": ""
+                },
+                {
+                    "type": "Label",
+                    "bold": false,
+                    "caption": " ",
+                    "color": 0,
+                    "italic": false,
+                    "link": true,
+                    "name": "ResultSendTest",
+                    "underline": false,
+                    "visible": true,
+                    "width": ""
+                }
+            ],
+            "visible": true
         }
     ],
     "status": [

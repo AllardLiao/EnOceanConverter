@@ -9,10 +9,11 @@ if (substr(__DIR__,0, 10) == "/Users/kai") {
 	include_once __DIR__ . '/../.ips_stubs/autoload.php';
 }
 
+use EnOceanConverter\DeviceIDHelper;
 use EnOceanConverter\EEPProfiles;
 use EnOceanConverter\EEPConverter;
-use EnOceanConverter\CRC8;
 use EnOceanConverter\GUIDs;
+use EnOceanConverter\MessagesHelper;
 
 /**
  * Include Controme helper classes.
@@ -22,26 +23,51 @@ require_once __DIR__ . '/../libs/EnOceanConverterHelper.php';
 
 class EnOceanConvertersMotionSensor extends IPSModuleStrict
 {
+	use MessagesHelper;
+	use DeviceIDHelper;
+
+	private const propertyDeviceID = "DeviceID";
+	private const propertySourceDevice = "SourceDevice";
+	private const propertyTargetEEP = "TargetEEP";
+	private const propertySourceEEP = "SourceEEP";
+	private const propertyResendActive = "ResendActive";
+
+	private const bufferPIR = "BufferPIR";
+	private const bufferIllumination = "BufferIllumination";
+	private const bufferVoltage = "BufferVoltage";
+	private const bufferTemperature = "BufferTemperature";
+
+	private const varPIR = "PIR";
+	private const varIllumination = "Illumination";
+	private const varVoltage = "Voltage";
+	private const varTemperature = "Temperature";
+
+	private const timerPrefix = "ECMSSendDelayed";
+
 	public function Create():void
 	{
 		//Never delete this line!
 		parent::Create();
 
-		$this->RegisterPropertyString("SourceEEP", "1");
-		$this->RegisterPropertyBoolean("AutoDetectEEP", true);
-		$this->RegisterPropertyInteger("SourceDevice", 0);
-		$this->SetBuffer("SourceVarPIR", "0");
-		$this->SetBuffer("SourceVarIllumination", "0");
-		$this->SetBuffer("SourceVarVolt", "0");
-		$this->RegisterPropertyString("TargetEEP", "0");
-		$this->RegisterPropertyBoolean("ResendActive", false);
-		$this->RegisterPropertyString("TargetDeviceID", "EC:00:C8:01");
+		$this->RegisterPropertyInteger(self::propertyDeviceID, 0);
+		$this->RegisterPropertyInteger(self::propertySourceDevice, 0);
+		$this->RegisterPropertyString(self::propertyTargetEEP, EEPProfiles::A5_07_01);
+		$this->RegisterPropertyString(self::propertySourceEEP, EEPProfiles::A5_08_01);
+		$this->RegisterPropertyBoolean(self::propertyResendActive, false);
 
-		$this->MaintainVariable("PIR", "Bewegung", VARIABLETYPE_BOOLEAN, "~Motion", 1, true);
-		$this->MaintainVariable("Illumination", "Helligkeit", VARIABLETYPE_FLOAT, "~Illumination", 2, true);
-		$this->MaintainVariable("Voltage", "Spannung", VARIABLETYPE_FLOAT, "~Voltage", 3, true);
-        // Timer für verzögertes Senden (2s nach letztem Update)
-		$this->RegisterTimer("ECMSSendDelayed" . $this->InstanceID, 2 * 1000, 'IPS_RequestAction(' . $this->InstanceID . ', "SendTelegramDelayed", true);');
+		// Die Variablen-IDs der Quell-Variablen werden in den Buffern gespeichert
+		$this->SetBuffer(self::bufferPIR, "0");
+		$this->SetBuffer(self::bufferIllumination, "0");
+		$this->SetBuffer(self::bufferVoltage, "0");
+		$this->SetBuffer(self::bufferTemperature, "0");
+
+		// Die übertragenen Werte werden in Variablen gespeichert
+		$this->MaintainVariable(self::varPIR, "Bewegung", VARIABLETYPE_BOOLEAN, "~Motion", 1, true);
+		$this->MaintainVariable(self::varIllumination, "Helligkeit", VARIABLETYPE_INTEGER, "~Illumination", 2, true);
+		$this->MaintainVariable(self::varVoltage, "Spannung", VARIABLETYPE_FLOAT, "~Volt", 3, true);
+		$this->MaintainVariable(self::varTemperature, "Temperatur", VARIABLETYPE_FLOAT, "~Temperature", 4, true);
+
+		$this->RegisterTimer(self::timerPrefix . $this->InstanceID, 0, 'IPS_RequestAction(' . $this->InstanceID . ', "SendTelegramDelayed", true);');
 
 		$this->SetStatus(104);
 	}
@@ -58,58 +84,51 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 		parent::ApplyChanges();
 		
         // Alte Nachrichten abmelden
-        $this->UnregisterMessage(0, 0);
+        $this->unregisterAllECMessages();
 
-        $sourceID = $this->ReadPropertyInteger('SourceDevice');
+        $sourceID = $this->ReadPropertyInteger(self::propertySourceDevice);
 		//$this->SendDebug(__FUNCTION__, 'ApplyChanges: SourceDevice=' . $sourceID, 0);
 
+		$this->SetBuffer(self::bufferPIR, '0');
+		$this->SetBuffer(self::bufferIllumination, '0');
+		$this->SetBuffer(self::bufferVoltage, '0');
+		$this->SetBuffer(self::bufferTemperature, '0');
+
+		 // Source Device auslesen und Variable(n) suchen
 		if ($sourceID > 1) { // 0=root, 1=none
 			$variables = IPS_GetChildrenIDs($sourceID);
 			foreach ($variables as $vid) {
 				$vinfo = IPS_GetVariable($vid);
-				// z.B. nach Profil erkennen
-				if ($vinfo['VariableProfile'] === '~EEP_A50703_PIRS' || $vinfo['VariableProfile'] === '~Motion') {
-					$this->SetBuffer('SourceVarPIR', (string)$vid);
+				// nach Profil erkennen
+				if (str_contains(strtoupper($vinfo['VariableProfile']), '_PIRS') || str_contains(strtoupper($vinfo['VariableProfile']), 'MOTION') || str_contains(strtoupper($vinfo['VariableProfile']), 'PRESENCE')) {
+					$this->SetBuffer(self::bufferPIR, (string)$vid);
 				}
-				if ($vinfo['VariableProfile'] === '~EEP_A50703_ILL' || $vinfo['VariableProfile'] === '~Illumination') {
-					$this->SetBuffer('SourceVarIllumination', (string)$vid);
+				if (str_contains(strtoupper($vinfo['VariableProfile']), '_ILL') || str_contains(strtoupper($vinfo['VariableProfile']), 'ILLUMINATION')) {
+					$this->SetBuffer(self::bufferIllumination, (string)$vid);
+				}
+				if (str_contains(strtoupper($vinfo['VariableProfile']), '_SVC') || str_contains(strtoupper($vinfo['VariableProfile']), 'VOLT')) {
+					$this->SetBuffer(self::bufferVoltage, (string)$vid);
+				}
+				if (str_contains(strtoupper($vinfo['VariableProfile']), '_TMP') || str_contains(strtoupper($vinfo['VariableProfile']), 'TEMPERATURE')) {
+					$this->SetBuffer(self::bufferTemperature, (string)$vid);
 				}
 			}
 		}
 
-		$sourceIDPir = intval($this->GetBuffer('SourceVarPIR'));
-		$sourceIDIllumination  = intval($this->GetBuffer('SourceVarIllumination'));
-
+		// Update Messages registrieren
 		$status = 104; // Standard: Quelle nicht gesetzt
-
-		// PIR Variable
-		if ($sourceIDPir > 0) {
-			if ($this->RegisterMessage($sourceIDPir, VM_UPDATE)) {
-				$this->SendDebug('RegisterMessage', 'PIR variable registered: ' . $sourceIDPir, 0);
-				$status = 102; // Verbindung erfolgreich
-			} else {
-				$this->SendDebug('RegisterMessage', 'Failed to register PIR variable: ' . $sourceIDPir, 0);
-				$status = 201; // Keine Verbindung
-			}
-		} else {
-			$this->SendDebug('RegisterMessage', 'PIR variable ID not set', 0);
-		}
-
-		// Illumination Variable
-		if ($sourceIDIllumination > 0) {
-			if ($this->RegisterMessage($sourceIDIllumination, VM_UPDATE)) {
-				$this->SendDebug('RegisterMessage', 'Illumination variable registered: ' . $sourceIDIllumination, 0);
-				// Status auf 102 nur, wenn noch nicht 201 gesetzt
-				if ($status !== 201) $status = 102;
-			} else {
-				$this->SendDebug('RegisterMessage', 'Failed to register Illumination variable: ' . $sourceIDIllumination, 0);
-				$status = 201; // Priorität: Fehler
-			}
-		} else {
-			$this->SendDebug('RegisterMessage', 'Illumination variable ID not set', 0);
-		}
+		$status = $this->registerECMessage(self::varPIR, intval($this->GetBuffer(self::bufferPIR)), $status);
+		$status = $this->registerECMessage(self::varIllumination, intval($this->GetBuffer(self::bufferIllumination)), $status);
+		$status = $this->registerECMessage(self::varVoltage, intval($this->GetBuffer(self::bufferVoltage)), $status);
+		$status = $this->registerECMessage(self::varTemperature, intval($this->GetBuffer(self::bufferTemperature)), $status);
 
 		// Status setzen
+		if ($status == 102) {
+			if (!$this->ReadPropertyBoolean('ResendActive')) {
+				$this->SetStatus(104); // 104 = Quelle verbunden, aber kein Resend aktiv
+				return;
+			}
+		}
 		$this->SetStatus($status);
 	}
 
@@ -126,8 +145,8 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 			case 'sendTestTelegram':
 				$this->sendTestTelegram();
 				break;
-			case 'selectAvailableDeviceId':
-				$this->selectAvailableDeviceId();
+			case "selectFreeDeviceID":
+				$this->UpdateFormField('DeviceID', 'value', $this->selectFreeDeviceID());
 				break;
             default:
                 parent::RequestAction($ident, $value);
@@ -135,57 +154,72 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
     }
 
 	/**
-	 * Sendet ein Test-Telegramm (Temp=20°C, Hum=50%)
+	 * Sendet ein Test-Telegramm mit den aktuellen Werten der Quell-Variablen
 	 */
 	public function sendTestTelegram(): void
 	{
-		$PIR = true;  
-		$ILL  = 1212;  
-		$this->SendDebug(__FUNCTION__, "sending test: PIR=" . $PIR . ", ILL=" . $ILL, 0);
-		$this->SendEnOceanTelegram($PIR, $ILL, false);
+		$PIR = $this->GetValue(self::varPIR);
+		$ILL = $this->GetValue(self::varIllumination);
+		$TEMP = $this->GetValue(self::varTemperature);
+		$VOL = $this->GetValue(self::varVoltage);
+		$this->UpdateFormField('ResultSendTest', 'caption', 'Send test telegram (PIR=' . $PIR . ', ILL=' . $ILL . ', TEMP=' . $TEMP . ', VOL=' . $VOL . ')');
+		$this->SendDebug(__FUNCTION__, "sending test: PIR=" . $PIR . ", ILL=" . $ILL . ", TEMP=" . $TEMP . ", VOL=" . $VOL, 0);
+		$this->SendEnOceanTelegram($PIR, $ILL, $TEMP, $VOL, false);
 	}
 
 	/**
-	 * Sendet ein Teach-in-Telegramm
+	 * Sendet ein Teach-in-Telegramm mit PIR=true, Illumination=12, Temperature=18.6, Voltage=3.3
 	 */
 	public function sendTeachInTelegram(): void
 	{
-		$PIR = true;  
-		$ILL  = 1212;  
-		$this->SendDebug(__FUNCTION__, "sending teach-in with: PIR=" . $PIR . ", ILL=" . $ILL, 0);
-		$this->SendEnOceanTelegram($PIR, $ILL, true);
+		$PIR = true;
+		$ILL = 12;
+		$TEMP = 18.6;
+		$VOL = 3.3;
+		$this->UpdateFormField('ResultSendTeachIn', 'caption', 'Send teach-in telegram (PIR=' . $PIR . ', ILL=' . $ILL . ', TEMP=' . $TEMP . ', VOL=' . $VOL . ')');
+		$this->SendDebug(__FUNCTION__, "sending teach-in with: PIR=" . $PIR . ", ILL=" . $ILL . ", TEMP=" . $TEMP . ", VOL=" . $VOL, 0);
+		$this->SendEnOceanTelegram($PIR, $ILL, $TEMP, $VOL, true);
 	}
 
     public function MessageSink($TimeStamp, $SenderID, $Message, $Data): void
     {
 		$senderIdInt = (int)$SenderID;
-		$tempVarId   = (int)$this->GetBuffer('SourceVarTemp'); // vorher per SetBuffer gespeichert
-		$humVarId    = (int)$this->GetBuffer('SourceVarHum');
-		$this->SendDebug(__FUNCTION__, "sender={$senderIdInt} (tempVar={$tempVarId}, humVar={$humVarId}) with DATA-0: " . print_r($Data[0], true), 0);
+		$tempVarId   = (int)$this->GetBuffer(self::bufferTemperature);
+		$illVarId    = (int)$this->GetBuffer(self::bufferIllumination);
+		$pirVarId    = (int)$this->GetBuffer(self::bufferPIR);
+		$volVarId    = (int)$this->GetBuffer(self::bufferVoltage);
+
+		$this->SendDebug(__FUNCTION__, "sender={$senderIdInt} (tempVar={$tempVarId}, illVar={$illVarId}, pirVar={$pirVarId}, volVar={$volVarId}) with DATA-0: " . print_r($Data[0], true), 0);
 		// Save received values in own variables
 		if ($Message == VM_UPDATE) {
 			$value = $Data[0];
-			$sourceProfile = $this->ReadPropertyString('SourceEEP');
-			// unterscheiden: kommt Wert aus Temp- oder Humidity-Quelle?
+			// Wert entsprechend zuordnen
 			if ($senderIdInt === $tempVarId) {
-				$this->SetValue('Temperature', (float)$value);
+				$this->SetValue(self::varTemperature, (float)$value);
 			}
-			// Falls Update der Humidity-Variable
-			if ($senderIdInt === $humVarId) {
-				$this->SetValue('Humidity', (float)$value);
+			if ($senderIdInt === $illVarId) {
+				$this->SetValue(self::varIllumination, (int)$value);
+			}
+			if ($senderIdInt === $pirVarId) {
+				$this->SetValue(self::varPIR, (bool)$value);
+			}
+			if ($senderIdInt === $volVarId) {
+				$this->SetValue(self::varVoltage, (float)$value);
 			}
 			// Timer setzen (2 Sekunden warten, dann send) - verhindert das doppelte Senden des Telegramms, wenn beide Variablen fast gleichzeitig aktualisiert werden
-            $this->SetTimerInterval("ECTSSendDelayed" . $this->InstanceID, 2 * 1000);
+            $this->SetTimerInterval(self::timerPrefix . $this->InstanceID, 2 * 1000);
 		}
     }
 
 	public function SendTelegramDelayed()
 	{
-		$this->SetTimerInterval("ECTSSendDelayed" . $this->InstanceID, 0); // Timer wieder stoppen
-		$temp = $this->GetValue('Temperature');
-		$hum  = $this->GetValue('Humidity');
-		$this->SendDebug(__FUNCTION__, 'Simulate telegram for ' . $this->InstanceID . '/' . $this->GetValue("TargetDeviceID") . ': temp=' . $temp . ', hum=' . $hum, 0);
-		$this->SendEnOceanTelegram($temp, $hum);
+		$this->SetTimerInterval(self::timerPrefix . $this->InstanceID, 0); // Timer wieder stoppen
+		$temp = $this->GetValue(self::varTemperature);
+		$ill  = $this->GetValue(self::varIllumination);
+		$pir  = $this->GetValue(self::varPIR);
+		$vol  = $this->GetValue(self::varVoltage);
+		$this->SendDebug(__FUNCTION__, 'Send telegram for ' . $this->InstanceID . '/' . $this->GetValue(self::propertyDeviceID) . ': temp=' . $temp . ', ill=' . $ill . ', pir=' . $pir . ', vol=' . $vol, 0);
+		$this->SendEnOceanTelegram($pir, $ill, $temp, $vol);
 	}
 
 	private function isSocketActive(): bool
@@ -199,189 +233,74 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 	}
 
 	// SendEnOceanTelegram: sanitizing device id + sauberes Packing mit encode*-Funktionen
-	private function SendEnOceanTelegram(bool $PIR, float $ILL, bool $teachIn = false): void
+	private function SendEnOceanTelegram(bool $PIR, int $ILL, float $TEMP, float $VOLT, bool $teachIn = false): void
 	{
 		if (!$this->isSocketActive()) {
 			$this->SendDebug(__FUNCTION__, 'Socket nicht verbunden oder nicht aktiv - Telegramm nicht gesendet.', 0);
 			return;
 		}
 
-		$targetEEP  = $this->ReadPropertyString('TargetEEP');
-		$deviceID   = $this->ReadPropertyString('TargetDeviceID'); // z. B. "EC:00:A5:01" 
+		$targetEEP  = $this->ReadPropertyString(self::propertyTargetEEP);
 
 		// -> benutze die vorhandenen encode-Funktionen, um die RAW-Integer zu bekommen
 		try {
-			$rawPIR = $this->encodePIR($targetEEP, $PIR); 
-			$rawILL = $this->encodeIllumination($targetEEP, $ILL);      
+			$rawPir = EEPConverter::encodeMotion($targetEEP, $PIR);
+			$rawIll = EEPConverter::encodeLux($targetEEP, $ILL);
+			$rawTemp = EEPConverter::encodeTemperature($targetEEP, $TEMP);
+			$rawVol = EEPConverter::encodeVoltage($targetEEP, $VOLT);
 		} catch (\Exception $e) {
 			$this->SendDebug(__FUNCTION__, 'Encode Fehler: ' . $e->getMessage(), 0);
 			return;
 		}
 
-		// Default DBs
-		$DB0 = 0x0F; // Status-Byte = Datentelegramm
-		if ($teachIn) {
-			$DB0 = 0x00; // Teach-in
-		}
+		//4bs = 4 Databytes. DB0 enthält im byte 3 das Lern-Flag (0=Teach-in, 8=Normal)
+		$data = EEPProfiles::gatewayBaseData();
+		$data['DeviceID'] = $this->ReadPropertyInteger(self::propertyDeviceID);
+		$DB0 = 8;
 		$DB1 = 0;
 		$DB2 = 0;
 		$DB3 = 0;
+		if ($teachIn) {
+			$DB0 = 0; // Status-Byte = Teach-in
+		}
 
 		switch ($targetEEP) {
-			case EEPProfiles::A5_04_01: // 8 Bit Temp, 8 Bit Hum
-			case EEPProfiles::A5_04_02: // 8 Bit Temp, 8 Bit Hum
-				$DB1 = ((int)$rawTemp) & 0xFF;
-				$DB2 = ((int)$rawHum) & 0xFF;
+			case EEPProfiles::A5_07_01: 
 				break;
-
-			case EEPProfiles::A5_04_03: // 10 Bit Temp, 7 Bit Hum
-				$rawTempFull = (int)$rawTemp; // 0..1023
-				$rawHum7     = (int)$rawHum;  // 0..127
-				$DB3 = $rawTempFull & 0xFF;                // low 8 bits
-				$upper2 = ($rawTempFull >> 8) & 0x03;      // upper 2 bits (0..3)
-				// DB2: bits 0..6 = humidity (7 bit), bits 7..6 = upper2  -> shift left by 6
-				$DB2 = ($rawHum7 & 0x7F) | (($upper2 & 0x03) << 6);
+			case EEPProfiles::A5_07_02: 
 				break;
-
-			case EEPProfiles::A5_04_04: // 12 Bit Temp, 8 Bit Hum
-				$rawTemp12 = (int)$rawTemp; // 0..4095
-				$DB3 = $rawTemp12 & 0xFF;            // lower 8 bit
-				$DB2 = ((int)$rawHum) & 0xFF;        // humidity full 8 bit
-				$DB1 = ($rawTemp12 >> 8) & 0x0F;     // upper 4 bit of 12-bit temp into DB1
+			case EEPProfiles::A5_07_03: 
+				break;
+			case EEPProfiles::A5_08_01: 
+				break;
+			case EEPProfiles::A5_08_02: 
+				break;
+			case EEPProfiles::A5_08_03: 
 				break;
 
 			default:
-				$this->SendDebug(__FUNCTION__, 'Unknown TargetEEP: ' . $targetEEP, 0);
+				$this->SendDebug(__FUNCTION__, 'Unknown Target EEP: ' . $targetEEP, 0);
 				return;
 		}
+		$data['DataByte0'] = $DB0;
+		$data['DataByte1'] = $DB1;
+		$data['DataByte2'] = $DB2;
+		$data['DataByte3'] = $DB3;
 
-		// Device ID: robust parsen (alle non-hex löschen, dann in 2er-chunks splitten)
-		$clean = preg_replace('/[^0-9A-Fa-f]/', '', (string)$deviceID);
-		if ($clean === '') {
-			$this->SendDebug(__FUNCTION__, 'DeviceID leer oder nicht hex: ' . $deviceID, 0);
-			return;
+		try {
+			@$this->SendDataToParent(json_encode($data));
+		} catch (Exception $e) {
+			$this->SendDebug(__FUNCTION__, 'Error sending data to parent: ' . $e->getMessage(), 0);
 		}
-		// evtl. führende 0 ergänzen, falls ungerade Anzahl Ziffern
-		if (strlen($clean) % 2 !== 0) {
-			$clean = '0' . $clean;
-		}
-		$chunks = str_split($clean, 2);
-		$idBytes = array_map('hexdec', $chunks);
-
-		// Wir brauchen genau 4 Bytes: wenn mehr -> rechte (letzte) 4, wenn weniger -> links mit 0 auffüllen
-		if (count($idBytes) > 4) {
-			$idBytes = array_slice($idBytes, -4);
-		}
-		while (count($idBytes) < 4) {
-			array_unshift($idBytes, 0x00);
-		}
-
-		// Data Block (ERP1 4BS): RORG + DB3..DB0 + Sender-ID(4) + Status
-		$data = [
-			0xA5, // RORG 4BS
-			(int)$DB3, (int)$DB2, (int)$DB1, (int)$DB0,
-			(int)$idBytes[0], (int)$idBytes[1], (int)$idBytes[2], (int)$idBytes[3],
-			0x00  // status
-		];
-		// OptData
-		$optData = [0x01, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00];
-		$type = 0x01;                    // RPS/4BS telegram
-		$dataLength = count($data);      // 10
-	    // Data Length in 2 Bytes (Big Endian)
-		$dataLen2Bytes = [($dataLength >> 8) & 0xFF, $dataLength & 0xFF];
-		$optLength  = count($optData);   // 7
-		// Header
-		$header = [$dataLen2Bytes[0], $dataLen2Bytes[1], $optLength, $type];
-		//$header = [0x00, 0x0A, 0x07, 0x01];
-		$headerCRC8 = CRC8::calculate($header);
-		// Telegram zusammensetzen
-		$telegram = array_merge([0x55], $header, [$headerCRC8], $data, $optData);
-		//$telegram[] = CRC8::crc8(array_merge($data, $optData));
-		$telegram[] = CRC8::calculate(array_merge($data, $optData));
-		// Telegram-Bytes in Binärstring packen
-		$this->SendDebug(__FUNCTION__, 'Telegram array: ' . implode(' ', array_map(fn($b)=>sprintf('%02X',$b), $telegram)), 0);
-		//$this->SendDebug(__FUNCTION__, 'Header CRC=' . sprintf('%02X', $headerCRC8), 0);
-		//$this->SendDebug(__FUNCTION__, 'Data CRC=' . sprintf('%02X', end($telegram)), 0);
-		$binaryData = pack('C*', ...$telegram);
-		//$this->SendDebug(__FUNCTION__, 'Binary length: ' . strlen($binaryData), 0);
-		$parentID = @IPS_GetInstance($this->InstanceID)['ConnectionID'];
-		if ($parentID > 1) {
-			$data = [
-				'DataID' => GUIDs::DATAFLOW_TRANSMIT,
-				'Buffer' => bin2hex($binaryData) 
-			];
-			$this->SendDataToParent(json_encode($data));
-			//CSCK_SendText($parentID, $binaryData);
-			$this->SendDebug(__FUNCTION__, 'Sent Telegram to Socket (len='.strlen($binaryData).')', 0);
-		} else {
-			$this->SendDebug(__FUNCTION__, 'Kein Parent verbunden!', 0);
-		}
-	}
-
-	function decodeTemperature(string $profile, $raw): float {
-		switch($profile) {
-			case EEPProfiles::A5_04_01: // 8 Bit, 0…40°C
-				return 0 + (40 - 0) * ($raw / 255);
-			case EEPProfiles::A5_04_02: // 8 Bit, -20…60°C
-				return -20 + (60 - -20) * ($raw / 255);
-			case EEPProfiles::A5_04_03: // 10 Bit, -20…60°C
-				return -20 + (60 - -20) * ($raw / 1023);
-			case EEPProfiles::A5_04_04: // 12 Bit, -40…120°C
-				return -40 + (120 - -40) * ($raw / 4095);
-			default:
-				return NAN;
-		}
-	}
-
-	function decodeHumidity(string $profile, $raw): float {
-		switch($profile) {
-			case EEPProfiles::A5_04_01:
-			case EEPProfiles::A5_04_02:
-			case EEPProfiles::A5_04_04:
-				return 0 + (100 - 0) * ($raw / 255);
-			case EEPProfiles::A5_04_03: // 7 Bit
-				return 0 + (100 - 0) * ($raw / 127);
-			default:
-				return NAN;
-		}
-	}
-
-	function encodeTemperature(string $profile, float $temperature): int {
-		switch ($profile) {
-			case EEPProfiles::A5_04_01:
-				return (int)round(($temperature - 0) * 255 / 40);
-			case EEPProfiles::A5_04_02:
-				return (int)round(($temperature + 20) * 255 / 80);
-			case EEPProfiles::A5_04_03:
-				return (int)round(($temperature + 20) * 1023 / 80);
-			case EEPProfiles::A5_04_04:
-				return (int)round(($temperature + 40) * 4095 / 160);
-			default:
-				throw new Exception("Unbekanntes EEP Profil: $profile");
-		}
-	}
-
-	function encodeHumidity(string $profile, float $humidity): int {
-		switch ($profile) {
-			case EEPProfiles::A5_04_01:
-			case EEPProfiles::A5_04_02:
-			case EEPProfiles::A5_04_04:
-				return (int)round($humidity * 255 / 100);
-			case EEPProfiles::A5_04_03:
-				return (int)round($humidity * 127 / 100);
-			default:
-				throw new Exception("Unbekanntes EEP Profil: $profile");
-		}
+		$this->SendDebug(__FUNCTION__, 'Sent telegram to gateway (' . print_r($data, true) . ')', 0);
 	}
 
 	public function GetConfigurationForm(): string {
-        // 5. HTML Template laden & Platzhalter ersetzen
+        // Json Template laden & Platzhalter ersetzen
         $form = file_get_contents(__DIR__ . '/form.json');
         // Unterstützte Devices einfügnen
-		$validModules = GUIDs::allTemperatureIpsGuids();
+		$validModules = GUIDs::allOccupancyIpsGuids();
 		$form = str_replace('<!---VALID_MODULES-->', json_encode($validModules), $form);
-		$this->SendDebug(__FUNCTION__, 'GetConfigurationForm: ' . $form, 0);
 		return $form;
 	}
-
 }
