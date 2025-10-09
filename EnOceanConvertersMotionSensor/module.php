@@ -37,10 +37,10 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 	private const bufferVoltage = "BufferVoltage";
 	private const bufferTemperature = "BufferTemperature";
 
-	private const varPIR = "PIR";
-	private const varIllumination = "Illumination";
-	private const varVoltage = "Voltage";
-	private const varTemperature = "Temperature";
+	private const varPIR = "PIR-Status";
+	private const varIllumination = "Helligkeit";
+	private const varVoltage = "Versorgungsspannung";
+	private const varTemperature = "Temperatur";
 
 	private const timerPrefix = "ECMSSendDelayed";
 
