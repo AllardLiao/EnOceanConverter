@@ -87,7 +87,6 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 			$variables = IPS_GetChildrenIDs($sourceID);
 			foreach ($variables as $vid) {
 				$vinfo = IPS_GetVariable($vid);
-				$this->SendDebug(__FUNCTION__, 'Check variable: ' . $vid . ", Profile: " . strtoupper($vinfo['VariableProfile']), 0);
 				// nach Profil erkennen
 				if (str_contains(strtoupper($vinfo['VariableProfile']), '_TMP') || str_contains(strtoupper($vinfo['VariableProfile']), 'TEMPERATURE')) {
 					$this->SetBuffer(self::bufferTemperature, (string)$vid);
