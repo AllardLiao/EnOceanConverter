@@ -97,7 +97,7 @@ class EEPProfiles
         ];
     }
 
-        /**
+    /**
      * Liefert alle Bewegungsmelder-Profile als Array
      *
      * @return string[]
@@ -112,6 +112,21 @@ class EEPProfiles
             self::A5_08_02,
             self::A5_08_03
         ];
+    }
+
+    /**
+     * Liefert alle unterstützten EEP als Json für die Options-Liste im Formular
+     */
+    public static function createFormularJsonFromAvailableEEP(array $EEPs): string
+    {
+        $result = [];
+        foreach ($EEPs as $item) {
+            $result[] = [
+                "caption" => $item,
+                "value"   => $item
+            ];
+        }
+        return json_encode($result);
     }
 
     private const GatewayBaseData      = '{

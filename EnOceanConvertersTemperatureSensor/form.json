@@ -58,24 +58,7 @@
                     "enabled": true,
                     "link": false,
                     "name": "SourceEEP",
-                    "options": [
-                        {
-                            "caption": "A5-04-01 (PTM 215B)",
-                            "value": "A5-04-01"
-                        },
-                        {
-                            "caption": "A5-04-02 (PTM 216B)",
-                            "value": "A5-04-02"
-                        },
-                        {
-                            "caption": "A5-04-03 (PTM 217B)",
-                            "value": "A5-04-03"
-                        },
-                        {
-                            "caption": "A5-04-04 (PTM 218B)",
-                            "value": "A5-04-04"
-                        }
-                    ],
+                    "options": <!---VALID_EEP_OPTIONS-->,
                     "onChange": "",
                     "value": "A5-04-01",
                     "visible": true,
@@ -103,24 +86,7 @@
             "enabled": true,
             "link": false,
             "name": "TargetEEP",
-            "options": [
-                {
-                    "caption": "A5-04-01 (PTM 215B)",
-                    "value": "A5-04-01"
-                },
-                {
-                    "caption": "A5-04-02 (PTM 216B)",
-                    "value": "A5-04-02"
-                },
-                {
-                    "caption": "A5-04-03 (PTM 217B)",
-                    "value": "A5-04-03"
-                },
-                {
-                    "caption": "A5-04-04 (PTM 218B)",
-                    "value": "A5-04-04"
-                }
-            ],
+            "options": <!---VALID_EEP_OPTIONS-->,
             "onChange": "",
             "value": "A5-04-02",
             "visible": true,

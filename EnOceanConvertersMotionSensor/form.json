@@ -58,12 +58,7 @@
                     "enabled": true,
                     "link": false,
                     "name": "SourceEEP",
-                    "options": [
-                        {
-                            "caption": "A5-08-02 (PTM 215B)",
-                            "value": "A5-08-02"
-                        }
-                    ],
+                    "options": <!---VALID_EEP_OPTIONS-->,
                     "onChange": "",
                     "value": "A5-08-02",
                     "visible": true,
@@ -91,12 +86,7 @@
             "enabled": true,
             "link": false,
             "name": "TargetEEP",
-            "options": [
-                {
-                    "caption": "A5-07-03 (PTM 215B)",
-                    "value": "A5-07-03"
-                }
-            ],
+            "options": <!---VALID_EEP_OPTIONS-->,
             "onChange": "",
             "value": "A5-07-03",
             "visible": true,

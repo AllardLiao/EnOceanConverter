@@ -301,6 +301,7 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
         // Unterstützte Devices einfügnen
 		$validModules = GUIDs::allOccupancyIpsGuids();
 		$form = str_replace('<!---VALID_MODULES-->', json_encode($validModules), $form);
+		$form = str_replace('<!---VALID_EEP_OPTIONS-->', EEPProfiles::createFormularJsonFromAvailableEEP(EEPProfiles::allMotionProfiles()), $form);
 		return $form;
 	}
 }
