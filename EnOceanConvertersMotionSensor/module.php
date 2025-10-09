@@ -37,7 +37,7 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 	private const bufferVoltage = "BufferVoltage";
 	private const bufferTemperature = "BufferTemperature";
 
-	private const varPIR = "PIR-Status";
+	private const varPIR = "PIRStatus";
 	private const varIllumination = "Helligkeit";
 	private const varVoltage = "Versorgungsspannung";
 	private const varTemperature = "Temperatur";
@@ -62,9 +62,9 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 		$this->SetBuffer(self::bufferTemperature, "0");
 
 		// Die übertragenen Werte werden in Variablen gespeichert
-		$this->MaintainVariable(self::varPIR, "Bewegung", VARIABLETYPE_BOOLEAN, "~Motion", 1, true);
+		$this->MaintainVariable(self::varPIR, "PIR-Status", VARIABLETYPE_BOOLEAN, "~Motion", 1, true);
 		$this->MaintainVariable(self::varIllumination, "Helligkeit", VARIABLETYPE_INTEGER, "~Illumination", 2, true);
-		$this->MaintainVariable(self::varVoltage, "Spannung", VARIABLETYPE_FLOAT, "~Volt", 3, true);
+		$this->MaintainVariable(self::varVoltage, "Versorgungsspannung", VARIABLETYPE_FLOAT, "~Volt", 3, true);
 		$this->MaintainVariable(self::varTemperature, "Temperatur", VARIABLETYPE_FLOAT, "~Temperature", 4, true);
 
 		$this->RegisterTimer(self::timerPrefix . $this->InstanceID, 0, 'IPS_RequestAction(' . $this->InstanceID . ', "SendTelegramDelayed", true);');
