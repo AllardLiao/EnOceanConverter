@@ -77,7 +77,8 @@ class EEPConverter
             case EEPProfiles::A5_08_03:
                 return (int)round(($temperature + 30) * 255 / 80);
 			default:
-				throw new \Exception("Unbekanntes EEP Temperatur-Profil: $profile");
+                return 0;
+				//throw new \Exception("Unbekanntes EEP Temperatur-Profil: $profile");
 		}
 	}
 
@@ -90,7 +91,7 @@ class EEPConverter
 			case EEPProfiles::A5_04_03: // 7 Bit
 				return 0 + (100 - 0) * ($raw / 255);
 			default:
-				return NAN;
+				return 0.0;
 		}
 	}
 
@@ -103,7 +104,7 @@ class EEPConverter
 			case EEPProfiles::A5_04_03:
 				return (int)round($humidity * 255 / 100);
 			default:
-				throw new \Exception("Unbekanntes EEP Feuchtigkeits-Profil: $profile");
+				return 0;
 		}
 	}
 
@@ -135,7 +136,7 @@ class EEPConverter
             case EEPProfiles::A5_08_03:
                 return $motion ? 0 : 1;
             default:
-                throw new \Exception("Unbekanntes EEP Bewegungs-Profil: $profile");
+                return 0;
         }
     }
 
@@ -162,7 +163,7 @@ class EEPConverter
             case EEPProfiles::A5_08_03:
                 return 0 + (5.1 - 0) * ($raw / 255);
             default:
-                return NAN;
+                return 0.0;
         }
     }
 
@@ -177,7 +178,7 @@ class EEPConverter
             case EEPProfiles::A5_08_03:
                 return (int)round(($voltage - 0) * 255 / 5.1);
             default:
-                throw new \Exception("Unbekanntes EEP Spannungs-Profil: $profile");
+                return 0;
         }
     }
 
@@ -192,7 +193,7 @@ class EEPConverter
             case EEPProfiles::A5_08_03:
                 return 0 + (1530 - 0) * ($raw / 255);
             default:
-                return NAN;
+                return 0.0;
         }
     }
 
@@ -207,45 +208,8 @@ class EEPConverter
             case EEPProfiles::A5_08_03:
                 return (int)round($lux * 255 / 1530);
             default:
-                throw new \Exception("Unbekanntes EEP Lux-Profil: $profile");
+                return 0;
         }
-    }
-
-    /**
-     * Konvertiert einen Temperaturwert von einem Profil in ein anderes
-     *
-     * @param string $inputProfile Quell-Profil
-     * @param float $value Temperaturwert im Quell-Profil
-     * @param string $targetProfile Ziel-Profil
-     * @return string Hexadezimaler Wert im Ziel-Profil
-     * @throws \Exception
-     */
-    public static function convertTemperature(string $inputProfile, float $value, string $targetProfile): string
-    {
-        // Raw = (Temp - minTemp) / (maxTemp - minTemp) * (2^bits - 1)
-        $in = self::PROFILE_DATA[$inputProfile];
-        $out = self::PROFILE_DATA[$targetProfile];
-        // Normalisierung auf 0..1
-        $norm = ($value - $in['minTemp']) / ($in['maxTemp'] - $in['minTemp']);
-        $norm = max(0.0, min(1.0, $norm));
-        // Skalierung auf Zielprofil
-        $maxValue = (1 << $out['bitsTemp']) - 1;
-        $scaled = (int)round($norm * $maxValue);
-        // Hex-Format anpassen an Bit-Breite
-        $hexDigits = (int)ceil($out['bitsTemp'] / 4);
-        return sprintf('%0' . $hexDigits . 'X', $scaled);
-    }
-
-    
-    public static function convertHumidity(string $inputProfile, float $value, string $targetProfile): string
-    {
-        // Raw = Humidity / 100 * (2^bits - 1)
-        $in  = self::PROFILE_DATA[$inputProfile];
-        $out = self::PROFILE_DATA[$targetProfile];
-        $norm = ($value - $in['minHum']) / ($in['maxHum'] - $in['minHum']);
-        $norm = max(0.0, min(1.0, $norm));
-        $scaled = round($norm * ((1 << $out['bitsHum']) - 1));
-        return sprintf('%02X', $scaled);
     }
 }
 
