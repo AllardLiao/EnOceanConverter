@@ -162,8 +162,8 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 		$ILL = $this->GetValue(self::varIllumination);
 		$TEMP = $this->GetValue(self::varTemperature);
 		$VOL = $this->GetValue(self::varVoltage);
-		$this->UpdateFormField('ResultSendTest', 'caption', 'Send test telegram (PIR=' . $PIR . ', ILL=' . $ILL . ', TEMP=' . $TEMP . ', VOL=' . $VOL . ')');
-		$this->SendDebug(__FUNCTION__, "sending test: PIR=" . $PIR . ", ILL=" . $ILL . ", TEMP=" . $TEMP . ", VOL=" . $VOL, 0);
+		$this->UpdateFormField('ResultSendTest', 'caption', 'Send test telegram (PIR=' . $PIR . ', ILL=' . $ILL . 'lx, TEMP=' . $TEMP . '°C, VOLT=' . $VOL . 'V)');
+		$this->SendDebug(__FUNCTION__, "sending test: PIR=" . $PIR . ", ILL=" . $ILL . "lx, TEMP=" . $TEMP . "°C, VOLT=" . $VOL . "V", 0);
 		$this->SendEnOceanTelegram($PIR, $ILL, $TEMP, $VOL, false);
 	}
 
@@ -176,8 +176,8 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 		$ILL = 12;
 		$TEMP = 18.6;
 		$VOL = 3.3;
-		$this->UpdateFormField('ResultSendTeachIn', 'caption', 'Send teach-in telegram (PIR=' . $PIR . ', ILL=' . $ILL . ', TEMP=' . $TEMP . ', VOL=' . $VOL . ')');
-		$this->SendDebug(__FUNCTION__, "sending teach-in with: PIR=" . $PIR . ", ILL=" . $ILL . ", TEMP=" . $TEMP . ", VOL=" . $VOL, 0);
+		$this->UpdateFormField('ResultSendTeachIn', 'caption', 'Send teach-in telegram (PIR=' . $PIR . ', ILL=' . $ILL . 'lx, TEMP=' . $TEMP . '°C, VOLT=' . $VOL . 'V)');
+		$this->SendDebug(__FUNCTION__, "sending teach-in with: PIR=" . $PIR . ", ILL=" . $ILL . "lx, TEMP=" . $TEMP . "°C, VOLT=" . $VOL . "V", 0);
 		$this->SendEnOceanTelegram($PIR, $ILL, $TEMP, $VOL, true);
 	}
 
