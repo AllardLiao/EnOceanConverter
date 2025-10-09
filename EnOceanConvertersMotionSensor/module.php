@@ -454,6 +454,7 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 		$data['DataByte2'] = $DB2;
 		$data['DataByte3'] = $DB3;
 
+		$this->SendDebug(__FUNCTION__, 'Try to send data to parent: ' . print_r($data, true), 0);
 		try {
 			@$this->SendDataToParent(json_encode($data));
 		} catch (Exception $e) {
