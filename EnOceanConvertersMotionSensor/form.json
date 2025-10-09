@@ -61,7 +61,7 @@
                     "options": <!---VALID_EEP_OPTIONS-->,
                     "onChange": "",
                     "value": "A5-08-02",
-                    "visible": true,
+                    "visible": false,
                     "width": "300px"
                 },
                 {

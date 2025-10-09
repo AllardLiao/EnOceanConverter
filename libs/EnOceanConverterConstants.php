@@ -25,6 +25,7 @@ class GUIDs
     public const IPS_BUILDIN_A50801   = '{432FF87E-4497-48D6-8ED9-EE7104A50801}';
     public const IPS_BUILDIN_A50802   = '{432FF87E-4497-48D6-8ED9-EE7104A50802}';
     public const IPS_BUILDIN_A50803   = '{432FF87E-4497-48D6-8ED9-EE7104A50803}';
+    public const IPS_BUILDIN_FWS61    = '{9E4572C0-C306-4F00-B536-E75B4950F094}'; // A5-13-01
 
     /**
      * Liefert alle unterstützten EEP als Array
@@ -40,7 +41,8 @@ class GUIDs
             self::IPS_BUILDIN_A50404,
             self::IPS_BUILDIN_A50801,
             self::IPS_BUILDIN_A50802,
-            self::IPS_BUILDIN_A50803
+            self::IPS_BUILDIN_A50803,
+            self::IPS_BUILDIN_FWS61
         ];
     }
 
