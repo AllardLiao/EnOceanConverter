@@ -20,9 +20,9 @@ class EEPConverter
     	static function decodeTemperature(string $profile, float $raw): float {
 		switch($profile) {
 			case EEPProfiles::A5_04_01: // 8 Bit, 0…40°C
-				return 0 + (40 - 0) * ($raw / 255);
+				return 0 + (40 - 0) * ($raw / 250);
 			case EEPProfiles::A5_04_02: // 8 Bit, -20…60°C
-				return -20 + (60 - -20) * ($raw / 255);
+				return -20 + (60 - -20) * ($raw / 250);
 			case EEPProfiles::A5_04_03: // 10 Bit, -20…60°C
 				return -20 + (60 - -20) * ($raw / 1023);
 			case EEPProfiles::A5_04_04: // 12 Bit, -40…120°C
@@ -37,9 +37,9 @@ class EEPConverter
 			case EEPProfiles::A5_04_01:
 			case EEPProfiles::A5_04_02:
 			case EEPProfiles::A5_04_04:
-				return 0 + (100 - 0) * ($raw / 255);
+				return 0 + (100 - 0) * ($raw / 250);
 			case EEPProfiles::A5_04_03: // 7 Bit
-				return 0 + (100 - 0) * ($raw / 127);
+				return 0 + (100 - 0) * ($raw / 255);
 			default:
 				return NAN;
 		}
@@ -48,9 +48,9 @@ class EEPConverter
 	static function encodeTemperature(string $profile, float $temperature): int {
 		switch ($profile) {
 			case EEPProfiles::A5_04_01:
-				return (int)round(($temperature - 0) * 255 / 40);
+				return (int)round(($temperature - 0) * 250 / 40);
 			case EEPProfiles::A5_04_02:
-				return (int)round(($temperature + 20) * 255 / 80);
+				return (int)round(($temperature + 20) * 250 / 80);
 			case EEPProfiles::A5_04_03:
 				return (int)round(($temperature + 20) * 1023 / 80);
 			case EEPProfiles::A5_04_04:
@@ -65,9 +65,9 @@ class EEPConverter
 			case EEPProfiles::A5_04_01:
 			case EEPProfiles::A5_04_02:
 			case EEPProfiles::A5_04_04:
-				return (int)round($humidity * 255 / 100);
+				return (int)round($humidity * 250 / 100);
 			case EEPProfiles::A5_04_03:
-				return (int)round($humidity * 127 / 100);
+				return (int)round($humidity * 255 / 100);
 			default:
 				throw new \Exception("Unbekanntes EEP Profil: $profile");
 		}
