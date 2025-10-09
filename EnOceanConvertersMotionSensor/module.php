@@ -225,7 +225,7 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 		$ill  = $this->GetValue(self::varIllumination);
 		$pir  = $this->GetValue(self::varPIR);
 		$vol  = $this->GetValue(self::varVoltage);
-		$this->SendDebug(__FUNCTION__, 'Send telegram for ' . $this->InstanceID . '/' . $this->GetValue(self::propertyDeviceID) . ': temp=' . $temp . ', ill=' . $ill . ', pir=' . $pir . ', vol=' . $vol, 0);
+		$this->SendDebug(__FUNCTION__, 'Send telegram for ' . $this->InstanceID . '/' . $this->ReadPropertyInteger(self::propertyDeviceID) . ': temp=' . $temp . ', ill=' . $ill . ', pir=' . $pir . ', vol=' . $vol, 0);
 		$this->SendEnOceanTelegram($pir, $ill, $temp, $vol);
 	}
 
