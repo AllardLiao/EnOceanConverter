@@ -220,16 +220,30 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 
 		$data = EEPProfiles::gatewayBaseData();
 		$data['DeviceID'] = $this->ReadPropertyInteger(self::propertyDeviceID); 
-		if ($teachIn) {
-			$data['DataByte0'] = 0x00; // Status-Byte = Teach-in
-		} else {
-			$data['DataByte0'] = 0x0F; // Status-Byte = Datentelegramm
-		}
+		$DB0 = 8;
 		$DB1 = 0;
 		$DB2 = 0;
 		$DB3 = 0;
+		if ($teachIn) {
+			$DB0 = 0; // Status-Byte = Teach-in
+		}
 
 		switch ($targetEEP) {
+			case EEPProfiles::A5_02_13: // 8 Bit Temp
+				// Temperatur linear auf 0...255 skaliert, aber invertiert
+				// Formel aus Spec: val = (255 - raw) * (Range / 255) + Tmin
+				// Umkehrung zum Kodieren:
+				// raw = 255 - round((TEMP - Tmin) * 255 / Range)
+				$Tmin = -30.0;
+				$Tmax = 50.0;
+				$range = $Tmax - $Tmin; // 80 K
+				$rawTemp = 255 - (int)round((($temperature - $Tmin) * 255) / $range);
+				if ($rawTemp < 0) $rawTemp = 0;
+				if ($rawTemp > 255) $rawTemp = 255;
+				$DB1 = $rawTemp;
+				$lrnBit = $teachIn ? 0 : 1;
+				$DB0 = ($lrnBit << 3); // Bit 3 = LRN, Rest 0
+				break;
 			case EEPProfiles::A5_04_01: // 8 Bit Temp, 8 Bit Hum
 			case EEPProfiles::A5_04_02: // 8 Bit Temp, 8 Bit Hum
 				$DB1 = ((int)$rawTemp) & 0xFF;
@@ -256,6 +270,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 				$this->SendDebug(__FUNCTION__, 'Unknown TargetEEP: ' . $targetEEP, 0);
 				return;
 		}
+		$data['DataByte0'] = $DB0;
 		$data['DataByte1'] = $DB1;
 		$data['DataByte2'] = $DB2;
 		$data['DataByte3'] = $DB3;

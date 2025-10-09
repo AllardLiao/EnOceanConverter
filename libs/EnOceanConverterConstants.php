@@ -63,6 +63,9 @@ class GUIDs
 }
 class EEPProfiles
 {
+    // A5-02: Temperature Sensors
+    public const A5_02_13 = 'A5-02-13'; /** Range: -30°C to +50°C (8 Bit) */
+    
     // A5-04: Temperature and Humidity Sensor
     public const A5_04_01 = 'A5-04-01'; /** Range: 0…40 °C (8 Bit),     0…100 % (8 Bit) */
     public const A5_04_02 = 'A5-04-02'; /** Range: -20…60 °C (8 Bit),   0…100 % (8 Bit) */
@@ -87,6 +90,7 @@ class EEPProfiles
     public static function allTemperatureProfiles(): array
     {
         return [
+            self::A5_02_13,
             self::A5_04_01,
             self::A5_04_02,
             self::A5_04_03,
