@@ -201,7 +201,14 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 				$this->SetValue(self::varIllumination, (int)$value);
 			}
 			if ($senderIdInt === $pirVarId) {
-				$this->SetValue(self::varPIR, (bool)$value);
+				$targetEEP  = $this->ReadPropertyString(self::propertyTargetEEP);
+				$sourceEEP  = $this->ReadPropertyString(self::propertySourceEEP);
+				$valueNew = (bool)$value;
+				if ((str_starts_with($sourceEEP, 'A5-07') && str_starts_with($targetEEP, 'A5-08')) || (str_starts_with($sourceEEP, 'A5-08') && str_starts_with($targetEEP, 'A5-07'))) {
+					// A05-07 und A05-08 haben inverse PIR-Codierungen!
+					$valueNew = (!$valueNew);
+				}
+				$this->SetValue(self::varPIR, $valueNew);
 			}
 			if ($senderIdInt === $volVarId) {
 				$this->SetValue(self::varVoltage, (float)$value);
