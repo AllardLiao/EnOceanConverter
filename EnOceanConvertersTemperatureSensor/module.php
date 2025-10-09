@@ -140,6 +140,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 	{
 		$temp = $this->GetValue("Temperature");   // °C
 		$hum  = $this->GetValue("Humidity");   // %
+		$this->UpdateFormField('ResultSendTest', 'caption', 'Send test telegram (Temp=' . $temp . '°C, Hum=' . $hum . '%)');
 		$this->SendDebug(__FUNCTION__, "sending test: temp=" . $temp . ", hum=" . $hum, 0);
 		$this->SendEnOceanTelegram($temp, $hum, false);
 	}
@@ -151,6 +152,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 	{
 		$temp = 18.6;   // °C
 		$hum  = 68.1;   // %
+		$this->UpdateFormField('ResultTeachIn', 'caption', 'Send teach-in telegram (Temp=' . $temp . '°C, Hum=' . $hum . '%)');
 		$this->SendDebug(__FUNCTION__, "sending teach-in with: temp=" . $temp . ", hum=" . $hum, 0);
 		$this->SendEnOceanTelegram($temp, $hum, true);
 	}
@@ -164,7 +166,6 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		// Save received values in own variables
 		if ($Message == VM_UPDATE) {
 			$value = $Data[0];
-			$sourceProfile = $this->ReadPropertyString('SourceEEP');
 			// unterscheiden: kommt Wert aus Temp- oder Humidity-Quelle?
 			if ($senderIdInt === $tempVarId) {
 				$this->SetValue('Temperature', (float)$value);
@@ -185,7 +186,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		$this->SetTimerInterval("ECTSSendDelayed" . $this->InstanceID, 0); // Timer wieder stoppen
 		$temp = $this->GetValue('Temperature');
 		$hum  = $this->GetValue('Humidity');
-		$this->SendDebug(__FUNCTION__, 'Simulate telegram for ' . $this->InstanceID . '/' . $this->ReadPropertyInteger("DeviceID") . ': temp=' . $temp . ', hum=' . $hum, 0);
+		$this->SendDebug(__FUNCTION__, 'Send telegram for ' . $this->InstanceID . '/' . $this->ReadPropertyInteger("DeviceID") . ': temp=' . $temp . ', hum=' . $hum, 0);
 		$this->SendEnOceanTelegram($temp, $hum);
 	}
 
@@ -211,8 +212,8 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 
 		// Parameter in Ziel-Protokoll umwandeln
 		try {
-			$rawTemp = $this->encodeTemperature($targetEEP, $temperature); 
-			$rawHum  = $this->encodeHumidity($targetEEP, $humidity);      
+			$rawTemp = EEPConverter::encodeTemperature($targetEEP, $temperature);
+			$rawHum  = EEPConverter::encodeHumidity($targetEEP, $humidity);
 		} catch (\Exception $e) {
 			$this->SendDebug(__FUNCTION__, 'Encode Fehler: ' . $e->getMessage(), 0);
 			return;
@@ -266,62 +267,6 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 			$this->SendDebug(__FUNCTION__, 'Error sending data to parent: ' . $e->getMessage(), 0);
 		}
 		$this->SendDebug(__FUNCTION__, 'Sent telegram to gateway (' . print_r($data, true) . ')', 0);
-	}
-
-	function decodeTemperature(string $profile, float $raw): float {
-		switch($profile) {
-			case EEPProfiles::A5_04_01: // 8 Bit, 0…40°C
-				return 0 + (40 - 0) * ($raw / 255);
-			case EEPProfiles::A5_04_02: // 8 Bit, -20…60°C
-				return -20 + (60 - -20) * ($raw / 255);
-			case EEPProfiles::A5_04_03: // 10 Bit, -20…60°C
-				return -20 + (60 - -20) * ($raw / 1023);
-			case EEPProfiles::A5_04_04: // 12 Bit, -40…120°C
-				return -40 + (120 - -40) * ($raw / 4095);
-			default:
-				return NAN;
-		}
-	}
-
-	function decodeHumidity(string $profile, float $raw): float {
-		switch($profile) {
-			case EEPProfiles::A5_04_01:
-			case EEPProfiles::A5_04_02:
-			case EEPProfiles::A5_04_04:
-				return 0 + (100 - 0) * ($raw / 255);
-			case EEPProfiles::A5_04_03: // 7 Bit
-				return 0 + (100 - 0) * ($raw / 127);
-			default:
-				return NAN;
-		}
-	}
-
-	function encodeTemperature(string $profile, float $temperature): int {
-		switch ($profile) {
-			case EEPProfiles::A5_04_01:
-				return (int)round(($temperature - 0) * 255 / 40);
-			case EEPProfiles::A5_04_02:
-				return (int)round(($temperature + 20) * 255 / 80);
-			case EEPProfiles::A5_04_03:
-				return (int)round(($temperature + 20) * 1023 / 80);
-			case EEPProfiles::A5_04_04:
-				return (int)round(($temperature + 40) * 4095 / 160);
-			default:
-				throw new Exception("Unbekanntes EEP Profil: $profile");
-		}
-	}
-
-	function encodeHumidity(string $profile, float $humidity): int {
-		switch ($profile) {
-			case EEPProfiles::A5_04_01:
-			case EEPProfiles::A5_04_02:
-			case EEPProfiles::A5_04_04:
-				return (int)round($humidity * 255 / 100);
-			case EEPProfiles::A5_04_03:
-				return (int)round($humidity * 127 / 100);
-			default:
-				throw new Exception("Unbekanntes EEP Profil: $profile");
-		}
 	}
 
 	public function GetConfigurationForm(): string {

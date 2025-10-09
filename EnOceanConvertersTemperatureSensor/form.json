@@ -148,28 +148,66 @@
     ],
     "actions": [
         {
-            "type": "Button",
-            "caption": "Send teach-in telegram",
-            "name": "SendTeachIn",
-            "confirm": "",
-            "download": "",
-            "enabled": true,
-            "link": false,
-            "onClick": "IPS_RequestAction($id,'SendTeachIn', true);",
-            "visible": true,
-            "width": ""
+            "type": "RowLayout",
+            "name": "techin",
+            "items": [
+                {
+                    "type": "Button",
+                    "caption": "Send teach-in telegram",
+                    "name": "SendTeachIn",
+                    "confirm": "",
+                    "download": "",
+                    "enabled": true,
+                    "link": false,
+                    "onClick": "IPS_RequestAction($id,'SendTeachIn', true);",
+                    "visible": true,
+                    "width": ""
+                },
+                {
+                    "type": "Label",
+                    "bold": false,
+                    "caption": " ",
+                    "color": 0,
+                    "italic": false,
+                    "link": true,
+                    "name": "ResultTechIn",
+                    "underline": false,
+                    "visible": true,
+                    "width": ""
+                }
+            ],
+            "visible": true
         },
         {
-            "type": "Button",
-            "caption": "Send test telegram",
-            "name": "sendTestTelegram",
-            "confirm": "",
-            "download": "",
-            "enabled": true,
-            "link": false,
-            "onClick": "IPS_RequestAction($id,'sendTestTelegram', true);",
-            "visible": true,
-            "width": ""
+            "type": "RowLayout",
+            "name": "SendTest",
+            "items": [
+                {
+                    "type": "Button",
+                    "caption": "Send test telegram",
+                    "name": "sendTestTelegram",
+                    "confirm": "",
+                    "download": "",
+                    "enabled": true,
+                    "link": false,
+                    "onClick": "IPS_RequestAction($id,'sendTestTelegram', true);",
+                    "visible": true,
+                    "width": ""
+                },
+                {
+                    "type": "Label",
+                    "bold": false,
+                    "caption": " ",
+                    "color": 0,
+                    "italic": false,
+                    "link": true,
+                    "name": "ResultSendTest",
+                    "underline": false,
+                    "visible": true,
+                    "width": ""
+                }
+            ],
+            "visible": true
         }
     ],
     "status": [
