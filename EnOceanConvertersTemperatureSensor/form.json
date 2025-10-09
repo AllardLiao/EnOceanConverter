@@ -1,13 +1,6 @@
 {
     "elements": [
         {
-            "type": "Label",
-            "caption": "This module sends EEP A5-04-0x (temperature) telegrams.",
-            "width": 0,
-            "height": 0,
-            "align": "left"
-        },
-        {
             "type": "RowLayout",
             "name": "Target",
             "items": [

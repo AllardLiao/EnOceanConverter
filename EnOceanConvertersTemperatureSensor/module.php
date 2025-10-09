@@ -11,7 +11,6 @@ if (substr(__DIR__,0, 10) == "/Users/kai") {
 
 use EnOceanConverter\EEPProfiles;
 use EnOceanConverter\EEPConverter;
-use EnOceanConverter\CRC8;
 use EnOceanConverter\GUIDs;
 
 /**
@@ -61,6 +60,8 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
         $sourceID = $this->ReadPropertyInteger('SourceDevice');
 		//$this->SendDebug(__FUNCTION__, 'ApplyChanges: SourceDevice=' . $sourceID, 0);
 
+		$this->SetBuffer('SourceVarTemp', '0');
+		$this->SetBuffer('SourceVarHum', '0');
 		if ($sourceID > 1) { // 0=root, 1=none
 			$variables = IPS_GetChildrenIDs($sourceID);
 			foreach ($variables as $vid) {
@@ -73,7 +74,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 					$this->SetBuffer('SourceVarHum', (string)$vid);
 				}
 			}
-		}
+		} 
 		$sourceIDTemp = intval($this->GetBuffer('SourceVarTemp'));
 		$sourceIDHum  = intval($this->GetBuffer('SourceVarHum'));
 		$status = 104; // Standard: Quelle nicht gesetzt
@@ -87,7 +88,8 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 				$status = 201; 
 			}
 		} else {
-			$this->SendDebug('RegisterMessage', 'Temp variable ID not set', 0);
+			$this->SendDebug('RegisterMessage', 'Temp variable ID not set', 0);#
+			$this->SetValue('Temperature', 0,0);
 		}
 		// Listener für Humidity Variable
 		if ($sourceIDHum > 0) {
@@ -101,6 +103,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 			}
 		} else {
 			$this->SendDebug('RegisterMessage', 'Humidity variable ID not set', 0);
+			$this->SetValue('Humidity', 0,0);
 		}
 		// Status setzen
 		if ($status == 102) {
@@ -270,12 +273,11 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 	}
 
 	public function GetConfigurationForm(): string {
-        // 5. HTML Template laden & Platzhalter ersetzen
+        // Json Template laden & Platzhalter ersetzen
         $form = file_get_contents(__DIR__ . '/form.json');
         // Unterstützte Devices einfügnen
 		$validModules = GUIDs::allTemperatureIpsGuids();
 		$form = str_replace('<!---VALID_MODULES-->', json_encode($validModules), $form);
-		//$this->SendDebug(__FUNCTION__, 'GetConfigurationForm: ' . $form, 0);
 		return $form;
 	}
 
