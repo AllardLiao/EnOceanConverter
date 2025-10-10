@@ -30,6 +30,8 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 	private const propertySourceDevice = "SourceDevice";
 	private const propertyTargetEEP = "TargetEEP";
 	private const propertyResendActive = "ResendActive";
+	private const propertyBackupTemperature = "BackupTemperature";
+	private const propertyBackupHumidity = "BackupHumidity";
 
 	private const bufferHumidity = "BufferHumidity";
 	private const bufferTemperature = "BufferTemperature";
@@ -48,6 +50,8 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		$this->RegisterPropertyString(self::propertyTargetEEP, EEPProfiles::A5_04_01);
 		$this->RegisterPropertyBoolean(self::propertyResendActive, false);
 		$this->RegisterPropertyInteger(self::propertyDeviceID, 0);
+		$this->RegisterPropertyFloat(self::propertyBackupTemperature, 20.0);
+		$this->RegisterPropertyFloat(self::propertyBackupHumidity, 40.0);
 
 		// Die Variablen-IDs der Quell-Variablen werden in den Buffern gespeichert
 		$this->SetBuffer(self::bufferTemperature, "0");
@@ -94,6 +98,15 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 				}
 			}
 		} 
+
+		if ((int)$this->GetBuffer(self::bufferTemperature) == 0) {
+			// Keine Temp-Variable gefunden - Backup-Wert setzen
+			$this->SetValue(self::varTemperature, $this->ReadPropertyFloat(self::propertyBackupTemperature));
+		}
+		if ((int)$this->GetBuffer(self::bufferHumidity) == 0) {
+			// Keine Hum-Variable gefunden - Backup-Wert setzen
+			$this->SetValue(self::varHumidity, $this->ReadPropertyFloat(self::propertyBackupHumidity));
+		}
 
 		// Update Messages registrieren
 		$status = 104; // Standard: Quelle nicht gesetzt
