@@ -29,7 +29,6 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 	private const propertyDeviceID = "DeviceID";
 	private const propertySourceDevice = "SourceDevice";
 	private const propertyTargetEEP = "TargetEEP";
-	private const propertySourceEEP = "SourceEEP";
 	private const propertyResendActive = "ResendActive";
 
 	private const bufferHumidity = "BufferHumidity";
@@ -45,7 +44,6 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		//Never delete this line!
 		parent::Create();
 
-		$this->RegisterPropertyString(self::propertySourceEEP, EEPProfiles::A5_04_03);
 		$this->RegisterPropertyInteger(self::propertySourceDevice, 0);
 		$this->RegisterPropertyString(self::propertyTargetEEP, EEPProfiles::A5_04_01);
 		$this->RegisterPropertyBoolean(self::propertyResendActive, false);

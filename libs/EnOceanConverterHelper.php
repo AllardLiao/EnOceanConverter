@@ -7,7 +7,8 @@ namespace EnOceanConverter;
 class EEPConverter
 {
     private const PROFILE_DATA = [
-        EEPProfiles::A5_04_01 => [  'minTemp' => 0,   'maxTemp' => 40,      'bitsTemp' => 8, 
+        EEPProfiles::A5_02_13 => [  'minTemp' => -30, 'maxTemp' => 50,      'bitsTemp' => 8],
+        EEPProfiles::A5_04_01 => [  'minTemp' => 0,   'maxTemp' => 40,      'bitsTemp' => 8,
                                     'minHum' => 0,    'maxHum' => 100,      'bitsHum' => 8],
         EEPProfiles::A5_04_02 => [  'minTemp' => -20, 'maxTemp' => 60,      'bitsTemp' => 8, 
                                     'minHum' => 0,    'maxHum' => 100,      'bitsHum' => 8],
@@ -41,6 +42,8 @@ class EEPConverter
 
     static function decodeTemperature(string $profile, float $raw): float {
 		switch($profile) {
+            case EEPProfiles::A5_02_13: // 8 Bit, -30…50°C
+                return -30 + (50 - -30) * ((255 - $raw) / 255.0);
 			case EEPProfiles::A5_04_01: // 8 Bit, 0…40°C
 				return 0 + (40 - 0) * ($raw / 250);
 			case EEPProfiles::A5_04_02: // 8 Bit, -20…60°C
@@ -62,6 +65,8 @@ class EEPConverter
 
 	static function encodeTemperature(string $profile, float $temperature): int {
 		switch ($profile) {
+            case EEPProfiles::A5_02_13:
+                return (int)round(255 - (int)round((($temperature - -30) * 255) / 80));
 			case EEPProfiles::A5_04_01:
 				return (int)round(($temperature - 0) * 250 / 40);
 			case EEPProfiles::A5_04_02:

@@ -48,38 +48,6 @@
             "width": "600px"
         },
         {
-            "type": "RowLayout",
-            "name": "EEP",
-            "items": [
-                {
-                    "type": "Select",
-                    "caption": "Source EEP",
-                    "download": "",
-                    "enabled": true,
-                    "link": false,
-                    "name": "SourceEEP",
-                    "options": <!---VALID_EEP_OPTIONS-->,
-                    "onChange": "",
-                    "value": "A5-04-01",
-                    "visible": false,
-                    "width": "300px"
-                },
-                {
-                    "type": "CheckBox",
-                    "caption": "Auto-detect/-correct Source EEP",
-                    "download": "",
-                    "enabled": true,
-                    "link": false,
-                    "name": "AutoDetectEEP",
-                    "onChange": "",
-                    "value": false,
-                    "visible": false,
-                    "width": ""
-                }
-            ],
-            "visible": true
-        },
-        {
             "type": "Select",
             "caption": "Target EEP",
             "download": "",
@@ -91,6 +59,56 @@
             "value": "A5-04-02",
             "visible": true,
             "width": "300px"
+        },
+        {
+            "type": "ExpansionPanel",
+            "caption": "Missing Value Handling",
+            "items": [
+                {
+                    "type": "Label",
+                    "bold": false,
+                    "caption": "In case the source does not provide all values, the values set here are used in send telegrams.",
+                    "color": 0,
+                    "italic": false,
+                    "link": true,
+                    "name": "",
+                    "underline": false,
+                    "visible": true,
+                    "width": ""
+                },
+                {
+                    "type": "NumberSpinner",
+                    "caption": "Backup Temperature",
+                    "digits": 2,
+                    "enabled": true,
+                    "hex": false,
+                    "maximum": 50,
+                    "minimum": -30,
+                    "moreDigits": false,
+                    "name": "BackupTemperature",
+                    "onChange": "",
+                    "suffix": "°C",
+                    "value": 0,
+                    "visible": true,
+                    "width": "300px"
+                },
+                {
+                    "type": "NumberSpinner",
+                    "caption": "Backup Humidity",
+                    "digits": 2,
+                    "enabled": true,
+                    "hex": false,
+                    "maximum": null,
+                    "minimum": null,
+                    "moreDigits": false,
+                    "name": "BackupHumidity",
+                    "onChange": "",
+                    "suffix": "%",
+                    "value": 40,
+                    "visible": true,
+                    "width": "300px"
+                }
+            ]
         },
         {
             "type": "CheckBox",
@@ -192,3 +210,4 @@
         }
     ]
 }
+
