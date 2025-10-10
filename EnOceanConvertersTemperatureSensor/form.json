@@ -70,7 +70,7 @@
                     "caption": "In case the source does not provide all values, the values set here are used in send telegrams.",
                     "color": 0,
                     "italic": false,
-                    "link": true,
+                    "link": false,
                     "name": "",
                     "underline": false,
                     "visible": true,
