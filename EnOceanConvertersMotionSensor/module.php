@@ -95,27 +95,40 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 				$vinfo = IPS_GetVariable($vid);
 				// nach Profil erkennen
 				if (str_contains(strtoupper($vinfo['VariableProfile']), '_PIRS') || str_contains(strtoupper($vinfo['VariableProfile']), 'MOTION') || str_contains(strtoupper($vinfo['VariableProfile']), 'PRESENCE')) {
-					$this->SetBuffer(self::EEP_BUFFERS['bufferMotion']['Ident'], (string)$vid);
+					$this->SetBuffer(self::EEP_BUFFERS['Motion']['Ident'], (string)$vid);
 				}
 				if (str_contains(strtoupper($vinfo['VariableProfile']), '_ILL') || str_contains(strtoupper($vinfo['VariableProfile']), 'ILLUMINATION')) {
-					$this->SetBuffer(self::EEP_BUFFERS['bufferIllumination']['Ident'], (string)$vid);
+					$this->SetBuffer(self::EEP_BUFFERS['Illumination']['Ident'], (string)$vid);
 				}
 				if (str_contains(strtoupper($vinfo['VariableProfile']), '_SVC') || str_contains(strtoupper($vinfo['VariableProfile']), 'VOLT')) {
-					$this->SetBuffer(self::EEP_BUFFERS['bufferVoltage']['Ident'], (string)$vid);
+					$this->SetBuffer(self::EEP_BUFFERS['Voltage']['Ident'], (string)$vid);
 				}
 				if (str_contains(strtoupper($vinfo['VariableProfile']), '_TMP') || str_contains(strtoupper($vinfo['VariableProfile']), 'TEMPERATURE')) {
-					$this->SetBuffer(self::EEP_BUFFERS['bufferTemperature']['Ident'], (string)$vid);
+					$this->SetBuffer(self::EEP_BUFFERS['Temperature']['Ident'], (string)$vid);
+				}
+				if (str_contains(strtoupper($vinfo['VariableProfile']), '_HUM') || str_contains(strtoupper($vinfo['VariableProfile']), 'HUMIDITY')) {
+					$this->SetBuffer(self::EEP_BUFFERS['Humidity']['Ident'], (string)$vid);
 				}
 			}
 		}
 
 		// Update Messages registrieren
 		$status = 104; // Standard: Quelle nicht gesetzt
-		$status = $this->registerECMessage(self::EEP_VARIABLES['Motion']['Ident'], intval($this->GetBuffer(self::EEP_BUFFERS['bufferMotion']['Ident'])), $status);
-		$status = $this->registerECMessage(self::EEP_VARIABLES['Illumination']['Ident'], intval($this->GetBuffer(self::EEP_BUFFERS['bufferIllumination']['Ident'])), $status);
-		$status = $this->registerECMessage(self::EEP_VARIABLES['Voltage']['Ident'], intval($this->GetBuffer(self::EEP_BUFFERS['bufferVoltage']['Ident'])), $status);
-		$status = $this->registerECMessage(self::EEP_VARIABLES['Temperature']['Ident'], intval($this->GetBuffer(self::EEP_BUFFERS['bufferTemperature']['Ident'])), $status);
-
+		// Werte in Variablen schreiben
+		$variables = self::EEP_VARIABLE_PROFILES[$this->ReadPropertyString(self::propertyTargetEEP)];
+		foreach ($variables as $key => $vid) {
+			if ($this->GetBuffer(self::EEP_BUFFERS[$key]['Ident']) == '0') {
+				$this->SetValue(self::EEP_VARIABLES[$key]['Ident'], $this->ReadPropertyFloat("Backup" . self::EEP_BUFFERS[$key]['Ident']));
+			} else {
+				$status = $this->registerECMessage(self::EEP_VARIABLES[$key]['Ident'], intval($this->GetBuffer(self::EEP_BUFFERS[$key]['Ident'])), $status);
+			}
+		}		
+/***
+		$status = $this->registerECMessage(self::EEP_VARIABLES['Motion']['Ident'], intval($this->GetBuffer(self::EEP_BUFFERS['Motion']['Ident'])), $status);
+		$status = $this->registerECMessage(self::EEP_VARIABLES['Illumination']['Ident'], intval($this->GetBuffer(self::EEP_BUFFERS['Illumination']['Ident'])), $status);
+		$status = $this->registerECMessage(self::EEP_VARIABLES['Voltage']['Ident'], intval($this->GetBuffer(self::EEP_BUFFERS['Voltage']['Ident'])), $status);
+		$status = $this->registerECMessage(self::EEP_VARIABLES['Temperature']['Ident'], intval($this->GetBuffer(self::EEP_BUFFERS['Temperature']['Ident'])), $status);
+*/
 		// Status setzen
 		if ($status == 102) {
 			if (!$this->ReadPropertyBoolean('ResendActive')) {
@@ -178,10 +191,10 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
     public function MessageSink($TimeStamp, $SenderID, $Message, $Data): void
     {
 		$senderIdInt = (int)$SenderID;
-		$tempVarId   = (int)$this->GetBuffer(self::EEP_BUFFERS['bufferTemperature']['Ident']);
-		$illVarId    = (int)$this->GetBuffer(self::EEP_BUFFERS['bufferIllumination']['Ident']);
-		$pirVarId    = (int)$this->GetBuffer(self::EEP_BUFFERS['bufferMotion']['Ident']);
-		$volVarId    = (int)$this->GetBuffer(self::EEP_BUFFERS['bufferVoltage']['Ident']);
+		$tempVarId   = (int)$this->GetBuffer(self::EEP_BUFFERS['Temperature']['Ident']);
+		$illVarId    = (int)$this->GetBuffer(self::EEP_BUFFERS['Illumination']['Ident']);
+		$pirVarId    = (int)$this->GetBuffer(self::EEP_BUFFERS['Motion']['Ident']);
+		$volVarId    = (int)$this->GetBuffer(self::EEP_BUFFERS['Voltage']['Ident']);
 
 		$this->SendDebug(__FUNCTION__, "sender={$senderIdInt} (tempVar={$tempVarId}, illVar={$illVarId}, pirVar={$pirVarId}, volVar={$volVarId}) with DATA-0: " . print_r($Data[0], true), 0);
 		// Save received values in own variables

@@ -88,6 +88,15 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 			foreach ($variables as $vid) {
 				$vinfo = IPS_GetVariable($vid);
 				// nach Profil erkennen
+				if (str_contains(strtoupper($vinfo['VariableProfile']), '_PIRS') || str_contains(strtoupper($vinfo['VariableProfile']), 'MOTION') || str_contains(strtoupper($vinfo['VariableProfile']), 'PRESENCE')) {
+					$this->SetBuffer(self::EEP_BUFFERS['Motion']['Ident'], (string)$vid);
+				}
+				if (str_contains(strtoupper($vinfo['VariableProfile']), '_ILL') || str_contains(strtoupper($vinfo['VariableProfile']), 'ILLUMINATION')) {
+					$this->SetBuffer(self::EEP_BUFFERS['Illumination']['Ident'], (string)$vid);
+				}
+				if (str_contains(strtoupper($vinfo['VariableProfile']), '_SVC') || str_contains(strtoupper($vinfo['VariableProfile']), 'VOLT')) {
+					$this->SetBuffer(self::EEP_BUFFERS['Voltage']['Ident'], (string)$vid);
+				}
 				if (str_contains(strtoupper($vinfo['VariableProfile']), '_TMP') || str_contains(strtoupper($vinfo['VariableProfile']), 'TEMPERATURE')) {
 					$this->SetBuffer(self::EEP_BUFFERS['Temperature']['Ident'], (string)$vid);
 				}
@@ -96,7 +105,16 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 				}
 			}
 		}
-		$this->SendDebug(__FUNCTION__, 'Using source variables: Temp=' . $this->GetBuffer(self::EEP_BUFFERS['Temperature']['Ident']) . ', Hum=' . $this->GetBuffer(self::EEP_BUFFERS['Humidity']['Ident']), 0);
+		// Werte in Variablen schreiben
+		$variables = self::EEP_VARIABLE_PROFILES[$this->ReadPropertyString(self::propertyTargetEEP)];
+		foreach ($variables as $key => $vid) {
+			if ($this->GetBuffer(self::EEP_BUFFERS[$key]['Ident']) == '0') {
+				$this->SetValue(self::EEP_VARIABLES[$key]['Ident'], $this->ReadPropertyFloat("Backup" . self::EEP_BUFFERS[$key]['Ident']));
+			} else {
+				$status = $this->registerECMessage(self::EEP_VARIABLES[$key]['Ident'], intval($this->GetBuffer(self::EEP_BUFFERS[$key]['Ident'])), $status);
+			}
+		}
+/***
 		if ($this->GetBuffer(self::EEP_BUFFERS['Temperature']['Ident']) == '0') {
 			$this->SetValue(self::EEP_VARIABLES['Temperature']['Ident'], $this->ReadPropertyFloat(self::propertyBackupTemperature));
 		} else {
@@ -107,7 +125,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		} else {
 			$status = $this->registerECMessage(self::EEP_VARIABLES['Humidity']['Ident'], intval($this->GetBuffer(self::EEP_BUFFERS['Humidity']['Ident'])), $status);
 		}
-
+*/
 		// Status setzen
 		if ($status == 102) {
 			if (!$this->ReadPropertyBoolean('ResendActive')) {
