@@ -98,7 +98,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 				}
 			}
 		} 
-
+		$this->SendDebug(__FUNCTION__, 'Using source variables: Temp=' . $this->GetBuffer(self::bufferTemperature) . ', Hum=' . $this->GetBuffer(self::bufferHumidity), 0);
 		if ((int)$this->GetBuffer(self::bufferTemperature) == 0) {
 			// Keine Temp-Variable gefunden - Backup-Wert setzen
 			$this->SetValue(self::varTemperature, $this->ReadPropertyFloat(self::propertyBackupTemperature));
