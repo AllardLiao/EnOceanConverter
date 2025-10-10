@@ -354,10 +354,22 @@ trait VariableHelper{
 
     private function maintainECVariables(array $variables): void
     {
+        $this->deleteAllVariables();
         $position = 1;
         foreach ($variables as $variable) {
             $this->maintainECVariable($variable, $position, isset($variable['Keep']) ? $variable['Keep'] : true);
             $position++;
+        }
+    }
+
+    private function deleteAllVariables(): void
+    {
+        foreach (IPS_GetChildrenIDs($this->InstanceID) as $childID) {
+            if (IPS_VariableExists($childID)) {
+                $ident = IPS_GetObject($childID)['ObjectIdent'];
+                $this->SendDebug(__FUNCTION__, "Lösche Variable: " . $ident, 0);
+                IPS_DeleteVariable($childID);
+            }
         }
     }
 }

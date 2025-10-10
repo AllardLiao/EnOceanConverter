@@ -60,8 +60,8 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		$this->SetBuffer(self::bufferHumidity, "0");
 
 		// Die übertragenen Werte werden in Variablen gespeichert
-		$this->MaintainVariable(self::varTemperature['Ident'], "Temperatur", VARIABLETYPE_FLOAT, "~Temperature", 1, true);
-		$this->MaintainVariable(self::varHumidity['Ident'], "Luftfeuchtigkeit", VARIABLETYPE_FLOAT, '~Humidity.F', 2, true);
+		// Die übertragenen Werte werden in Variablen gespeichert
+		$this->MaintainECVariables(self::EEP_VARIABLE_PROFILES[$this->ReadPropertyString(self::propertyTargetEEP)]); // immer alle anlegen
 
 		$this->RegisterTimer(self::timerPrefix . $this->InstanceID, 0, 'IPS_RequestAction(' . $this->InstanceID . ', "SendTelegramDelayed", true);');
 
