@@ -65,15 +65,15 @@
                     "width": "300px"
                 },
                 {
-                    "type": "CheckBox",
-                    "caption": "Auto-detect/-correct Source EEP",
-                    "download": "",
-                    "enabled": true,
-                    "link": false,
-                    "name": "AutoDetectEEP",
-                    "onChange": "",
-                    "value": false,
-                    "visible": false,
+                    "type": "Label",
+                    "bold": false,
+                    "caption": "Please select the right profile.\nEEP (unfortunately) defines presence as true as well as false, depending on the profile. In case it translates wrong, try another profile.",
+                    "color": 0,
+                    "italic": false,
+                    "link": true,
+                    "name": "Note",
+                    "underline": false,
+                    "visible": true,
                     "width": ""
                 }
             ],
