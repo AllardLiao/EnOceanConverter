@@ -108,17 +108,23 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		// Werte in Variablen schreiben
 		$variables = self::EEP_VARIABLE_PROFILES[$this->ReadPropertyString(self::propertyTargetEEP)];
 		foreach ($variables as $varIdent => $definition) {
-			// Finde den passenden Buffer-Key zu diesem VarIdent
-			$bufferKey = array_search($varIdent, array_column(self::EEP_VARIABLES, 'Ident'));
-			if ($bufferKey === false) {
-				continue; // falls nicht gefunden
+			$bufferKey = $this->getBufferKeyFromVarIdent($varIdent);
+			if ($bufferKey === null) {
+				continue; // nichts gefunden
 			}
 			if ($this->GetBuffer(self::EEP_BUFFERS[$bufferKey]['Ident']) == '0') {
-				$this->SetValue($varIdent, $this->ReadPropertyFloat("Backup" . self::EEP_BUFFERS[$bufferKey]['Ident']));
+				$this->SetValue(
+					$varIdent,
+					$this->ReadPropertyFloat("Backup" . self::EEP_BUFFERS[$bufferKey]['Ident'])
+				);
 			} else {
-				$status = $this->registerECMessage($varIdent, intval($this->GetBuffer(self::EEP_BUFFERS[$bufferKey]['Ident'])), $status);
+				$status = $this->registerECMessage(
+					$varIdent,
+					intval($this->GetBuffer(self::EEP_BUFFERS[$bufferKey]['Ident'])),
+					$status
+				);
 			}
-		}		
+		}	
 /***		foreach ($variables as $key => $vid) {
 			if ($this->GetBuffer(self::EEP_BUFFERS[$key]['Ident']) == '0') {
 				$this->SetValue(self::EEP_VARIABLES[$key]['Ident'], $this->ReadPropertyFloat("Backup" . self::EEP_BUFFERS[$key]['Ident']));

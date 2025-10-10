@@ -374,6 +374,15 @@ trait VariableHelper{
             }
         }
     }
+    private function getBufferKeyFromVarIdent(string $varIdent): ?string
+    {
+        foreach (self::EEP_VARIABLES as $key => $def) {
+            if ($def['Ident'] === $varIdent) {
+                return $key; // z.B. "Temperature"
+            }
+        }
+        return null; // falls nicht gefunden
+    }    
 }
 
 trait BufferHelper{
