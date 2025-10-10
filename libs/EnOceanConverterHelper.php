@@ -233,7 +233,7 @@ trait MessagesHelper
 			}
 		} else {
 			$this->SendDebug(__FUNCTION__, $name . ' message ID not set',	 0);
-			$this->SetValue($name, 0); // Variable zurücksetzen - denn es konnte keine Quell-Variable gefunden werden.
+			// $this->SetValue($name, 0); // Variable zurücksetzen - denn es konnte keine Quell-Variable gefunden werden.
 			// Status unverändert: einige Profile haben nicht alle Variablen, ist also ok
 		}
 		return $currentStatus;
