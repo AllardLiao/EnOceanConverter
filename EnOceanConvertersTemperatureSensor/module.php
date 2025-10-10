@@ -85,6 +85,9 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		$this->SetBuffer(self::bufferTemperature, '0');
 		$this->SetBuffer(self::bufferHumidity, '0');
 
+		// Update Messages registrieren
+		$status = 104; // Standard: Quelle nicht gesetzt
+
 		if ($sourceID > 1) { // 0=root, 1=none
 			$variables = IPS_GetChildrenIDs($sourceID);
 			foreach ($variables as $vid) {
@@ -100,19 +103,15 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		} 
 		$this->SendDebug(__FUNCTION__, 'Using source variables: Temp=' . $this->GetBuffer(self::bufferTemperature) . ', Hum=' . $this->GetBuffer(self::bufferHumidity), 0);
 		if ($this->GetBuffer(self::bufferTemperature) == '0') {
-			// Keine Temp-Variable gefunden - Backup-Wert setzen
 			$this->SetValue(self::varTemperature, $this->ReadPropertyFloat(self::propertyBackupTemperature));
+		} else {
+			$status = $this->registerECMessage(self::varTemperature, intval($this->GetBuffer(self::bufferTemperature)), $status);
 		}
 		if ($this->GetBuffer(self::bufferHumidity) == '0') {
-			// Keine Hum-Variable gefunden - Backup-Wert setzen
 			$this->SetValue(self::varHumidity, $this->ReadPropertyFloat(self::propertyBackupHumidity));
-			$this->SendDebug(__FUNCTION__, 'No Humidity variable found - using backup value: ' . $this->ReadPropertyFloat(self::propertyBackupHumidity), 0);
+		} else {
+			$status = $this->registerECMessage(self::varHumidity, intval($this->GetBuffer(self::bufferHumidity)), $status);
 		}
-
-		// Update Messages registrieren
-		$status = 104; // Standard: Quelle nicht gesetzt
-		$status = $this->registerECMessage(self::varTemperature, intval($this->GetBuffer(self::bufferTemperature)), $status);
-		$status = $this->registerECMessage(self::varHumidity, intval($this->GetBuffer(self::bufferHumidity)), $status);
 
 		// Status setzen
 		if ($status == 102) {
