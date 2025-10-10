@@ -118,25 +118,6 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 				$status = $this->registerECMessage($varIdent, intval($this->GetBuffer(self::EEP_BUFFERS[$bufferKey]['Ident'])), $status);
 			}
 		}	
-/***		foreach ($variables as $key => $vid) {
-			if ($this->GetBuffer(self::EEP_BUFFERS[$key]['Ident']) == '0') {
-				$this->SetValue(self::EEP_VARIABLES[$key]['Ident'], $this->ReadPropertyFloat("Backup" . self::EEP_BUFFERS[$key]['Ident']));
-			} else {
-				$status = $this->registerECMessage(self::EEP_VARIABLES[$key]['Ident'], intval($this->GetBuffer(self::EEP_BUFFERS[$key]['Ident'])), $status);
-			}
-		}
-/***
-		if ($this->GetBuffer(self::EEP_BUFFERS['Temperature']['Ident']) == '0') {
-			$this->SetValue(self::EEP_VARIABLES['Temperature']['Ident'], $this->ReadPropertyFloat(self::propertyBackupTemperature));
-		} else {
-			$status = $this->registerECMessage(self::EEP_VARIABLES['Temperature']['Ident'], intval($this->GetBuffer(self::EEP_BUFFERS['Temperature']['Ident'])), $status);
-		}
-		if ($this->GetBuffer(self::EEP_BUFFERS['Humidity']['Ident']) == '0') {
-			$this->SetValue(self::EEP_VARIABLES['Humidity']['Ident'], $this->ReadPropertyFloat(self::propertyBackupHumidity));
-		} else {
-			$status = $this->registerECMessage(self::EEP_VARIABLES['Humidity']['Ident'], intval($this->GetBuffer(self::EEP_BUFFERS['Humidity']['Ident'])), $status);
-		}
-*/
 		// Status setzen
 		if ($status == 102) {
 			if (!$this->ReadPropertyBoolean('ResendActive')) {

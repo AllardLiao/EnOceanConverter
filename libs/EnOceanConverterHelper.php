@@ -352,6 +352,7 @@ trait VariableHelper{
     private function maintainECVariable(array $variable, int $position, bool $visible): void
     {
         $this->MaintainVariable($variable['Ident'], $variable['Name'], $variable['Type'], $variable['Profile'], $position, $visible);
+        $this->SendDebug(__FUNCTION__, "Variable: " . $variable['Ident'] . " angelegt/aktualisiert", 0);
     }
 
     private function maintainECVariables(array $variables): void
