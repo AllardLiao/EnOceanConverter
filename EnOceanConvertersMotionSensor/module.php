@@ -226,10 +226,26 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 	public function SendTelegramDelayed()
 	{
 		$this->SetTimerInterval(self::timerPrefix . $this->InstanceID, 0); // Timer wieder stoppen
-		$temp = $this->GetValue(self::EEP_VARIABLES['Temperature']['Ident']);
-		$ill  = $this->GetValue(self::EEP_VARIABLES['Illumination']['Ident']);
-		$pir  = $this->GetValue(self::EEP_VARIABLES['Motion']['Ident']);
-		$vol  = $this->GetValue(self::EEP_VARIABLES['Voltage']['Ident']);
+		$temp = 0.0;
+		$ill  = 0.0;
+		$pir  = false;
+		$vol  = 0.0;
+		$variables = self::EEP_VARIABLE_PROFILES[$this->ReadPropertyString(self::propertyTargetEEP)];
+		foreach ($variables as $varIdent => $definition) {
+			if ($varIdent === self::EEP_VARIABLES['Temperature']['Ident']) {
+				$temp = $this->GetValue($varIdent);
+			}
+			if ($varIdent === self::EEP_VARIABLES['Illumination']['Ident']) {
+				$ill = $this->GetValue($varIdent);
+			}
+			if ($varIdent === self::EEP_VARIABLES['Motion']['Ident']) {
+				$pir = $this->GetValue($varIdent);
+			}
+			if ($varIdent === self::EEP_VARIABLES['Voltage']['Ident']) {
+				$vol = $this->GetValue($varIdent);
+			}
+		}
+
 		$this->SendDebug(__FUNCTION__, 'Send telegram for ' . $this->InstanceID . '/' . $this->ReadPropertyInteger(self::propertyDeviceID) . ': temp=' . $temp . ', ill=' . $ill . ', pir=' . $pir . ', vol=' . $vol, 0);
 		$this->SendEnOceanTelegram($pir, $ill, $temp, $vol);
 	}

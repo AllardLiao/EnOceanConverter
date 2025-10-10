@@ -199,8 +199,17 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 	public function SendTelegramDelayed()
 	{
 		$this->SetTimerInterval(self::timerPrefix . $this->InstanceID, 0); // Timer wieder stoppen
-		$temp = $this->GetValue(self::EEP_VARIABLES['Temperature']['Ident']);
-		$hum  = $this->GetValue(self::EEP_VARIABLES['Humidity']['Ident']);
+		$temp = 0.0;
+		$hum  = 0.0;
+		$variables = self::EEP_VARIABLE_PROFILES[$this->ReadPropertyString(self::propertyTargetEEP)];
+		foreach ($variables as $varIdent => $definition) {
+			if ($varIdent === self::EEP_VARIABLES['Temperature']['Ident']) {
+				$temp = $this->GetValue($varIdent);
+			}
+			if ($varIdent === self::EEP_VARIABLES['Humidity']['Ident']) {
+				$hum = $this->GetValue($varIdent);
+			}
+		}
 		$this->SendDebug(__FUNCTION__, 'Send telegram for ' . $this->InstanceID . '/' . $this->ReadPropertyInteger(self::propertyDeviceID) . ': temp=' . $temp . ', hum=' . $hum, 0);
 		$this->SendEnOceanTelegram($temp, $hum);
 	}
