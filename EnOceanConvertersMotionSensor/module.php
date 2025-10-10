@@ -14,6 +14,7 @@ use EnOceanConverter\EEPProfiles;
 use EnOceanConverter\EEPConverter;
 use EnOceanConverter\GUIDs;
 use EnOceanConverter\MessagesHelper;
+use EnOceanConverter\variableHelper;
 
 /**
  * Include Controme helper classes.
@@ -25,6 +26,7 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 {
 	use MessagesHelper;
 	use DeviceIDHelper;
+	use VariableHelper;
 
 	private const propertyDeviceID = "DeviceID";
 	private const propertySourceDevice = "SourceDevice";
@@ -37,10 +39,10 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 	private const bufferVoltage = "BufferVoltage";
 	private const bufferTemperature = "BufferTemperature";
 
-	private const varPIR = "PIRStatus";
-	private const varIllumination = "Helligkeit";
-	private const varVoltage = "Versorgungsspannung";
-	private const varTemperature = "Temperatur";
+//	private const varPIR = "PIRStatus";
+//	private const varIllumination = "Helligkeit";
+//	private const varVoltage = "Versorgungsspannung";
+//	private const varTemperature = "Temperatur";
 
 	private const timerPrefix = "ECMSSendDelayed";
 
@@ -62,10 +64,7 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 		$this->SetBuffer(self::bufferTemperature, "0");
 
 		// Die übertragenen Werte werden in Variablen gespeichert
-		$this->MaintainVariable(self::varPIR, "PIR-Status", VARIABLETYPE_BOOLEAN, "~Motion", 1, true);
-		$this->MaintainVariable(self::varIllumination, "Helligkeit", VARIABLETYPE_INTEGER, "~Illumination", 2, true);
-		$this->MaintainVariable(self::varVoltage, "Versorgungsspannung", VARIABLETYPE_FLOAT, "~Volt", 3, true);
-		$this->MaintainVariable(self::varTemperature, "Temperatur", VARIABLETYPE_FLOAT, "~Temperature", 4, true);
+		$this->MaintainECVariables(self::EEP_VARIABLE_PROFILES[$this->ReadPropertyString(self::propertyTargetEEP)]); // immer alle anlegen
 
 		$this->RegisterTimer(self::timerPrefix . $this->InstanceID, 0, 'IPS_RequestAction(' . $this->InstanceID . ', "SendTelegramDelayed", true);');
 

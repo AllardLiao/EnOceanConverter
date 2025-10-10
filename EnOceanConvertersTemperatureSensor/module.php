@@ -36,8 +36,8 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 	private const bufferHumidity = "BufferHumidity";
 	private const bufferTemperature = "BufferTemperature";
 
-	private const varHumidity = "Humidity";
-	private const varTemperature = "Temperature";
+//	private const varHumidity = "Humidity";
+//	private const varTemperature = "Temperature";
 
 	private const timerPrefix = "ECTSSendDelayed";
 
