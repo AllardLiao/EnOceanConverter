@@ -108,14 +108,14 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		} 
 		$this->SendDebug(__FUNCTION__, 'Using source variables: Temp=' . $this->GetBuffer(self::bufferTemperature) . ', Hum=' . $this->GetBuffer(self::bufferHumidity), 0);
 		if ($this->GetBuffer(self::bufferTemperature) == '0') {
-			$this->SetValue(self::varTemperature['Ident'], $this->ReadPropertyFloat(self::propertyBackupTemperature));
+			$this->SetValue(self::EEP_VARIABLES['Temperature']['Ident'], $this->ReadPropertyFloat(self::propertyBackupTemperature));
 		} else {
-			$status = $this->registerECMessage(self::varTemperature['Ident'], intval($this->GetBuffer(self::bufferTemperature)), $status);
+			$status = $this->registerECMessage(self::EEP_VARIABLES['Temperature']['Ident'], intval($this->GetBuffer(self::bufferTemperature)), $status);
 		}
 		if ($this->GetBuffer(self::bufferHumidity) == '0') {
-			$this->SetValue(self::varHumidity['Ident'], $this->ReadPropertyFloat(self::propertyBackupHumidity));
+			$this->SetValue(self::EEP_VARIABLES['Humidity']['Ident'], $this->ReadPropertyFloat(self::propertyBackupHumidity));
 		} else {
-			$status = $this->registerECMessage(self::varHumidity['Ident'], intval($this->GetBuffer(self::bufferHumidity)), $status);
+			$status = $this->registerECMessage(self::EEP_VARIABLES['Humidity']['Ident'], intval($this->GetBuffer(self::bufferHumidity)), $status);
 		}
 
 		// Status setzen
@@ -154,8 +154,8 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 	 */
 	public function sendTestTelegram(): void
 	{
-		$temp = $this->GetValue(self::varTemperature['Ident']);   // °C
-		$hum  = $this->GetValue(self::varHumidity['Ident']);   // %
+		$temp = $this->GetValue(self::EEP_VARIABLES['Temperature']['Ident']);   // °C
+		$hum  = $this->GetValue(self::EEP_VARIABLES['Humidity']['Ident']);   // %
 		$this->UpdateFormField('ResultSendTest', 'caption', 'Send test telegram (Temp=' . $temp . '°C, Hum=' . $hum . '%)');
 		$this->SendDebug(__FUNCTION__, "sending test: temp=" . $temp . ", hum=" . $hum, 0);
 		$this->SendEnOceanTelegram($temp, $hum, false);
@@ -184,10 +184,10 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 			$value = $Data[0];
 			// Wert entsprechend zuordnen
 			if ($senderIdInt === $tempVarId) {
-				$this->SetValue(self::varTemperature['Ident'], (float)$value);
+				$this->SetValue(self::EEP_VARIABLES['Temperature']['Ident'], (float)$value);
 			}
 			if ($senderIdInt === $humVarId) {
-				$this->SetValue(self::varHumidity['Ident'], (float)$value);
+				$this->SetValue(self::EEP_VARIABLES['Humidity']['Ident'], (float)$value);
 			}
 			// Timer setzen (2 Sekunden warten, dann send) - verhindert das doppelte Senden des Telegramms, wenn beide Variablen fast gleichzeitig aktualisiert werden
             if ($this->ReadPropertyBoolean(self::propertyResendActive)) {
@@ -199,8 +199,8 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 	public function SendTelegramDelayed()
 	{
 		$this->SetTimerInterval(self::timerPrefix . $this->InstanceID, 0); // Timer wieder stoppen
-		$temp = $this->GetValue(self::varTemperature['Ident']);
-		$hum  = $this->GetValue(self::varHumidity['Ident']);
+		$temp = $this->GetValue(self::EEP_VARIABLES['Temperature']['Ident']);
+		$hum  = $this->GetValue(self::EEP_VARIABLES['Humidity']['Ident']);
 		$this->SendDebug(__FUNCTION__, 'Send telegram for ' . $this->InstanceID . '/' . $this->ReadPropertyInteger(self::propertyDeviceID) . ': temp=' . $temp . ', hum=' . $hum, 0);
 		$this->SendEnOceanTelegram($temp, $hum);
 	}
