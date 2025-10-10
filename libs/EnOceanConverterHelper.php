@@ -298,51 +298,51 @@ trait VariableHelper{
         ],
         EEPProfiles::A5_07_01 => [
             ["Ident" => self::varMotion['Ident'],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Motion',        "Name"    => self::varMotion['Name']],
-            ["Ident" => self::varVoltage['Ident'],      "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Voltage',       "Name"    => self::varVoltage['Name']]
+            ["Ident" => self::varVoltage['Ident'],      "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Volt',          "Name"    => self::varVoltage['Name']]
         ],
         EEPProfiles::A5_07_02 => [
             ["Ident" => self::varMotion['Ident'],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Motion',        "Name"    => self::varMotion['Name']],
-            ["Ident" => self::varVoltage['Ident'],      "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Voltage',       "Name"    => self::varVoltage['Name']]
+            ["Ident" => self::varVoltage['Ident'],      "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Volt',          "Name"    => self::varVoltage['Name']]
         ],
         EEPProfiles::A5_07_03 => [
             ["Ident" => self::varMotion['Ident'],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Motion',        "Name"    => self::varMotion['Name']],
             ["Ident" => self::varIllumination['Ident'], "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Illumination',  "Name"    => self::varIllumination['Name']],
-            ["Ident" => self::varVoltage['Ident'],      "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Voltage',       "Name"    => self::varVoltage['Name']]
+            ["Ident" => self::varVoltage['Ident'],      "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Volt',          "Name"    => self::varVoltage['Name']]
         ],
         EEPProfiles::A5_08_01 => [
             ["Ident" => self::varMotion['Ident'],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Motion',        "Name"    => self::varMotion['Name']],
             ["Ident" => self::varTemperature['Ident'],  "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Temperature',   "Name"    => self::varTemperature['Name']],
             ["Ident" => self::varIllumination['Ident'], "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Illumination',  "Name"    => self::varIllumination['Name']],
-            ["Ident" => self::varVoltage['Ident'],      "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Voltage',       "Name"    => self::varVoltage['Name']],
-            ["Ident" => self::varButton['Ident'],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Button',        "Name"    => self::varButton['Name']]
+            ["Ident" => self::varVoltage['Ident'],      "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Volt',          "Name"    => self::varVoltage['Name']],
+            ["Ident" => self::varButton['Ident'],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~switch',        "Name"    => self::varButton['Name']]
         ],
         EEPProfiles::A5_08_02 => [
             ["Ident" => self::varMotion['Ident'],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Motion',        "Name"    => self::varMotion['Name']],
             ["Ident" => self::varTemperature['Ident'],  "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Temperature',   "Name"    => self::varTemperature['Name']],
             ["Ident" => self::varIllumination['Ident'], "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Illumination',  "Name"    => self::varIllumination['Name']],
-            ["Ident" => self::varVoltage['Ident'],      "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Voltage',       "Name"    => self::varVoltage['Name']],
-            ["Ident" => self::varButton['Ident'],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Button',        "Name"    => self::varButton['Name']]
+            ["Ident" => self::varVoltage['Ident'],      "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Volt',          "Name"    => self::varVoltage['Name']],
+            ["Ident" => self::varButton['Ident'],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~switch',        "Name"    => self::varButton['Name']]
         ],
         EEPProfiles::A5_08_03 => [
             ["Ident" => self::varMotion['Ident'],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Motion',        "Name"    => self::varMotion['Name']],
             ["Ident" => self::varTemperature['Ident'],  "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Temperature',   "Name"    => self::varTemperature['Name']],
             ["Ident" => self::varIllumination['Ident'], "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Illumination',  "Name"    => self::varIllumination['Name']],
-            ["Ident" => self::varVoltage['Ident'],      "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Voltage',       "Name"    => self::varVoltage['Name']],
-            ["Ident" => self::varButton['Ident'],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Button',        "Name"    => self::varButton['Name']]
+            ["Ident" => self::varVoltage['Ident'],      "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Volt',          "Name"    => self::varVoltage['Name']],
+            ["Ident" => self::varButton['Ident'],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~switch',        "Name"    => self::varButton['Name']]
         ],
         EEPProfiles::A5_08_02 => [
             ["Ident" => self::varMotion['Ident'],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Motion',        "Name"    => self::varMotion['Name']],
             ["Ident" => self::varTemperature['Ident'],  "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Temperature',   "Name"    => self::varTemperature['Name']],
             ["Ident" => self::varIllumination['Ident'], "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Illumination',  "Name"    => self::varIllumination['Name']],
-            ["Ident" => self::varVoltage['Ident'],      "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Voltage',       "Name"    => self::varVoltage['Name']],
-            ["Ident" => self::varButton['Ident'],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Button',        "Name"    => self::varButton['Name']]
+            ["Ident" => self::varVoltage['Ident'],      "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Volt',          "Name"    => self::varVoltage['Name']],
+            ["Ident" => self::varButton['Ident'],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~switch',        "Name"    => self::varButton['Name']]
         ],
         EEPProfiles::A5_08_03 => [
             ["Ident" => self::varMotion['Ident'],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Motion',        "Name"    => self::varMotion['Name']],
             ["Ident" => self::varTemperature['Ident'],  "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Temperature',   "Name"    => self::varTemperature['Name']],
             ["Ident" => self::varIllumination['Ident'], "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Illumination',  "Name"    => self::varIllumination['Name']],
-            ["Ident" => self::varVoltage['Ident'],      "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Voltage',       "Name"    => self::varVoltage['Name']],
-            ["Ident" => self::varButton['Ident'],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Button',        "Name"    => self::varButton['Name']]
+            ["Ident" => self::varVoltage['Ident'],      "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Volt',          "Name"    => self::varVoltage['Name']],
+            ["Ident" => self::varButton['Ident'],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~switch',        "Name"    => self::varButton['Name']]
         ]
     ];
     
