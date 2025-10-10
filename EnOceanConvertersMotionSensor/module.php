@@ -116,19 +116,17 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 		$status = 104; // Standard: Quelle nicht gesetzt
 		// Werte in Variablen schreiben
 		$variables = self::EEP_VARIABLE_PROFILES[$this->ReadPropertyString(self::propertyTargetEEP)];
-		foreach ($variables as $key => $vid) {
-			if ($this->GetBuffer(self::EEP_BUFFERS[$key]['Ident']) == '0') {
-				$this->SetValue(self::EEP_VARIABLES[$key]['Ident'], $this->ReadPropertyFloat("Backup" . self::EEP_BUFFERS[$key]['Ident']));
-			} else {
-				$status = $this->registerECMessage(self::EEP_VARIABLES[$key]['Ident'], intval($this->GetBuffer(self::EEP_BUFFERS[$key]['Ident'])), $status);
+		foreach ($variables as $varIdent => $definition) {
+			$bufferKey = $this->getBufferKeyFromVarIdent($varIdent);
+			if ($bufferKey === null) {
+				continue; // nichts gefunden
 			}
-		}		
-/***
-		$status = $this->registerECMessage(self::EEP_VARIABLES['Motion']['Ident'], intval($this->GetBuffer(self::EEP_BUFFERS['Motion']['Ident'])), $status);
-		$status = $this->registerECMessage(self::EEP_VARIABLES['Illumination']['Ident'], intval($this->GetBuffer(self::EEP_BUFFERS['Illumination']['Ident'])), $status);
-		$status = $this->registerECMessage(self::EEP_VARIABLES['Voltage']['Ident'], intval($this->GetBuffer(self::EEP_BUFFERS['Voltage']['Ident'])), $status);
-		$status = $this->registerECMessage(self::EEP_VARIABLES['Temperature']['Ident'], intval($this->GetBuffer(self::EEP_BUFFERS['Temperature']['Ident'])), $status);
-*/
+			if ($this->GetBuffer(self::EEP_BUFFERS[$bufferKey]['Ident']) == '0') {
+				$this->SetValue($varIdent, $this->ReadPropertyFloat("Backup" . $bufferKey));
+			} else {
+				$status = $this->registerECMessage($varIdent, intval($this->GetBuffer(self::EEP_BUFFERS[$bufferKey]['Ident'])), $status);
+			}
+		}	
 		// Status setzen
 		if ($status == 102) {
 			if (!$this->ReadPropertyBoolean('ResendActive')) {
