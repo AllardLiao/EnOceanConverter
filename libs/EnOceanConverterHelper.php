@@ -254,7 +254,7 @@ trait DeviceIDHelper
 		$Devices = IPS_GetInstanceListByModuleType(3);             # alle Geräte
 		$DeviceArray = array();
 		foreach ($Devices as $Device){
-			if(IPS_GetInstance($Device)["ConnectionID"] == $Gateway){
+			if(isset(IPS_GetInstance($Device)["ConnectionID"]) && IPS_GetInstance($Device)["ConnectionID"] == $Gateway){
 				$config = json_decode(IPS_GetConfiguration($Device));
 				if(!property_exists($config, 'DeviceID'))continue;
 				if(is_integer($config->DeviceID)) $DeviceArray[] = $config->DeviceID;
