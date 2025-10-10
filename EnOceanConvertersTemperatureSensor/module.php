@@ -62,7 +62,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		// Die übertragenen Werte werden in Variablen gespeichert
 		// Die übertragenen Werte werden in Variablen gespeichert
 		$this->MaintainECVariables(self::EEP_VARIABLE_PROFILES[$this->ReadPropertyString(self::propertyTargetEEP)]); // immer alle anlegen
-
+		$this->SendDebug(__FUNCTION__, 'Created with EEP=' . print_r(self::EEP_VARIABLE_PROFILES[$this->ReadPropertyString(self::propertyTargetEEP)], true), 0);
 		$this->RegisterTimer(self::timerPrefix . $this->InstanceID, 0, 'IPS_RequestAction(' . $this->InstanceID . ', "SendTelegramDelayed", true);');
 
 		$this->SetStatus(104);
