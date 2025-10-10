@@ -113,16 +113,9 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 				continue; // nichts gefunden
 			}
 			if ($this->GetBuffer(self::EEP_BUFFERS[$bufferKey]['Ident']) == '0') {
-				$this->SetValue(
-					$varIdent,
-					$this->ReadPropertyFloat("Backup" . self::EEP_BUFFERS[$bufferKey]['Ident'])
-				);
+				$this->SetValue($varIdent, $this->ReadPropertyFloat("Backup" . $bufferKey));
 			} else {
-				$status = $this->registerECMessage(
-					$varIdent,
-					intval($this->GetBuffer(self::EEP_BUFFERS[$bufferKey]['Ident'])),
-					$status
-				);
+				$status = $this->registerECMessage($varIdent, intval($this->GetBuffer(self::EEP_BUFFERS[$bufferKey]['Ident'])), $status);
 			}
 		}	
 /***		foreach ($variables as $key => $vid) {
