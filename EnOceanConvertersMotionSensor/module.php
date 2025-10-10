@@ -93,7 +93,11 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 		$this->SetBuffer(self::bufferVoltage, '0');
 		$this->SetBuffer(self::bufferTemperature, '0');
 
-		 // Source Device auslesen und Variable(n) suchen
+		// Variablen anlegen/löschen je nach ausgewähltem EEP
+		$this->MaintainECVariables(self::EEP_VARIABLE_PROFILES[$this->ReadPropertyString(self::propertyTargetEEP)]); // immer alle anlegen
+		$this->SendDebug(__FUNCTION__, 'Created with EEP=' . print_r(self::EEP_VARIABLE_PROFILES[$this->ReadPropertyString(self::propertyTargetEEP)], true), 0);
+
+		// Source Device auslesen und Variable(n) suchen
 		if ($sourceID > 1) { // 0=root, 1=none
 			$variables = IPS_GetChildrenIDs($sourceID);
 			foreach ($variables as $vid) {

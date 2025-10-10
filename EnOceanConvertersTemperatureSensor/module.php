@@ -87,6 +87,9 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		$this->SetBuffer(self::bufferTemperature, '0');
 		$this->SetBuffer(self::bufferHumidity, '0');
 
+		$this->MaintainECVariables(self::EEP_VARIABLE_PROFILES[$this->ReadPropertyString(self::propertyTargetEEP)]); // immer alle anlegen
+		$this->SendDebug(__FUNCTION__, 'Created with EEP=' . print_r(self::EEP_VARIABLE_PROFILES[$this->ReadPropertyString(self::propertyTargetEEP)], true), 0);
+
 		// Update Messages registrieren
 		$status = 104; // Standard: Quelle nicht gesetzt
 
