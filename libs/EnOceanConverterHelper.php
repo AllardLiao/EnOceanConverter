@@ -269,81 +269,83 @@ trait DeviceIDHelper
 trait VariableHelper{
 
     // Einheitliche Idents und Namen für die Variablen in allen Modulen:
-	public const varHumidity =      ["Ident" => "Humidity",             "Name" => "Luftfeuchtigkeit"];
-	public const varTemperature =   ["Ident" => "Temperature",          "Name" => "Temperatur"];
-	public const varMotion =        ["Ident" => "Motion",               "Name" => "PIR-Status"];
-	public const varIllumination =  ["Ident" => "Illumination",         "Name" => "Helligkeit"];
-	public const varVoltage =       ["Ident" => "Voltage",              "Name" => "Versorgungsspannung"];
-    public const varButton =        ["Ident" => "Button",               "Name" => "Taster-Status"];
+    public const EEP_VARIABLES = [
+        "Humidity"      => ["Ident" => "Humidity",             "Name" => "Luftfeuchtigkeit"],
+        "Temperature"   => ["Ident" => "Temperature",          "Name" => "Temperatur"],
+        "Motion"        => ["Ident" => "Motion",               "Name" => "PIR-Status"],
+        "Illumination"  => ["Ident" => "Illumination",         "Name" => "Helligkeit"],
+        "Voltage"       => ["Ident" => "Voltage",              "Name" => "Versorgungsspannung"],
+        "Button"        => ["Ident" => "Button",               "Name" => "Taster-Status"]
+    ];
 
     public const EEP_VARIABLE_PROFILES = 
     [
         EEPProfiles::A5_02_13 => [
-            ["Ident" => self::varTemperature['Ident'],  "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Temperature',   "Name"    => self::varTemperature['Name']]
+            self::EEP_VARIABLES["Temperature"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Temperature"]["Ident"],  "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Temperature',   "Name"    => self::EEP_VARIABLES["Temperature"]["Name"]]
         ],
         EEPProfiles::A5_04_01 => [
-            ["Ident" => self::varTemperature['Ident'],  "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Temperature',   "Name"    => self::varTemperature['Name']],
-            ["Ident" => self::varHumidity['Ident'],     "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Humidity.F',    "Name"    => self::varHumidity['Name']]
+            self::EEP_VARIABLES["Temperature"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Temperature"]["Ident"],  "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Temperature',   "Name"    => self::EEP_VARIABLES["Temperature"]["Name"]],
+            self::EEP_VARIABLES["Humidity"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Humidity"]["Ident"],     "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Humidity.F',    "Name"    => self::EEP_VARIABLES["Humidity"]["Name"]]
         ],
         EEPProfiles::A5_04_02 => [
-            ["Ident" => self::varTemperature['Ident'],  "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Temperature',   "Name"    => self::varTemperature['Name']],
-            ["Ident" => self::varHumidity['Ident'],     "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Humidity.F',    "Name"    => self::varHumidity['Name']]
+            self::EEP_VARIABLES["Temperature"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Temperature"]["Ident"],  "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Temperature',   "Name"    => self::EEP_VARIABLES["Temperature"]["Name"]],
+            self::EEP_VARIABLES["Humidity"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Humidity"]["Ident"],     "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Humidity.F',    "Name"    => self::EEP_VARIABLES["Humidity"]["Name"]]
         ],
         EEPProfiles::A5_04_03 => [
-            ["Ident" => self::varTemperature['Ident'],  "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Temperature',   "Name"    => self::varTemperature['Name']],
-            ["Ident" => self::varHumidity['Ident'],     "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Humidity.F',    "Name"    => self::varHumidity['Name']]
+            self::EEP_VARIABLES["Temperature"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Temperature"]["Ident"],  "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Temperature',   "Name"    => self::EEP_VARIABLES["Temperature"]["Name"]],
+            self::EEP_VARIABLES["Humidity"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Humidity"]["Ident"],     "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Humidity.F',    "Name"    => self::EEP_VARIABLES["Humidity"]["Name"]]
         ],
         EEPProfiles::A5_04_04 => [
-            ["Ident" => self::varTemperature['Ident'],  "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Temperature',   "Name"    => self::varTemperature['Name']],
-            ["Ident" => self::varHumidity['Ident'],     "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Humidity.F',    "Name"    => self::varHumidity['Name']]
+            self::EEP_VARIABLES["Temperature"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Temperature"]["Ident"],  "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Temperature',   "Name"    => self::EEP_VARIABLES["Temperature"]["Name"]],
+            self::EEP_VARIABLES["Humidity"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Humidity"]["Ident"],     "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Humidity.F',    "Name"    => self::EEP_VARIABLES["Humidity"]["Name"]]
         ],
         EEPProfiles::A5_07_01 => [
-            ["Ident" => self::varMotion['Ident'],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Motion',        "Name"    => self::varMotion['Name']],
-            ["Ident" => self::varVoltage['Ident'],      "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Volt',          "Name"    => self::varVoltage['Name']]
+            self::EEP_VARIABLES["Motion"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Motion"]["Ident"],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Motion',        "Name"    => self::EEP_VARIABLES["Motion"]["Name"]],
+            self::EEP_VARIABLES["Voltage"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Voltage"]["Ident"],      "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Volt',          "Name"    => self::EEP_VARIABLES["Voltage"]["Name"]]
         ],
         EEPProfiles::A5_07_02 => [
-            ["Ident" => self::varMotion['Ident'],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Motion',        "Name"    => self::varMotion['Name']],
-            ["Ident" => self::varVoltage['Ident'],      "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Volt',          "Name"    => self::varVoltage['Name']]
+            self::EEP_VARIABLES["Motion"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Motion"]["Ident"],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Motion',        "Name"    => self::EEP_VARIABLES["Motion"]["Name"]],
+            self::EEP_VARIABLES["Voltage"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Voltage"]["Ident"],      "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Volt',          "Name"    => self::EEP_VARIABLES["Voltage"]["Name"]]
         ],
         EEPProfiles::A5_07_03 => [
-            ["Ident" => self::varMotion['Ident'],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Motion',        "Name"    => self::varMotion['Name']],
-            ["Ident" => self::varIllumination['Ident'], "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Illumination',  "Name"    => self::varIllumination['Name']],
-            ["Ident" => self::varVoltage['Ident'],      "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Volt',          "Name"    => self::varVoltage['Name']]
+            self::EEP_VARIABLES["Motion"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Motion"]["Ident"],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Motion',        "Name"    => self::EEP_VARIABLES["Motion"]["Name"]],
+            self::EEP_VARIABLES["Illumination"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Illumination"]["Ident"], "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Illumination',  "Name"    => self::EEP_VARIABLES["Illumination"]["Name"]],
+            self::EEP_VARIABLES["Voltage"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Voltage"]["Ident"],      "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Volt',          "Name"    => self::EEP_VARIABLES["Voltage"]["Name"]]
         ],
         EEPProfiles::A5_08_01 => [
-            ["Ident" => self::varMotion['Ident'],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Motion',        "Name"    => self::varMotion['Name']],
-            ["Ident" => self::varTemperature['Ident'],  "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Temperature',   "Name"    => self::varTemperature['Name']],
-            ["Ident" => self::varIllumination['Ident'], "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Illumination',  "Name"    => self::varIllumination['Name']],
-            ["Ident" => self::varVoltage['Ident'],      "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Volt',          "Name"    => self::varVoltage['Name']],
-            ["Ident" => self::varButton['Ident'],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Switch',        "Name"    => self::varButton['Name']]
+            self::EEP_VARIABLES["Motion"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Motion"]["Ident"],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Motion',        "Name"    => self::EEP_VARIABLES["Motion"]["Name"]],
+            self::EEP_VARIABLES["Temperature"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Temperature"]["Ident"],  "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Temperature',   "Name"    => self::EEP_VARIABLES["Temperature"]["Name"]],
+            self::EEP_VARIABLES["Illumination"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Illumination"]["Ident"], "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Illumination',  "Name"    => self::EEP_VARIABLES["Illumination"]["Name"]],
+            self::EEP_VARIABLES["Voltage"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Voltage"]["Ident"],      "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Volt',          "Name"    => self::EEP_VARIABLES["Voltage"]["Name"]],
+            self::EEP_VARIABLES["Button"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Button"]["Ident"],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Switch',        "Name"    => self::EEP_VARIABLES["Button"]["Name"]]
         ],
         EEPProfiles::A5_08_02 => [
-            ["Ident" => self::varMotion['Ident'],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Motion',        "Name"    => self::varMotion['Name']],
-            ["Ident" => self::varTemperature['Ident'],  "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Temperature',   "Name"    => self::varTemperature['Name']],
-            ["Ident" => self::varIllumination['Ident'], "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Illumination',  "Name"    => self::varIllumination['Name']],
-            ["Ident" => self::varVoltage['Ident'],      "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Volt',          "Name"    => self::varVoltage['Name']],
-            ["Ident" => self::varButton['Ident'],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Switch',        "Name"    => self::varButton['Name']]
+            self::EEP_VARIABLES["Motion"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Motion"]["Ident"],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Motion',        "Name"    => self::EEP_VARIABLES["Motion"]["Name"]],
+            self::EEP_VARIABLES["Temperature"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Temperature"]["Ident"],  "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Temperature',   "Name"    => self::EEP_VARIABLES["Temperature"]["Name"]],
+            self::EEP_VARIABLES["Illumination"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Illumination"]["Ident"], "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Illumination',  "Name"    => self::EEP_VARIABLES["Illumination"]["Name"]],
+            self::EEP_VARIABLES["Voltage"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Voltage"]["Ident"],      "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Volt',          "Name"    => self::EEP_VARIABLES["Voltage"]["Name"]],
+            self::EEP_VARIABLES["Button"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Button"]["Ident"],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Switch',        "Name"    => self::EEP_VARIABLES["Button"]["Name"]]
         ],
         EEPProfiles::A5_08_03 => [
-            ["Ident" => self::varMotion['Ident'],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Motion',        "Name"    => self::varMotion['Name']],
-            ["Ident" => self::varTemperature['Ident'],  "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Temperature',   "Name"    => self::varTemperature['Name']],
-            ["Ident" => self::varIllumination['Ident'], "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Illumination',  "Name"    => self::varIllumination['Name']],
-            ["Ident" => self::varVoltage['Ident'],      "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Volt',          "Name"    => self::varVoltage['Name']],
-            ["Ident" => self::varButton['Ident'],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Switch',        "Name"    => self::varButton['Name']]
+            self::EEP_VARIABLES["Motion"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Motion"]["Ident"],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Motion',        "Name"    => self::EEP_VARIABLES["Motion"]["Name"]],
+            self::EEP_VARIABLES["Temperature"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Temperature"]["Ident"],  "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Temperature',   "Name"    => self::EEP_VARIABLES["Temperature"]["Name"]],
+            self::EEP_VARIABLES["Illumination"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Illumination"]["Ident"], "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Illumination',  "Name"    => self::EEP_VARIABLES["Illumination"]["Name"]],
+            self::EEP_VARIABLES["Voltage"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Voltage"]["Ident"],      "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Volt',          "Name"    => self::EEP_VARIABLES["Voltage"]["Name"]],
+            self::EEP_VARIABLES["Button"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Button"]["Ident"],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Switch',        "Name"    => self::EEP_VARIABLES["Button"]["Name"]]
         ],
         EEPProfiles::A5_08_02 => [
-            ["Ident" => self::varMotion['Ident'],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Motion',        "Name"    => self::varMotion['Name']],
-            ["Ident" => self::varTemperature['Ident'],  "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Temperature',   "Name"    => self::varTemperature['Name']],
-            ["Ident" => self::varIllumination['Ident'], "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Illumination',  "Name"    => self::varIllumination['Name']],
-            ["Ident" => self::varVoltage['Ident'],      "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Volt',          "Name"    => self::varVoltage['Name']],
-            ["Ident" => self::varButton['Ident'],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~switch',        "Name"    => self::varButton['Name']]
+            self::EEP_VARIABLES["Motion"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Motion"]["Ident"],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Motion',        "Name"    => self::EEP_VARIABLES["Motion"]["Name"]],
+            self::EEP_VARIABLES["Temperature"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Temperature"]["Ident"],  "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Temperature',   "Name"    => self::EEP_VARIABLES["Temperature"]["Name"]],
+            self::EEP_VARIABLES["Illumination"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Illumination"]["Ident"], "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Illumination',  "Name"    => self::EEP_VARIABLES["Illumination"]["Name"]],
+            self::EEP_VARIABLES["Voltage"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Voltage"]["Ident"],      "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Volt',          "Name"    => self::EEP_VARIABLES["Voltage"]["Name"]],
+            self::EEP_VARIABLES["Button"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Button"]["Ident"],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Switch',        "Name"    => self::EEP_VARIABLES["Button"]["Name"]]
         ],
         EEPProfiles::A5_08_03 => [
-            ["Ident" => self::varMotion['Ident'],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Motion',        "Name"    => self::varMotion['Name']],
-            ["Ident" => self::varTemperature['Ident'],  "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Temperature',   "Name"    => self::varTemperature['Name']],
-            ["Ident" => self::varIllumination['Ident'], "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Illumination',  "Name"    => self::varIllumination['Name']],
-            ["Ident" => self::varVoltage['Ident'],      "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Volt',          "Name"    => self::varVoltage['Name']],
-            ["Ident" => self::varButton['Ident'],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Switch',        "Name"    => self::varButton['Name']]
+            self::EEP_VARIABLES["Motion"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Motion"]["Ident"],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Motion',        "Name"    => self::EEP_VARIABLES["Motion"]["Name"]],
+            self::EEP_VARIABLES["Temperature"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Temperature"]["Ident"],  "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Temperature',   "Name"    => self::EEP_VARIABLES["Temperature"]["Name"]],
+            self::EEP_VARIABLES["Illumination"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Illumination"]["Ident"], "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Illumination',  "Name"    => self::EEP_VARIABLES["Illumination"]["Name"]],
+            self::EEP_VARIABLES["Voltage"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Voltage"]["Ident"],      "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Volt',          "Name"    => self::EEP_VARIABLES["Voltage"]["Name"]],
+            self::EEP_VARIABLES["Button"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Button"]["Ident"],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Switch',        "Name"    => self::EEP_VARIABLES["Button"]["Name"]]
         ]
     ];
     
