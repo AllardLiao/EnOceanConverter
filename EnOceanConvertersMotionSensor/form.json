@@ -61,7 +61,7 @@
                     "options": <!---VALID_EEP_OPTIONS-->,
                     "onChange": "",
                     "value": "A5-08-02",
-                    "visible": false,
+                    "visible": true,
                     "width": "300px"
                 },
                 {
@@ -91,6 +91,72 @@
             "value": "A5-07-03",
             "visible": true,
             "width": "300px"
+        },
+        {
+            "type": "ExpansionPanel",
+            "caption": "Missing Value Handling",
+            "items": [
+                {
+                    "type": "Label",
+                    "bold": false,
+                    "caption": "In case the source does not provide all values, the values set here are used in send telegrams.",
+                    "color": 0,
+                    "italic": false,
+                    "link": true,
+                    "name": "",
+                    "underline": false,
+                    "visible": true,
+                    "width": ""
+                },
+                {
+                    "type": "NumberSpinner",
+                    "caption": "Backup Illumination",
+                    "digits": 2,
+                    "enabled": true,
+                    "hex": false,
+                    "maximum": 50,
+                    "minimum": -30,
+                    "moreDigits": false,
+                    "name": "BackupIllumination",
+                    "onChange": "",
+                    "suffix": "lx",
+                    "value": 10,
+                    "visible": true,
+                    "width": "300px"
+                },
+                {
+                    "type": "NumberSpinner",
+                    "caption": "Backup Temperature",
+                    "digits": 2,
+                    "enabled": true,
+                    "hex": false,
+                    "maximum": 50,
+                    "minimum": -30,
+                    "moreDigits": false,
+                    "name": "BackupTemperature",
+                    "onChange": "",
+                    "suffix": "°C",
+                    "value": 15,
+                    "visible": true,
+                    "width": "300px"
+                },                
+                {
+                    "type": "NumberSpinner",
+                    "caption": "Backup Voltage",
+                    "digits": 2,
+                    "enabled": true,
+                    "hex": false,
+                    "maximum": null,
+                    "minimum": null,
+                    "moreDigits": false,
+                    "name": "BackupVoltage",
+                    "onChange": "",
+                    "suffix": "V",
+                    "value": 1.1,
+                    "visible": true,
+                    "width": "300px"
+                }
+            ]
         },
         {
             "type": "CheckBox",
