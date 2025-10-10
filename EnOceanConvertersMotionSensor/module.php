@@ -116,10 +116,10 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 
 		// Update Messages registrieren
 		$status = 104; // Standard: Quelle nicht gesetzt
-		$status = $this->registerECMessage(self::varPIR, intval($this->GetBuffer(self::bufferPIR)), $status);
-		$status = $this->registerECMessage(self::varIllumination, intval($this->GetBuffer(self::bufferIllumination)), $status);
-		$status = $this->registerECMessage(self::varVoltage, intval($this->GetBuffer(self::bufferVoltage)), $status);
-		$status = $this->registerECMessage(self::varTemperature, intval($this->GetBuffer(self::bufferTemperature)), $status);
+		$status = $this->registerECMessage(self::varMotion["Ident"], intval($this->GetBuffer(self::bufferPIR)), $status);
+		$status = $this->registerECMessage(self::varIllumination["Ident"], intval($this->GetBuffer(self::bufferIllumination)), $status);
+		$status = $this->registerECMessage(self::varVoltage["Ident"], intval($this->GetBuffer(self::bufferVoltage)), $status);
+		$status = $this->registerECMessage(self::varTemperature["Ident"], intval($this->GetBuffer(self::bufferTemperature)), $status);
 
 		// Status setzen
 		if ($status == 102) {
@@ -157,10 +157,10 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 	 */
 	public function sendTestTelegram(): void
 	{
-		$PIR = $this->GetValue(self::varPIR);
-		$ILL = $this->GetValue(self::varIllumination);
-		$TEMP = $this->GetValue(self::varTemperature);
-		$VOL = $this->GetValue(self::varVoltage);
+		$PIR = $this->GetValue(self::varMotion["Ident"]);
+		$ILL = $this->GetValue(self::varIllumination["Ident"]);
+		$TEMP = $this->GetValue(self::varTemperature["Ident"]);
+		$VOL = $this->GetValue(self::varVoltage["Ident"]);
 		$this->UpdateFormField('ResultSendTest', 'caption', 'Send test telegram (PIR=' . $PIR . ', ILL=' . $ILL . 'lx, TEMP=' . $TEMP . '°C, VOLT=' . $VOL . 'V)');
 		$this->SendDebug(__FUNCTION__, "sending test: PIR=" . $PIR . ", ILL=" . $ILL . "lx, TEMP=" . $TEMP . "°C, VOLT=" . $VOL . "V", 0);
 		$this->SendEnOceanTelegram($PIR, $ILL, $TEMP, $VOL, false);
@@ -194,10 +194,10 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 			$value = $Data[0];
 			// Wert entsprechend zuordnen
 			if ($senderIdInt === $tempVarId) {
-				$this->SetValue(self::varTemperature, (float)$value);
+				$this->SetValue(self::varTemperature["Ident"], (float)$value);
 			}
 			if ($senderIdInt === $illVarId) {
-				$this->SetValue(self::varIllumination, (int)$value);
+				$this->SetValue(self::varIllumination["Ident"], (int)$value);
 			}
 			if ($senderIdInt === $pirVarId) {
 				$targetEEP  = $this->ReadPropertyString(self::propertyTargetEEP);
@@ -207,10 +207,10 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 					// A05-07 und A05-08 haben inverse PIR-Codierungen!
 					$valueNew = (!$valueNew);
 				}
-				$this->SetValue(self::varPIR, $valueNew);
+				$this->SetValue(self::varMotion["Ident"], $valueNew);
 			}
 			if ($senderIdInt === $volVarId) {
-				$this->SetValue(self::varVoltage, (float)$value);
+				$this->SetValue(self::varVoltage["Ident"], (float)$value);
 			}
 			// Timer setzen (2 Sekunden warten, dann send) - verhindert das doppelte Senden des Telegramms, wenn beide Variablen fast gleichzeitig aktualisiert werden
             $this->SetTimerInterval(self::timerPrefix . $this->InstanceID, 2 * 1000);
@@ -220,10 +220,10 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 	public function SendTelegramDelayed()
 	{
 		$this->SetTimerInterval(self::timerPrefix . $this->InstanceID, 0); // Timer wieder stoppen
-		$temp = $this->GetValue(self::varTemperature);
-		$ill  = $this->GetValue(self::varIllumination);
-		$pir  = $this->GetValue(self::varPIR);
-		$vol  = $this->GetValue(self::varVoltage);
+		$temp = $this->GetValue(self::varTemperature["Ident"]);
+		$ill  = $this->GetValue(self::varIllumination["Ident"]);
+		$pir  = $this->GetValue(self::varMotion["Ident"]);
+		$vol  = $this->GetValue(self::varVoltage["Ident"]);
 		$this->SendDebug(__FUNCTION__, 'Send telegram for ' . $this->InstanceID . '/' . $this->ReadPropertyInteger(self::propertyDeviceID) . ': temp=' . $temp . ', ill=' . $ill . ', pir=' . $pir . ', vol=' . $vol, 0);
 		$this->SendEnOceanTelegram($pir, $ill, $temp, $vol);
 	}
