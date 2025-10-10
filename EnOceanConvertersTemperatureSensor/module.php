@@ -106,6 +106,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		if ($this->GetBuffer(self::bufferHumidity) == '0') {
 			// Keine Hum-Variable gefunden - Backup-Wert setzen
 			$this->SetValue(self::varHumidity, $this->ReadPropertyFloat(self::propertyBackupHumidity));
+			$this->SendDebug(__FUNCTION__, 'No Humidity variable found - using backup value: ' . $this->ReadPropertyFloat(self::propertyBackupHumidity), 0);
 		}
 
 		// Update Messages registrieren
