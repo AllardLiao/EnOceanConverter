@@ -270,12 +270,12 @@ trait VariableHelper{
 
     // Einheitliche Idents und Namen für die Variablen in allen Modulen:
     public const EEP_VARIABLES = [
-        "Humidity"      => ["Ident" => "Humidity",             "Name" => "Luftfeuchtigkeit"],
-        "Temperature"   => ["Ident" => "Temperature",          "Name" => "Temperatur"],
-        "Motion"        => ["Ident" => "Motion",               "Name" => "PIR-Status"],
-        "Illumination"  => ["Ident" => "Illumination",         "Name" => "Helligkeit"],
-        "Voltage"       => ["Ident" => "Voltage",              "Name" => "Versorgungsspannung"],
-        "Button"        => ["Ident" => "Button",               "Name" => "Taster-Status"]
+        "Humidity"      => ["Ident" => "varHumidity",             "Name" => "Luftfeuchtigkeit"],
+        "Temperature"   => ["Ident" => "varTemperature",          "Name" => "Temperatur"],
+        "Motion"        => ["Ident" => "varMotion",               "Name" => "PIR-Status"],
+        "Illumination"  => ["Ident" => "varIllumination",         "Name" => "Helligkeit"],
+        "Voltage"       => ["Ident" => "varVoltage",              "Name" => "Versorgungsspannung"],
+        "Button"        => ["Ident" => "varButton",               "Name" => "Taster-Status"]
     ];
 
     public const EEP_VARIABLE_PROFILES = 
@@ -372,6 +372,30 @@ trait VariableHelper{
                 $this->SendDebug(__FUNCTION__, "Lösche Variable: " . $ident, 0);
                 IPS_DeleteVariable($childID);
             }
+        }
+    }
+}
+
+trait BufferHelper{
+
+    public const EEP_BUFFERS = [
+        "Humidity"      => ["Ident" => "bufferHumidity",             "Name" => "Luftfeuchtigkeit"],
+        "Temperature"   => ["Ident" => "bufferTemperature",          "Name" => "Temperatur"],
+        "Motion"        => ["Ident" => "bufferMotion",               "Name" => "PIR-Status"],
+        "Illumination"  => ["Ident" => "bufferIllumination",         "Name" => "Helligkeit"],
+        "Voltage"       => ["Ident" => "bufferVoltage",              "Name" => "Versorgungsspannung"],
+        "Button"        => ["Ident" => "bufferButton",               "Name" => "Taster-Status"]
+    ];
+
+    private function maintainECBuffer(array $buffer): void
+    {
+        $this->SetBuffer($buffer['Ident'], "0");
+    }
+
+    private function maintainECBuffers(array $buffers): void
+    {
+        foreach ($buffers as $buffer) {
+            $this->maintainECBuffer($buffer);
         }
     }
 }

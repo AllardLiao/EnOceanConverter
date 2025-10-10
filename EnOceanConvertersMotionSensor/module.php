@@ -9,6 +9,7 @@ if (substr(__DIR__,0, 10) == "/Users/kai") {
 	include_once __DIR__ . '/../.ips_stubs/autoload.php';
 }
 
+use EnOceanConverter\BufferHelper;
 use EnOceanConverter\DeviceIDHelper;
 use EnOceanConverter\EEPProfiles;
 use EnOceanConverter\EEPConverter;
@@ -27,6 +28,7 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 	use MessagesHelper;
 	use DeviceIDHelper;
 	use VariableHelper;
+	use BufferHelper;
 
 	private const propertyDeviceID = "DeviceID";
 	private const propertySourceDevice = "SourceDevice";
@@ -34,15 +36,10 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 	private const propertySourceEEP = "SourceEEP";
 	private const propertyResendActive = "ResendActive";
 
-	private const bufferPIR = "BufferPIR";
-	private const bufferIllumination = "BufferIllumination";
-	private const bufferVoltage = "BufferVoltage";
-	private const bufferTemperature = "BufferTemperature";
-
-//	private const varPIR = "PIRStatus";
-//	private const varIllumination = "Helligkeit";
-//	private const varVoltage = "Versorgungsspannung";
-//	private const varTemperature = "Temperatur";
+//	private const bufferPIR = "BufferPIR";
+//	private const bufferIllumination = "BufferIllumination";
+//	private const bufferVoltage = "BufferVoltage";
+//	private const bufferTemperature = "BufferTemperature";
 
 	private const timerPrefix = "ECMSSendDelayed";
 
@@ -57,15 +54,11 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 		$this->RegisterPropertyString(self::propertySourceEEP, EEPProfiles::A5_08_01);
 		$this->RegisterPropertyBoolean(self::propertyResendActive, false);
 
-		// Die Variablen-IDs der Quell-Variablen werden in den Buffern gespeichert
-		$this->SetBuffer(self::bufferPIR, "0");
-		$this->SetBuffer(self::bufferIllumination, "0");
-		$this->SetBuffer(self::bufferVoltage, "0");
-		$this->SetBuffer(self::bufferTemperature, "0");
-
-		// Die übertragenen Werte werden in Variablen gespeichert
+		// Alle Buffer vorbelegen
+		$this->maintainECBuffers(self::EEP_BUFFERS);
+		// Die benötigten Variablen (initial) anlegen
 		$this->MaintainECVariables(self::EEP_VARIABLE_PROFILES[$this->ReadPropertyString(self::propertyTargetEEP)]); // immer alle anlegen
-
+		// Timer für verzögertes Senden anlegen
 		$this->RegisterTimer(self::timerPrefix . $this->InstanceID, 0, 'IPS_RequestAction(' . $this->InstanceID . ', "SendTelegramDelayed", true);');
 
 		$this->SetStatus(104);
@@ -88,10 +81,8 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
         $sourceID = $this->ReadPropertyInteger(self::propertySourceDevice);
 		//$this->SendDebug(__FUNCTION__, 'ApplyChanges: SourceDevice=' . $sourceID, 0);
 
-		$this->SetBuffer(self::bufferPIR, '0');
-		$this->SetBuffer(self::bufferIllumination, '0');
-		$this->SetBuffer(self::bufferVoltage, '0');
-		$this->SetBuffer(self::bufferTemperature, '0');
+		// Alle Buffer vorbelegen
+		$this->maintainECBuffers(self::EEP_BUFFERS);
 
 		// Variablen anlegen/löschen je nach ausgewähltem EEP
 		$this->MaintainECVariables(self::EEP_VARIABLE_PROFILES[$this->ReadPropertyString(self::propertyTargetEEP)]); // immer alle anlegen
@@ -104,26 +95,26 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 				$vinfo = IPS_GetVariable($vid);
 				// nach Profil erkennen
 				if (str_contains(strtoupper($vinfo['VariableProfile']), '_PIRS') || str_contains(strtoupper($vinfo['VariableProfile']), 'MOTION') || str_contains(strtoupper($vinfo['VariableProfile']), 'PRESENCE')) {
-					$this->SetBuffer(self::bufferPIR, (string)$vid);
+					$this->SetBuffer(self::EEP_BUFFERS['bufferMotion']['Ident'], (string)$vid);
 				}
 				if (str_contains(strtoupper($vinfo['VariableProfile']), '_ILL') || str_contains(strtoupper($vinfo['VariableProfile']), 'ILLUMINATION')) {
-					$this->SetBuffer(self::bufferIllumination, (string)$vid);
+					$this->SetBuffer(self::EEP_BUFFERS['bufferIllumination']['Ident'], (string)$vid);
 				}
 				if (str_contains(strtoupper($vinfo['VariableProfile']), '_SVC') || str_contains(strtoupper($vinfo['VariableProfile']), 'VOLT')) {
-					$this->SetBuffer(self::bufferVoltage, (string)$vid);
+					$this->SetBuffer(self::EEP_BUFFERS['bufferVoltage']['Ident'], (string)$vid);
 				}
 				if (str_contains(strtoupper($vinfo['VariableProfile']), '_TMP') || str_contains(strtoupper($vinfo['VariableProfile']), 'TEMPERATURE')) {
-					$this->SetBuffer(self::bufferTemperature, (string)$vid);
+					$this->SetBuffer(self::EEP_BUFFERS['bufferTemperature']['Ident'], (string)$vid);
 				}
 			}
 		}
 
 		// Update Messages registrieren
 		$status = 104; // Standard: Quelle nicht gesetzt
-		$status = $this->registerECMessage(self::varMotion["Ident"], intval($this->GetBuffer(self::bufferPIR)), $status);
-		$status = $this->registerECMessage(self::varIllumination["Ident"], intval($this->GetBuffer(self::bufferIllumination)), $status);
-		$status = $this->registerECMessage(self::varVoltage["Ident"], intval($this->GetBuffer(self::bufferVoltage)), $status);
-		$status = $this->registerECMessage(self::varTemperature["Ident"], intval($this->GetBuffer(self::bufferTemperature)), $status);
+		$status = $this->registerECMessage(self::EEP_VARIABLES['Motion']['Ident'], intval($this->GetBuffer(self::EEP_BUFFERS['bufferMotion']['Ident'])), $status);
+		$status = $this->registerECMessage(self::EEP_VARIABLES['Illumination']['Ident'], intval($this->GetBuffer(self::EEP_BUFFERS['bufferIllumination']['Ident'])), $status);
+		$status = $this->registerECMessage(self::EEP_VARIABLES['Voltage']['Ident'], intval($this->GetBuffer(self::EEP_BUFFERS['bufferVoltage']['Ident'])), $status);
+		$status = $this->registerECMessage(self::EEP_VARIABLES['Temperature']['Ident'], intval($this->GetBuffer(self::EEP_BUFFERS['bufferTemperature']['Ident'])), $status);
 
 		// Status setzen
 		if ($status == 102) {
@@ -161,10 +152,10 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 	 */
 	public function sendTestTelegram(): void
 	{
-		$PIR = $this->GetValue(self::varMotion["Ident"]);
-		$ILL = $this->GetValue(self::varIllumination["Ident"]);
-		$TEMP = $this->GetValue(self::varTemperature["Ident"]);
-		$VOL = $this->GetValue(self::varVoltage["Ident"]);
+		$PIR = $this->GetValue(self::EEP_VARIABLES['Motion']['Ident']);
+		$ILL = $this->GetValue(self::EEP_VARIABLES['Illumination']['Ident']);
+		$TEMP = $this->GetValue(self::EEP_VARIABLES['Temperature']['Ident']);
+		$VOL = $this->GetValue(self::EEP_VARIABLES['Voltage']['Ident']);
 		$this->UpdateFormField('ResultSendTest', 'caption', 'Send test telegram (PIR=' . $PIR . ', ILL=' . $ILL . 'lx, TEMP=' . $TEMP . '°C, VOLT=' . $VOL . 'V)');
 		$this->SendDebug(__FUNCTION__, "sending test: PIR=" . $PIR . ", ILL=" . $ILL . "lx, TEMP=" . $TEMP . "°C, VOLT=" . $VOL . "V", 0);
 		$this->SendEnOceanTelegram($PIR, $ILL, $TEMP, $VOL, false);
@@ -187,10 +178,10 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
     public function MessageSink($TimeStamp, $SenderID, $Message, $Data): void
     {
 		$senderIdInt = (int)$SenderID;
-		$tempVarId   = (int)$this->GetBuffer(self::bufferTemperature);
-		$illVarId    = (int)$this->GetBuffer(self::bufferIllumination);
-		$pirVarId    = (int)$this->GetBuffer(self::bufferPIR);
-		$volVarId    = (int)$this->GetBuffer(self::bufferVoltage);
+		$tempVarId   = (int)$this->GetBuffer(self::EEP_BUFFERS['bufferTemperature']['Ident']);
+		$illVarId    = (int)$this->GetBuffer(self::EEP_BUFFERS['bufferIllumination']['Ident']);
+		$pirVarId    = (int)$this->GetBuffer(self::EEP_BUFFERS['bufferMotion']['Ident']);
+		$volVarId    = (int)$this->GetBuffer(self::EEP_BUFFERS['bufferVoltage']['Ident']);
 
 		$this->SendDebug(__FUNCTION__, "sender={$senderIdInt} (tempVar={$tempVarId}, illVar={$illVarId}, pirVar={$pirVarId}, volVar={$volVarId}) with DATA-0: " . print_r($Data[0], true), 0);
 		// Save received values in own variables
@@ -198,10 +189,10 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 			$value = $Data[0];
 			// Wert entsprechend zuordnen
 			if ($senderIdInt === $tempVarId) {
-				$this->SetValue(self::varTemperature["Ident"], (float)$value);
+				$this->SetValue(self::EEP_VARIABLES['Temperature']['Ident'], (float)$value);
 			}
 			if ($senderIdInt === $illVarId) {
-				$this->SetValue(self::varIllumination["Ident"], (int)$value);
+				$this->SetValue(self::EEP_VARIABLES['Illumination']['Ident'], (int)$value);
 			}
 			if ($senderIdInt === $pirVarId) {
 				$targetEEP  = $this->ReadPropertyString(self::propertyTargetEEP);
@@ -211,10 +202,10 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 					// A05-07 und A05-08 haben inverse PIR-Codierungen!
 					$valueNew = (!$valueNew);
 				}
-				$this->SetValue(self::varMotion["Ident"], $valueNew);
+				$this->SetValue(self::EEP_VARIABLES['Motion']['Ident'], $valueNew);
 			}
 			if ($senderIdInt === $volVarId) {
-				$this->SetValue(self::varVoltage["Ident"], (float)$value);
+				$this->SetValue(self::EEP_VARIABLES['Voltage']['Ident'], (float)$value);
 			}
 			// Timer setzen (2 Sekunden warten, dann send) - verhindert das doppelte Senden des Telegramms, wenn beide Variablen fast gleichzeitig aktualisiert werden
             $this->SetTimerInterval(self::timerPrefix . $this->InstanceID, 2 * 1000);
@@ -224,10 +215,10 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 	public function SendTelegramDelayed()
 	{
 		$this->SetTimerInterval(self::timerPrefix . $this->InstanceID, 0); // Timer wieder stoppen
-		$temp = $this->GetValue(self::varTemperature["Ident"]);
-		$ill  = $this->GetValue(self::varIllumination["Ident"]);
-		$pir  = $this->GetValue(self::varMotion["Ident"]);
-		$vol  = $this->GetValue(self::varVoltage["Ident"]);
+		$temp = $this->GetValue(self::EEP_VARIABLES['Temperature']['Ident']);
+		$ill  = $this->GetValue(self::EEP_VARIABLES['Illumination']['Ident']);
+		$pir  = $this->GetValue(self::EEP_VARIABLES['Motion']['Ident']);
+		$vol  = $this->GetValue(self::EEP_VARIABLES['Voltage']['Ident']);
 		$this->SendDebug(__FUNCTION__, 'Send telegram for ' . $this->InstanceID . '/' . $this->ReadPropertyInteger(self::propertyDeviceID) . ': temp=' . $temp . ', ill=' . $ill . ', pir=' . $pir . ', vol=' . $vol, 0);
 		$this->SendEnOceanTelegram($pir, $ill, $temp, $vol);
 	}
