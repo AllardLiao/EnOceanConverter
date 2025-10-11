@@ -23,6 +23,8 @@ It supports the following EEPs:
 * A5-04-03
 * A5-04-04
 
+![Instance "Temperature Sensor"](../libs/assets/ECTS.jpeg)
+
 ### 2. Requirements
 
 * IP-Symcon version 7.1 or higher

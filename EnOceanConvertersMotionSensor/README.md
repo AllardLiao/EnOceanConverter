@@ -25,6 +25,8 @@ It supports the following EEPs:
 * A5-08-02
 * A5-08-03
 
+![Instance Motion Sensor](../libs/assets/ECMS.jpeg)
+
 ### 2. Requirements
 
 * IP-Symcon version 7.1 or higher
