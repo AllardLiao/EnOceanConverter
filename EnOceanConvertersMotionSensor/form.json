@@ -99,7 +99,7 @@
                 {
                     "type": "Label",
                     "bold": false,
-                    "caption": "In case the source does not provide all values, the values set here are used to send telegrams.",
+                    "caption": "In case the source does not provide all values, the values set here are used to send telegrams.\nNote: You might not need all values, depending on the selected target EEP.",
                     "color": 0,
                     "italic": false,
                     "link": false,
