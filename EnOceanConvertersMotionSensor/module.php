@@ -85,7 +85,7 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
         $this->unregisterAllECMessages();
 		// Gesuchte Werte (target EEP) in Variablen schreiben und gleichzeitig Messages registrieren
 		// Dabei auch Backup-Werte setzen, wenn keine Variable in der Source gefunden wurde
-		$this->readValuesFromSourceAndRegisterMessage(self::EEP_VARIABLE_PROFILES[$this->ReadPropertyString(self::propertyTargetEEP)]);
+		$status = $this->readValuesFromSourceAndRegisterMessage(self::EEP_VARIABLE_PROFILES[$this->ReadPropertyString(self::propertyTargetEEP)], $status);
 		// Status setzen
 		if ($status == 102) {
 			if (!$this->ReadPropertyBoolean('ResendActive')) {

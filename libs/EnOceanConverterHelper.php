@@ -238,15 +238,17 @@ trait MessagesHelper
         return $this->UnregisterMessage(0, 0);
     }
 
-    private function readValuesFromSourceAndRegisterMessage(array $profiles): void
+    private function readValuesFromSourceAndRegisterMessage(array $profiles, int $status): int
     {
 		foreach ($profiles as $profile) {
             if ($this->GetECBuffer($profile) == '0') {
                 // Keine Variable in der Source gefunden: Backup-Wert eintragen
                 $this->SetECValue($profile, $this->readECBackupProperty($profile));
-        } else {
-            $status = $this->registerECMessage(intval($this->GetECBuffer($profile)), $status);
-		}	
+            } else {
+                $status = $this->registerECMessage(intval($this->GetECBuffer($profile)), $status);
+            }
+        }
+        return $status;
     }
 }
 
