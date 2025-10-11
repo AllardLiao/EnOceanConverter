@@ -293,6 +293,7 @@ trait DeviceIDHelper
                 $var['VarID']
             );
         }
+        $lines[] = "\nPlease check the missing values and set them manually if needed.";
         return implode("\n", $lines);
     }
 }
