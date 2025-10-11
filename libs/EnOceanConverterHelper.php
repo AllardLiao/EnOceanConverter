@@ -319,16 +319,21 @@ trait DeviceIDHelper
 
     private function FormatFoundVariables(array $foundVars): string
     {
-        $lines = ["Source variables checked. Found variables:"];
-        foreach ($foundVars as $idx => $var) {
-            $lines[] = sprintf(
-                "%d) %s (ID: %d)",
-                $idx,
-                $var['Ident'],
-                $var['VarID']
-            );
+        $lines = ["Source variables checked..."];
+        if (count($foundVars) == 0) {
+            $lines[] = ["\nNo variables found."];
+        } else {
+            $line[] = ["Found variables:"];
+            foreach ($foundVars as $idx => $var) {
+                $lines[] = sprintf(
+                    "%d) %s (ID: %d)",
+                    $idx,
+                    $var['Ident'],
+                    $var['VarID']
+                );
+            }
+            $lines[] = "\nPlease check the missing values and set them manually if needed.";
         }
-        $lines[] = "\nPlease check the missing values and set them manually if needed.";
         return implode("\n", $lines);
     }
 }
