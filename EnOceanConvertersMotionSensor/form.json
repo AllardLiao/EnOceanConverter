@@ -68,7 +68,7 @@
         },
         {
             "type": "RowLayout",
-            "name": "EEP",
+            "name": "SourceEEPRow",
             "items": [
                 {
                     "type": "Select",
@@ -99,17 +99,36 @@
             "visible": true
         },
         {
-            "type": "Select",
-            "caption": "Target EEP",
-            "download": "",
-            "enabled": true,
-            "link": false,
-            "name": "TargetEEP",
-            "options": <!---VALID_EEP_OPTIONS-->,
-            "onChange": "",
-            "value": "A5-07-03",
-            "visible": true,
-            "width": "450px"
+            "type": "RowLayout",
+            "name": "TargetEEPRow",
+            "items": [
+                {
+                    "type": "Select",
+                    "caption": "Target EEP",
+                    "download": "",
+                    "enabled": true,
+                    "link": false,
+                    "name": "TargetEEP",
+                    "options": <!---VALID_EEP_OPTIONS-->,
+                    "onChange": "",
+                    "value": "A5-07-03",
+                    "visible": true,
+                    "width": "450px"
+                },
+                {
+                    "type": "Button",
+                    "caption": "Show EEP Definition",
+                    "confirm": "",
+                    "download": "",
+                    "enabled": true,
+                    "link": false,
+                    "name": "",
+                    "onClick": "IPS_RequestAction($id,'showEepDefinition', true);",
+                    "visible": true,
+                    "width": ""
+                }
+            ],
+            "visible": true
         },
         {
             "type": "ExpansionPanel",

@@ -108,6 +108,9 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 			case "checkSourceVariables":
 				$this->CheckSourceVariables(self::propertySourceDevice, self::propertyTargetEEP);
 				break;
+			case "showEepDefinition":
+				$this->ShowEepDefinition(self::propertyTargetEEP);
+				break;
             default:
                 parent::RequestAction($ident, $value);
         }

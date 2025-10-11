@@ -219,6 +219,41 @@ class EEPConverter
                 return 0;
         }
     }
+
+    private function FormatEepProfile(string $profile): string
+    {
+        if (!isset(self::PROFILE_DATA[$profile])) {
+            return "Profile $profile is not defined.";
+        }
+
+        $data = self::PROFILE_DATA[$profile];
+        $lines = ["Profile $profile details:"];
+
+        foreach ($data as $key => $value) {
+            switch ($key) {
+                case 'minTemp':
+                    $lines[] = "Temperature: {$data['minTemp']} … {$data['maxTemp']} °C ({$data['bitsTemp']} bits)";
+                    break;
+                case 'minHum':
+                    $lines[] = "Humidity: {$data['minHum']} … {$data['maxHum']} % ({$data['bitsHum']} bits)";
+                    break;
+                case 'motionNo':
+                    $lines[] = "Motion: {$data['motionNo']} = no, {$data['motionYes']} = yes ({$data['bitsMotion']} bits)";
+                    break;
+                case 'buttonNo':
+                    $lines[] = "Button: {$data['buttonNo']} = not pressed, {$data['buttonYes']} = pressed ({$data['bitsButton']} bits)";
+                    break;
+                case 'minLux':
+                    $lines[] = "Illumination: {$data['minLux']} … {$data['maxLux']} lx ({$data['bitsLux']} bits)";
+                    break;
+                case 'minVolt':
+                    $lines[] = "Voltage: {$data['minVolt']} … {$data['maxVolt']} V ({$data['bitsVolt']} bits)";
+                    break;
+            }
+        }
+
+        return implode("\n", $lines);
+    }
 }
 
 trait MessagesHelper
@@ -401,6 +436,8 @@ trait VariableHelper{
 		}
     }
 
+    // -----------------------------------------------
+    // Hilfsfunktionen für User-Infos
 	private function CheckSourceVariables(string $propertySourceDevice, string $propertyTargetEEP): void
 	{
 		$sourceID = $this->ReadPropertyInteger($propertySourceDevice);
@@ -411,6 +448,12 @@ trait VariableHelper{
 		// Popup mit gefundenen Variablen anzeigen
 		$foundVars = $this->GetActiveVariables($this->ReadPropertyString($propertyTargetEEP));
 		$this->ShowFormPopup($this->FormatFoundVariables($foundVars));
+	}
+    
+	private function ShowEepDefinition(string $propertyTargetEEP): void
+	{
+		// Popup mit EEP-Definition anzeigen
+		$this->ShowFormPopup($this->FormatEepProfile($propertyTargetEEP));
 	}
 }
 
