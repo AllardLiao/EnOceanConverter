@@ -78,6 +78,11 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		// Gesuchte Werte (target EEP) in Variablen schreiben und gleichzeitig Messages registrieren
 		// Dabei auch Backup-Werte setzen, wenn keine Variable in der Source gefunden wurde
 		$status = $this->readValuesFromSourceAndRegisterMessage(self::EEP_VARIABLE_PROFILES[$this->ReadPropertyString(self::propertyTargetEEP)], $status);
+		// Backup-Formularfelder ein-/ausblenden in Abhängigkeit von der Source und dem Target-EEP
+		$formFields = $this->checkECBuffersVsEepProfile($this->ReadPropertyString(self::propertyTargetEEP));
+		foreach ($formFields as $field => $visible) {
+			$this->UpdateFormField(self::PROP_PREFIX_BACKUP . $field, 'visible', $visible);
+		}
 		// Status setzen
 		if ($status == 102) {
 			if (!$this->ReadPropertyBoolean('ResendActive')) {

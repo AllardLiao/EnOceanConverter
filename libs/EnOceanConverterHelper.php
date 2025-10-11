@@ -381,6 +381,7 @@ trait VariableHelper{
 }
 
 trait BufferHelper{
+    use EnOceanConverterConstants;
 
     // Einheitliches Prefix für alle Variablen:
     private const BUFFER_PREFIX = "buffer";
@@ -393,5 +394,30 @@ trait BufferHelper{
         foreach ($buffers as $buffer) {
             $this->setECBuffer($buffer);
         }
+    }
+
+    private function checkECBuffersVsEepProfile(string $eepProfile): array
+    {
+        $result = [];
+        // Prüfen, ob Profil existiert
+        if (!isset(self::EEP_VARIABLE_PROFILES[$eepProfile])) {
+            $this->SendDebug(__FUNCTION__, "EEP-Profil $eepProfile nicht gefunden", 0);
+            return $result;
+        }
+        // Alle Variablen, die das Profil kennt
+        $variables = self::EEP_VARIABLE_PROFILES[$eepProfile];
+        foreach ($variables as $variableDef) {
+            $ident = $variableDef['Ident'];
+            // Buffer-Schlüssel aus den Variablen ziehen
+            if (!isset(self::EEP_VARIABLES[$ident])) {
+                $this->SendDebug(__FUNCTION__, "Variable $ident nicht in EEP_VARIABLES gefunden", 0);
+                $result[$ident] = false;
+                continue;
+            }
+            $bufferValue = $this->getECBuffer(self::EEP_VARIABLES[$ident]);
+            $result[$ident] = ($bufferValue !== "0");
+        }
+
+        return $result;
     }
 }
