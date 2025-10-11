@@ -82,11 +82,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		$formFields = $this->checkECBuffersVsEepProfile($this->ReadPropertyString(self::propertyTargetEEP));
 		foreach ($formFields as $field => $visible) {
 			$this->UpdateFormField(self::PROP_PREFIX_BACKUP . $field, 'visible', (!$visible ? 'true' : 'false'));
-			$this->SendDebug(__FUNCTION__, 'Set form field ' . self::PROP_PREFIX_BACKUP . $field . ' to visible=' . (!$visible ? 'true' : 'false'), 0);
 		}
-		$this->UpdateFormField("BackupButton", "visible", "false");
-		$this->UpdateFormField("BackupHumidity", "visible", "false");
-		$this->SendDebug(__FUNCTION__, 'Set form field ' . self::PROP_PREFIX_BACKUP . $field . ' to visible=' . 'false', 0);
 		// Status setzen
 		if ($status == 102) {
 			if (!$this->ReadPropertyBoolean('ResendActive')) {
@@ -162,6 +158,11 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 				$this->SetTimerInterval(self::timerPrefix . $this->InstanceID, 2 * 1000);
 			}
 		}
+		// Backup-Formularfelder ein-/ausblenden in Abhängigkeit von der Source und dem Target-EEP
+		$formFields = $this->checkECBuffersVsEepProfile($this->ReadPropertyString(self::propertyTargetEEP));
+		foreach ($formFields as $field => $visible) {
+			$this->UpdateFormField(self::PROP_PREFIX_BACKUP . $field, 'visible', (!$visible ? 'true' : 'false'));
+		}		
     }
 
 	public function SendTelegramDelayed()
