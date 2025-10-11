@@ -84,6 +84,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 			$this->UpdateFormField(self::PROP_PREFIX_BACKUP . $field, 'visible', (!$visible ? 'true' : 'false'));
 			$this->SendDebug(__FUNCTION__, 'Set form field ' . self::PROP_PREFIX_BACKUP . $field . ' to visible=' . (!$visible ? 'true' : 'false'), 0);
 		}
+		$this->UpdateFormField("BackupHumidity", "visible", 'false');
 		// Status setzen
 		if ($status == 102) {
 			if (!$this->ReadPropertyBoolean('ResendActive')) {
