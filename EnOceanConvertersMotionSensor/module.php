@@ -145,10 +145,10 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
     public function MessageSink($TimeStamp, $SenderID, $Message, $Data): void
     {
 		$senderIdInt = (int)$SenderID;
-		$tempVarId   = (int)$this->GetBuffer(self::EEP_VARIABLES[self::TEMPERATURE]);
-		$illVarId    = (int)$this->GetBuffer(self::EEP_VARIABLES[self::ILLUMINATION]);
-		$pirVarId    = (int)$this->GetBuffer(self::EEP_VARIABLES[self::MOTION]);
-		$volVarId    = (int)$this->GetBuffer(self::EEP_VARIABLES[self::VOLTAGE]);
+		$tempVarId   = (int)$this->GetECBuffer(self::EEP_VARIABLES[self::TEMPERATURE]);
+		$illVarId    = (int)$this->GetECBuffer(self::EEP_VARIABLES[self::ILLUMINATION]);
+		$pirVarId    = (int)$this->GetECBuffer(self::EEP_VARIABLES[self::MOTION]);
+		$volVarId    = (int)$this->GetECBuffer(self::EEP_VARIABLES[self::VOLTAGE]);
 
 		$this->SendDebug(__FUNCTION__, "sender={$senderIdInt} (tempVar={$tempVarId}, illVar={$illVarId}, pirVar={$pirVarId}, volVar={$volVarId}) with DATA-0: " . print_r($Data[0], true), 0);
 		// Save received values in own variables

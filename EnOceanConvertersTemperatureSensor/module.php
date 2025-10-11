@@ -139,8 +139,8 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
     public function MessageSink($TimeStamp, $SenderID, $Message, $Data): void
     {
 		$senderIdInt = (int)$SenderID;
-		$tempVarId   = (int)$this->GetBuffer(self::EEP_VARIABLES[self::TEMPERATURE]);
-		$humVarId    = (int)$this->GetBuffer(self::EEP_VARIABLES[self::HUMIDITY]);
+		$tempVarId   = (int)$this->GetECBuffer(self::EEP_VARIABLES[self::TEMPERATURE]);
+		$humVarId    = (int)$this->GetECBuffer(self::EEP_VARIABLES[self::HUMIDITY]);
 		$this->SendDebug(__FUNCTION__, "sender={$senderIdInt} (tempVar={$tempVarId}, humVar={$humVarId}) with DATA-0: " . print_r($Data[0], true), 0);
 		// Save received values in own variables
 		if ($Message == VM_UPDATE) {
