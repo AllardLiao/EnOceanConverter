@@ -50,18 +50,6 @@
                     "value": 0,
                     "visible": true,
                     "width": "450px"
-                },                
-                {
-                    "type": "Button",
-                    "caption": "Check source variables",
-                    "confirm": "",
-                    "download": "",
-                    "enabled": true,
-                    "link": false,
-                    "name": "",
-                    "onClick": "IPS_RequestAction($id,'checkSourceVariables', true);",
-                    "visible": true,
-                    "width": ""
                 }
             ],
             "visible": true
@@ -82,18 +70,6 @@
                     "value": "A5-04-02",
                     "visible": true,
                     "width": "450px"
-                },
-                {
-                    "type": "Button",
-                    "caption": "Show EEP Definition",
-                    "confirm": "",
-                    "download": "",
-                    "enabled": true,
-                    "link": false,
-                    "name": "",
-                    "onClick": "IPS_RequestAction($id,'showEepDefinition', true);",
-                    "visible": true,
-                    "width": ""
                 }
             ],
             "visible": true
@@ -218,6 +194,30 @@
         }
     ],
     "actions": [
+        {
+            "type": "Button",
+            "caption": "Check source variables",
+            "confirm": "",
+            "download": "",
+            "enabled": true,
+            "link": false,
+            "name": "",
+            "onClick": "IPS_RequestAction($id,'checkSourceVariables', true);",
+            "visible": true,
+            "width": ""
+        },
+        {
+            "type": "Button",
+            "caption": "Show EEP Definition of Target EEP",
+            "confirm": "",
+            "download": "",
+            "enabled": true,
+            "link": false,
+            "name": "",
+            "onClick": "IPS_RequestAction($id,'showEepDefinition', true);",
+            "visible": true,
+            "width": ""
+        },
         {
             "type": "RowLayout",
             "name": "techin",

@@ -104,11 +104,9 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 				$this->UpdateFormField('DeviceID', 'value', $this->selectFreeDeviceID());
 				break;
 			case "checkSourceVariables":
-				$this->ApplyChanges();
 				$this->CheckSourceVariables(self::propertySourceDevice, self::propertyTargetEEP);
 				break;
 			case "showEepDefinition":
-				$this->ApplyChanges();
 				$this->ShowEepDefinition($this->ReadPropertyString(self::propertyTargetEEP));
 				break;
             default:
