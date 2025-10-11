@@ -163,10 +163,7 @@ class EEPProfiles
             self::A5_04_01,
             self::A5_04_02,
             self::A5_04_03,
-            self::A5_04_04,
-            self::A5_08_01,
-            self::A5_08_02,
-            self::A5_08_03
+            self::A5_04_04
         ];
     }
 
