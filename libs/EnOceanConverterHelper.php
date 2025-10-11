@@ -323,7 +323,7 @@ trait DeviceIDHelper
         if (count($foundVars) == 0) {
             $lines[] = ["\nNo variables found."];
         } else {
-            $line[] = ["Found variables:"];
+            $lines[] = ["\nFound variables:"];
             foreach ($foundVars as $idx => $var) {
                 $lines[] = sprintf(
                     "%d) %s (ID: %d)",
