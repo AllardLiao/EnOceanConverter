@@ -400,19 +400,15 @@ trait BufferHelper{
     {
         $result = [];
         // Vorbelegen mit allen bekannten Variablen aus EEP_VARIABLES, damit Formularfelder auch ausgeblendet werden, wenn das EEP Profil gar keine entsprechende Variable kennt
+        // Wir tun so, als ob alle Variablen gefunden wurden (kein Backup nötig)
         foreach (self::EEP_VARIABLES as $ident => $def) {
-            $result[$ident] = false;
+            $result[$ident] = true;
         }
-        // Alle Variablen, die das Profil kennt
+        // Dann prüfen wir alle Variablen, die das Profil benötigt gegen die, die gefunden wurden und im Buffer stehen
         $variables = self::EEP_VARIABLE_PROFILES[$eepProfile];
         foreach ($variables as $variableDef) {
+            // Wenn der Buffer = 0 ist, wurde keine Variable gefunden und ein Backup-Feld soll angezeigt werden
             $ident = $variableDef['Ident'];
-            // Buffer-Schlüssel aus den Variablen ziehen
-            if (!isset(self::EEP_VARIABLES[$ident])) {
-                $this->SendDebug(__FUNCTION__, "Variable $ident nicht in EEP_VARIABLES gefunden", 0);
-                $result[$ident] = false;
-                continue;
-            }
             $bufferValue = $this->getECBuffer(self::EEP_VARIABLES[$ident]);
             $result[$ident] = ($bufferValue !== "0");
         }
