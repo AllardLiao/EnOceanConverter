@@ -79,12 +79,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		// Dabei auch Backup-Werte setzen, wenn keine Variable in der Source gefunden wurde
 		$status = $this->readValuesFromSourceAndRegisterMessage(self::EEP_VARIABLE_PROFILES[$this->ReadPropertyString(self::propertyTargetEEP)], $status);
 		// Backup-Formularfelder ein-/ausblenden in Abhängigkeit von der Source und dem Target-EEP
-		$formFields = $this->checkECBuffersVsEepProfile($this->ReadPropertyString(self::propertyTargetEEP));
-		foreach ($formFields as $field => $visible) {
-			$this->SendDebug(__FUNCTION__, "Set Backup field: items." . self::PROP_PREFIX_BACKUP . $field . ".visible=" . (!$visible ? 'true' : 'false'), 0);
-			$this->UpdateFormField("BackupValues", "items.2.visible", (!$visible ? 'true' : 'false'));
-			//$this->UpdateFormField(self::PROP_PREFIX_BACKUP . $field, 'visible', (!$visible ? 'true' : 'false'));
-		}
+		// $formFields = $this->checkECBuffersVsEepProfile($this->ReadPropertyString(self::propertyTargetEEP));
 		// Status setzen
 		if ($status == 102) {
 			if (!$this->ReadPropertyBoolean('ResendActive')) {
@@ -284,6 +279,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		$validModules = GUIDs::allTemperatureIpsGuids();
 		$form = str_replace('<!---VALID_MODULES-->', json_encode($validModules), $form);
 		$form = str_replace('<!---VALID_EEP_OPTIONS-->', EEPProfiles::createFormularJsonFromAvailableEEP(EEPProfiles::allTemperatureProfiles()), $form);
+		$form = str_replace('<!---BACKUP_TEMPERATURE_VISIBLE-->', ($this->getECBuffer(self::EEP_VARIABLES[self::TEMPERATURE])==="0" ? 'true' : 'false'), $form);
 		return $form;
 	}
 }

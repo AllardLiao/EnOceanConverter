@@ -109,7 +109,7 @@
                     "onChange": "",
                     "suffix": "°C",
                     "value": 20,
-                    "visible": true,
+                    "visible": <!---BACKUP_TEMPERATURE_VISIBLE-->,
                     "width": "300px"
                 },
                 {
