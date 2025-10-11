@@ -81,7 +81,7 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 		// Backup-Formularfelder ein-/ausblenden in Abhängigkeit von der Source und dem Target-EEP
 		$formFields = $this->checkECBuffersVsEepProfile($this->ReadPropertyString(self::propertyTargetEEP));
 		foreach ($formFields as $field => $visible) {
-			$this->UpdateFormField(self::PROP_PREFIX_BACKUP . $field, 'visible', $visible);
+			$this->UpdateFormField(self::PROP_PREFIX_BACKUP . $field, 'visible', !$visible);
 		}
 		// Status setzen
 		if ($status == 102) {
