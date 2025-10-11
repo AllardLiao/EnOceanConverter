@@ -1,22 +1,34 @@
+
 # EnOcean Converter
 
-Modulsammlung um EnOcean-Funktelegramme als virtuellen Sensor innerhalb IPS zu versenden
+A collection of modules to send EnOcean radio telegrams as virtual sensors from IP-Symcon.
 
-* Als Source kann eigentlich jeder in IPS vorhandene Sensor verwendet werden.
-* Aktuell von IPS unterstützte EEP
+Any sensor (instance) available in IP-Symcon can be used as a source.
 
-__Temperature Sensors__ ([Dokumentation](EnOceanConvertersTemperatureSensor))  
-* EnOcean EEP A50401RX = {432FF87E-4497-48D6-8ED9-EE7104A50401}
-  - A5-04-01 Range 0°C to +40°C and 0% to 100%
-* EnOcean EEP A50402RX = {432FF87E-4497-48D6-8ED9-EE7104A50402}
-  - A5-04-02 Range -20°C to +60°C and 0% to 100%
-* EnOcean EEP A50403RX = {432FF87E-4497-48D6-8ED9-EE7104A50403}
-  - A5-04-03 Range -20°C to +60°C 10bit-measurement and 0% to 100%
-* EnOcean EEP A50404 - IPS-Modul gibt es (noch) nicht
-  - A5-04-04 Range -40°C to +120°C 12bit measurement and 0% to 100%    
- 
-__Temperature Sensors__ ([Dokumentation](EnOceanConvertersTemperatureSensor))  
-* EnOcean EEP A50401RX = {432FF87E-4497-48D6-8ED9-EE7104A50401}
-  - A5-04-01 Range 0°C to +40°C and 0% to 100%
+Currently supported EEPs:
 
- 
+__Temperature Sensors__ ([Documentation](EnOceanConvertersTemperatureSensor))  
+* EnOcean EEP A5-02-13
+* EnOcean EEP A5-04-01
+* EnOcean EEP A5-04-02
+* EnOcean EEP A5-04-03
+* EnOcean EEP A5-04-04
+
+__Motion Sensors__ ([Documentation](EnOceanConvertersMotionSensor))  
+* EnOcean EEP A5-07-01
+* EnOcean EEP A5-07-02
+* EnOcean EEP A5-07-03
+* EnOcean EEP A5-08-01
+* EnOcean EEP A5-08-02
+* EnOcean EEP A5-08-03
+
+## License
+
+This project is licensed under the [CC BY-NC-SA 4.0 License](https://creativecommons.org/licenses/by-nc-sa/4.0/).
+
+## Third-party Licenses
+
+- This module uses **traits from the [StylePHP](https://github.com/symcon/StylePHP) project** by Symcon GmbH,
+  licensed under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/).
+
+This module is an independent community project and is not officially affiliated with or endorsed by Symcon GmbH.

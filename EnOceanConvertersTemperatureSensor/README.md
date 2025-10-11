@@ -1,82 +1,79 @@
+
 # Temperature Sensors
-Simulation of EnOcean temperature & humidity sensors
+Simulation of EnOcean temperature (& humidity) sensors
 
-### Inhaltsverzeichnis
+### Table of Contents
 
-1. [Funktionsumfang](#1-funktionsumfang)
-2. [Voraussetzungen](#2-voraussetzungen)
-3. [Software-Installation](#3-software-installation)
-4. [Einrichten der Instanzen in IP-Symcon](#4-einrichten-der-instanzen-in-ip-symcon)
-5. [Statusvariablen und Profile](#5-statusvariablen-und-profile)
+1. [Features](#1-features)
+2. [Requirements](#2-requirements)
+3. [Software Installation](#3-software-installation)
+4. [Setting up Instances in IP-Symcon](#4-setting-up-instances-in-ip-symcon)
+5. [Status Variables and Profiles](#5-status-variables-and-profiles)
 6. [WebFront](#6-webfront)
-7. [PHP-Befehlsreferenz](#7-php-befehlsreferenz)
+7. [PHP Command Reference](#7-php-command-reference)
 
-### 1. Funktionsumfang
+### 1. Features
 
 This module sends EnOcean temperature & humidity telegrams.
- 
-It supports the following EEP 
-* A5-04-01 (PTM 215B)
-* A5-04-02 (PTM 216B)
-* A5-04-03 (PTM 217B)
-* A5-04-04 (PTM 218B)
 
-### 2. Voraussetzungen
+It supports the following EEPs:
+* A5-02-13
+* A5-04-01
+* A5-04-02
+* A5-04-03
+* A5-04-04
 
-* IP-Symcon ab Version 7.1
-* Present "real" temperature sensors to take the source values for temperature and humidity
+### 2. Requirements
 
-### 3. Software-Installation
+* IP-Symcon version 7.1 or higher
+* Existing "real" temperature (and humidity) sensors to provide source values for temperature and humidity
 
-* Über den Module Store das 'EnOcean Converters Temperature Sensor'-Modul installieren.
-* Alternativ über das Module Control folgende URL hinzufügen
+### 3. Software Installation
+
+* Install the 'EnOcean Converters' module via the Module Store.
+* Alternatively, add the following URL to Module Control:
   https://github.com/AllardLiao/EnOceanConverter.git
 
-### 4. Einrichten der Instanzen in IP-Symcon
+### 4. Setting up Instances in IP-Symcon
 
-Unter 'Instanz hinzufügen' kann das 'EnOcean Converters Temperature Sensor'-Modul mithilfe des Schnellfilters gefunden werden.  
-Weitere Informationen zum Hinzufügen von Instanzen in der [Dokumentation der Instanzen](https://www.symcon.de/service/dokumentation/konzepte/instanzen/#Instanz_hinzufügen)
+Under 'Add Instance', you can find the 'EnOcean Converters Temperature Sensor' module using the quick filter.  
+For more information on adding instances, see the [Instance Documentation](https://www.symcon.de/service/dokumentation/konzepte/instanzen/#Instanz_hinzufügen).
 
-__Konfigurationsseite__:
+__Configuration Page__:
 
-Name              | Beschreibung
------------------ | ------------------------------------------------------------
-Device ID         | ID des simulierten Geräts
-Source ID         | ID des Geräts, von dem die Ausgangswerte genommen werden
-Source EEP        | EEP des Source-Geräts
-Target EEP        | EEP mit dem das Telegram gesendet werden soll
+| Name            | Description                                                    |
+|-----------------|----------------------------------------------------------------|
+| Device ID       | ID of the simulated device                                     |
+| Source Device   | ID of the device from which the source values are taken        |
+| Target EEP      | EEP with which the telegram should be sent                     |
+| Addtl. Values   | If the target EEP requires values not provided by the source, a backup value can be set here |
+| Activate        | Enable to send telegrams                                       |
 
-### 5. Statusvariablen und Profile
+### 5. Status Variables and Profiles
 
-Die Statusvariablen/Kategorien werden automatisch angelegt. Das Löschen einzelner kann zu Fehlfunktionen führen.
+Status variables are automatically created depending on the selected target EEP. Deleting individual variables may cause malfunctions.
 
-#### Statusvariablen
+When identifying source variables of the source device, the standard IPS variable profiles are evaluated.
 
-Name        | Typ     | Beschreibung
------------ | ------- | --------------------
-Temperature | Float   | Temperatur
-Humidity    | Float   | Luftfeuchtigkeit
+#### Status Variables
 
-#### Profile
+| Name        | Type    | Description           |
+| Name        | Type    | Description           |
+|------------ | ------- | ---------------------|
+| Temperature | Float   | Temperature (°C)     |
+| Humidity    | Float   | Humidity (%)         |
 
-Name         | Typ
+#### Profiles
+
+Name         | Type
 ------------ | -----------------------------
-˜Temperature | Temperatur
-˜Humidity.F  | Luftfeuchtigkeit (in float)
+~Temperature | Temperature (°C)
+~Humidity.F  | Humidity (float)
 
-### 6. Visualisierung
+### 6. Visualization
 
-Keine Funktionalität in der Visualisierung.
+No special functionality in the visualization.
 
-### 7. PHP-Befehlsreferenz
+### 7. PHP Command Reference
 
-Keine aufrufbaren Funktionen
-
-
-
-
-
-"parentRequirements": ["{018EF6B5-AB94-40C6-AA53-46943E824ACF}", "{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}"], 
-{F29F3902-427B-4231-A1B7-0CDB8191E02F}
-
-    "implemented": ["{018EF6B5-AB94-40C6-AA53-46943E824ACF}", "{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}"],
+No callable functions
