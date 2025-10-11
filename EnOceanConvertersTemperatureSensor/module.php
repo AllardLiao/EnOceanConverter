@@ -125,8 +125,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		$this->analyseSourceAndWriteIdToBuffers($sourceID);
 		// Backup-Formularfelder ein-/ausblenden in Abhängigkeit von der Source und dem Target-EEP
 		$foundVars = $this->GetActiveVariables($this->ReadPropertyString(self::propertyTargetEEP));
-		$this->ShowFormPopup("Source variables checked. Found variables:\n" . print_r($foundVars, true));
-		
+		$this->ShowFormPopup($this->FormatFoundVariables($foundVars));
 	}
 	/**
 	 * Sendet ein Test-Telegramm mit den aktuellen Werten der Quell-Variablen

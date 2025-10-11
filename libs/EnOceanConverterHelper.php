@@ -280,7 +280,21 @@ trait DeviceIDHelper
         $this->UpdateFormField("EchoPopupMessage", "caption", $text);
         // 2) Popup öffnen
         $this->UpdateFormField("EchoPopup", "visible", true);
-    }    
+    } 
+
+    private function FormatFoundVariables(array $foundVars): string
+    {
+        $lines = ["Source variables checked. Found variables:"];
+        foreach ($foundVars as $idx => $var) {
+            $lines[] = sprintf(
+                "%d) %s (ID: %d)",
+                $idx,
+                $var['Ident'],
+                $var['VarID']
+            );
+        }
+        return implode("\n", $lines);
+    }
 }
 
 trait VariableHelper{
@@ -431,14 +445,12 @@ trait BufferHelper{
             return $result;
         }
         foreach (self::EEP_VARIABLE_PROFILES[$eepProfile] as $variableDef) {
-            $ident = $variableDef['Ident'];
-            $bufferValue = $this->GetBuffer('buffer' . $ident);
+            $bufferValue = $this->GetECBuffer($variableDef);
             // nur wenn Buffer != "0"
             if ($bufferValue !== "0" && $bufferValue !== null) {
-                $varID = @IPS_GetObjectIDByIdent($ident, $this->InstanceID);
                 $result[$index++] = [
-                    "Ident" => $ident,
-                    "VarID" => $varID
+                    "Ident" => $variableDef['Ident'],
+                    "VarID" => $bufferValue
                 ];
             }
         }
