@@ -445,10 +445,10 @@ trait VariableHelper{
 trait BufferHelper{
 
     // Einheitliches Prefix für alle Variablen:
-    private const VAR_PREFIX = "buffer";
+    private const BUFFER_PREFIX = "buffer";
 
-    private function getECBuffer(array $buffer): string                     { return $this->GetBuffer(self::VAR_PREFIX . $buffer['Ident']);}
-    private function setECBuffer(array $buffer, string $value = "0"): void  { $this->SetBuffer(self::VAR_PREFIX . $buffer['Ident'], $value);}
+    private function getECBuffer(array $buffer): string                     { return $this->GetBuffer(self::BUFFER_PREFIX . $buffer['Ident']);}
+    private function setECBuffer(array $buffer, string $value = "0"): void  { $this->SetBuffer(self::BUFFER_PREFIX . $buffer['Ident'], $value);}
 
     private function maintainECBuffers(array $buffers): void
     {
