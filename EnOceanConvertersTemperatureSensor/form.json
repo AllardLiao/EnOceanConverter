@@ -174,7 +174,7 @@
                 },
                 {
                     "type": "CheckBox",
-                    "caption": "Backup Button",
+                    "caption": "Backup Occupancy Button",
                     "download": "",
                     "enabled": true,
                     "link": false,

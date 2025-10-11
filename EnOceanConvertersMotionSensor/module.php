@@ -116,7 +116,6 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
         }
     }
 
-	
 	/**
 	 * Sendet ein Test-Telegramm mit den aktuellen Werten der Quell-Variablen
 	 */
