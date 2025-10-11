@@ -399,10 +399,9 @@ trait BufferHelper{
     private function checkECBuffersVsEepProfile(string $eepProfile): array
     {
         $result = [];
-        // Prüfen, ob Profil existiert
-        if (!isset(self::EEP_VARIABLE_PROFILES[$eepProfile])) {
-            $this->SendDebug(__FUNCTION__, "EEP-Profil $eepProfile nicht gefunden", 0);
-            return $result;
+        // Vorbelegen mit allen bekannten Variablen aus EEP_VARIABLES, damit Formularfelder auch ausgeblendet werden, wenn das EEP Profil gar keine entsprechende Variable kennt
+        foreach (self::EEP_VARIABLES as $ident => $def) {
+            $result[$ident] = false;
         }
         // Alle Variablen, die das Profil kennt
         $variables = self::EEP_VARIABLE_PROFILES[$eepProfile];
@@ -417,7 +416,6 @@ trait BufferHelper{
             $bufferValue = $this->getECBuffer(self::EEP_VARIABLES[$ident]);
             $result[$ident] = ($bufferValue !== "0");
         }
-
         return $result;
     }
 }
