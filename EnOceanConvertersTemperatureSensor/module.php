@@ -9,6 +9,12 @@ if (substr(__DIR__,0, 10) == "/Users/kai") {
 	include_once __DIR__ . '/../.ips_stubs/autoload.php';
 }
 
+/**
+ * Include Controme helper classes.
+ */
+require_once __DIR__ . '/../libs/EnOceanConverterConstants.php';
+require_once __DIR__ . '/../libs/EnOceanConverterHelper.php';
+
 use EnOceanConverter\BufferHelper;
 use EnOceanConverter\DeviceIDHelper;
 use EnOceanConverter\EEPProfiles;
@@ -16,13 +22,6 @@ use EnOceanConverter\EEPConverter;
 use EnOceanConverter\GUIDs;
 use EnOceanConverter\MessagesHelper;
 use EnOceanConverter\VariableHelper;
-
-/**
- * Include Controme helper classes.
- */
-require_once __DIR__ . '/../libs/EnOceanConverterConstants.php';
-require_once __DIR__ . '/../libs/EnOceanConverterHelper.php';
-
 class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 {
 	use MessagesHelper;
@@ -34,8 +33,6 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 	private const propertySourceDevice = "SourceDevice";
 	private const propertyTargetEEP = "TargetEEP";
 	private const propertyResendActive = "ResendActive";
-	private const propertyBackupTemperature = "BackupTemperature";
-	private const propertyBackupHumidity = "BackupHumidity";
 
 	private const timerPrefix = "ECTSSendDelayed";
 
@@ -43,19 +40,18 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 	{
 		//Never delete this line!
 		parent::Create();
-
+		// Modul-Properties anlegen
 		$this->RegisterPropertyInteger(self::propertySourceDevice, 0);
 		$this->RegisterPropertyString(self::propertyTargetEEP, EEPProfiles::A5_04_01);
 		$this->RegisterPropertyBoolean(self::propertyResendActive, false);
 		$this->RegisterPropertyInteger(self::propertyDeviceID, 0);
-		$this->RegisterPropertyFloat(self::propertyBackupTemperature, 20.0);
-		$this->RegisterPropertyFloat(self::propertyBackupHumidity, 40.0);
-
-		// Die übertragenen Werte werden in Variablen gespeichert
+		// Alle Buffer vorbelegen
+		$this->maintainECBuffers(self::EEP_VARIABLES);
+		// Die benötigten Variablen (initial) anlegen
 		$this->MaintainECVariables(self::EEP_VARIABLE_PROFILES[$this->ReadPropertyString(self::propertyTargetEEP)]); // immer alle anlegen
-		$this->SendDebug(__FUNCTION__, 'Created with EEP=' . print_r(self::EEP_VARIABLE_PROFILES[$this->ReadPropertyString(self::propertyTargetEEP)], true), 0);
+		// Timer für verzögertes Senden anlegen
 		$this->RegisterTimer(self::timerPrefix . $this->InstanceID, 0, 'IPS_RequestAction(' . $this->InstanceID . ', "SendTelegramDelayed", true);');
-
+		// Standard-Status (104 = Quelle nicht verbunden)
 		$this->SetStatus(104);
 	}
 
@@ -69,55 +65,21 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 	{
 		//Never delete this line!
 		parent::ApplyChanges();
-        // Alte Nachrichten abmelden
-        $this->unregisterAllECMessages();
-
-        $sourceID = $this->ReadPropertyInteger(self::propertySourceDevice);
-		//$this->SendDebug(__FUNCTION__, 'ApplyChanges: SourceDevice=' . $sourceID, 0);
-
-		// Alle Buffer vorbelegen
-		$this->maintainECBuffers(self::EEP_BUFFERS);
-
-		$this->MaintainECVariables(self::EEP_VARIABLE_PROFILES[$this->ReadPropertyString(self::propertyTargetEEP)]); // immer alle anlegen
-
-		// Update Messages registrieren
+		// Standard-Status (104 = Quelle nicht verbunden)
 		$status = 104; // Standard: Quelle nicht gesetzt
-
-		if ($sourceID > 1) { // 0=root, 1=none
-			$variables = IPS_GetChildrenIDs($sourceID);
-			foreach ($variables as $vid) {
-				$vinfo = IPS_GetVariable($vid);
-				// nach Profil erkennen
-				if (str_contains(strtoupper($vinfo['VariableProfile']), '_PIRS') || str_contains(strtoupper($vinfo['VariableProfile']), 'MOTION') || str_contains(strtoupper($vinfo['VariableProfile']), 'PRESENCE')) {
-					$this->SetBuffer(self::EEP_BUFFERS['Motion']['Ident'], (string)$vid);
-				}
-				if (str_contains(strtoupper($vinfo['VariableProfile']), '_ILL') || str_contains(strtoupper($vinfo['VariableProfile']), 'ILLUMINATION')) {
-					$this->SetBuffer(self::EEP_BUFFERS['Illumination']['Ident'], (string)$vid);
-				}
-				if (str_contains(strtoupper($vinfo['VariableProfile']), '_SVC') || str_contains(strtoupper($vinfo['VariableProfile']), 'VOLT')) {
-					$this->SetBuffer(self::EEP_BUFFERS['Voltage']['Ident'], (string)$vid);
-				}
-				if (str_contains(strtoupper($vinfo['VariableProfile']), '_TMP') || str_contains(strtoupper($vinfo['VariableProfile']), 'TEMPERATURE')) {
-					$this->SetBuffer(self::EEP_BUFFERS['Temperature']['Ident'], (string)$vid);
-				}
-				if (str_contains(strtoupper($vinfo['VariableProfile']), '_HUM') || str_contains(strtoupper($vinfo['VariableProfile']), 'HUMIDITY')) {
-					$this->SetBuffer(self::EEP_BUFFERS['Humidity']['Ident'], (string)$vid);
-				}
-			}
-		}
-		// Werte in Variablen schreiben
-		$variables = self::EEP_VARIABLE_PROFILES[$this->ReadPropertyString(self::propertyTargetEEP)];
-		foreach ($variables as $varIdent => $definition) {
-			$bufferKey = $this->getBufferKeyFromVarIdent($varIdent);
-			if ($bufferKey === null) {
-				continue; // nichts gefunden
-			}
-			if ($this->GetBuffer(self::EEP_BUFFERS[$bufferKey]['Ident']) == '0') {
-				$this->SetValue($varIdent, $this->ReadPropertyFloat("Backup" . $bufferKey));
-			} else {
-				$status = $this->registerECMessage($varIdent, intval($this->GetBuffer(self::EEP_BUFFERS[$bufferKey]['Ident'])), $status);
-			}
-		}	
+		// Alle Buffer vorbelegen
+		$this->maintainECBuffers(self::EEP_VARIABLES);
+		// Variablen anlegen/löschen je nach ausgewähltem EEP
+		$this->MaintainECVariables(self::EEP_VARIABLE_PROFILES[$this->ReadPropertyString(self::propertyTargetEEP)]); // immer alle anlegen
+        // Quelle auslesen
+        $sourceID = $this->ReadPropertyInteger(self::propertySourceDevice);
+		// Variablen der Source-Instanz durchsuchen und passenden Buffer setzen
+		$this->analyseSourceAndWriteIdToBuffers($sourceID);
+		// Alte Nachrichten abmelden
+        $this->unregisterAllECMessages();
+		// Gesuchte Werte (target EEP) in Variablen schreiben und gleichzeitig Messages registrieren
+		// Dabei auch Backup-Werte setzen, wenn keine Variable in der Source gefunden wurde
+		$this->readValuesFromSourceAndRegisterMessage(self::EEP_VARIABLE_PROFILES[$this->ReadPropertyString(self::propertyTargetEEP)]);
 		// Status setzen
 		if ($status == 102) {
 			if (!$this->ReadPropertyBoolean('ResendActive')) {
@@ -130,7 +92,6 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 
 	public function RequestAction(string $ident, mixed $value): void
     {
-		//$this->SendDebug(__FUNCTION__, 'RequestAction: ' . $ident . ' → ' . print_r($value, true), 0);
         switch($ident) {
 			case 'SendTelegramDelayed':
 				$this->SendTelegramDelayed();
@@ -154,8 +115,8 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 	 */
 	public function sendTestTelegram(): void
 	{
-		$temp = $this->GetValue(self::EEP_VARIABLES['Temperature']['Ident']);   // °C
-		$hum  = $this->GetValue(self::EEP_VARIABLES['Humidity']['Ident']);   // %
+		$temp = $this->GetECValue(self::EEP_VARIABLES[self::TEMPERATURE]);   // °C
+		$hum  = $this->GetECValue(self::EEP_VARIABLES[self::HUMIDITY]);   // %
 		$this->UpdateFormField('ResultSendTest', 'caption', 'Send test telegram (Temp=' . $temp . '°C, Hum=' . $hum . '%)');
 		$this->SendDebug(__FUNCTION__, "sending test: temp=" . $temp . ", hum=" . $hum, 0);
 		$this->SendEnOceanTelegram($temp, $hum, false);
@@ -176,18 +137,18 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
     public function MessageSink($TimeStamp, $SenderID, $Message, $Data): void
     {
 		$senderIdInt = (int)$SenderID;
-		$tempVarId   = (int)$this->GetBuffer(self::EEP_BUFFERS['Temperature']['Ident']); // vorher per SetBuffer gespeichert
-		$humVarId    = (int)$this->GetBuffer(self::EEP_BUFFERS['Humidity']['Ident']);
+		$tempVarId   = (int)$this->GetBuffer(self::EEP_VARIABLES[self::TEMPERATURE]);
+		$humVarId    = (int)$this->GetBuffer(self::EEP_VARIABLES[self::HUMIDITY]);
 		$this->SendDebug(__FUNCTION__, "sender={$senderIdInt} (tempVar={$tempVarId}, humVar={$humVarId}) with DATA-0: " . print_r($Data[0], true), 0);
 		// Save received values in own variables
 		if ($Message == VM_UPDATE) {
 			$value = $Data[0];
 			// Wert entsprechend zuordnen
 			if ($senderIdInt === $tempVarId) {
-				$this->SetValue(self::EEP_VARIABLES['Temperature']['Ident'], (float)$value);
+				$this->SetECValue(self::EEP_VARIABLES[self::TEMPERATURE], (float)$value);
 			}
 			if ($senderIdInt === $humVarId) {
-				$this->SetValue(self::EEP_VARIABLES['Humidity']['Ident'], (float)$value);
+				$this->SetECValue(self::EEP_VARIABLES[self::HUMIDITY], (float)$value);
 			}
 			// Timer setzen (2 Sekunden warten, dann send) - verhindert das doppelte Senden des Telegramms, wenn beide Variablen fast gleichzeitig aktualisiert werden
             if ($this->ReadPropertyBoolean(self::propertyResendActive)) {
@@ -203,11 +164,11 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		$hum  = 0.0;
 		$variables = self::EEP_VARIABLE_PROFILES[$this->ReadPropertyString(self::propertyTargetEEP)];
 		foreach ($variables as $varIdent => $definition) {
-			if ($varIdent === self::EEP_VARIABLES['Temperature']['Ident']) {
-				$temp = $this->GetValue($varIdent);
+			if ($varIdent === self::EEP_VARIABLES[self::TEMPERATURE]['Ident']) {
+				$temp = $this->GetECValue(self::EEP_VARIABLES[$varIdent]);
 			}
-			if ($varIdent === self::EEP_VARIABLES['Humidity']['Ident']) {
-				$hum = $this->GetValue($varIdent);
+			if ($varIdent === self::EEP_VARIABLES[self::HUMIDITY]['Ident']) {
+				$hum = $this->GetECValue(self::EEP_VARIABLES[$varIdent]);
 			}
 		}
 		$this->SendDebug(__FUNCTION__, 'Send telegram for ' . $this->InstanceID . '/' . $this->ReadPropertyInteger(self::propertyDeviceID) . ': temp=' . $temp . ', hum=' . $hum, 0);

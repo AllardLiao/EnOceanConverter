@@ -220,28 +220,33 @@ class EEPConverter
 
 trait MessagesHelper
 {
-	private function registerECMessage(string $name, int $vid, int $currentStatus): int
+	private function registerECMessage(int $vid, int $currentStatus): int
 	{
 		if ($vid > 0) {
 			if ($this->RegisterMessage($vid, VM_UPDATE)) {
-				$this->SendDebug(__FUNCTION__, $name . ' messages registered: ' . $vid, 0);
 				// Status auf 102 nur, wenn noch nicht 201 gesetzt
 				if ($currentStatus !== 201) $currentStatus = 102;
 			} else {
-				$this->SendDebug(__FUNCTION__, 'Failed to register ' . $name .	 ' messages: ' . $vid, 0);
 				$currentStatus = 201; // Priorität: Fehler
 			}
-		} else {
-			$this->SendDebug(__FUNCTION__, $name . ' message ID not set',	 0);
-			// $this->SetValue($name, 0); // Variable zurücksetzen - denn es konnte keine Quell-Variable gefunden werden.
-			// Status unverändert: einige Profile haben nicht alle Variablen, ist also ok
-		}
+		} 
 		return $currentStatus;
 	}
 
     private function unregisterAllECMessages(): bool
     {
         return $this->UnregisterMessage(0, 0);
+    }
+
+    private function readValuesFromSourceAndRegisterMessage(array $profiles): void
+    {
+		foreach ($profiles as $profile) {
+            if ($this->GetECBuffer($profile) == '0') {
+                // Keine Variable in der Source gefunden: Backup-Wert eintragen
+                $this->SetECValue($profile, $this->readECBackupProperty($profile));
+        } else {
+            $status = $this->registerECMessage(intval($this->GetECBuffer($profile)), $status);
+		}	
     }
 }
 
@@ -268,90 +273,81 @@ trait DeviceIDHelper
 
 trait VariableHelper{
 
-    // Einheitliche Idents und Namen für die Variablen in allen Modulen:
+    // Einheitliches Prefix für alle Variablen:
+    private const VAR_PREFIX = "Variable";
+    private const PROP_PREFIX_BACKUP = "Backup";
+
+    // Verwaltete Variablen (Im Code NUR Constanten verwenden!):
+    private const HUMIDITY = "Humidity";
+    private const TEMPERATURE = "Temperature";
+    private const MOTION = "Motion";
+    private const ILLUMINATION = "Illumination";
+    private const VOLTAGE = "Voltage";
+    private const BUTTON = "Button";
+
+    // Einheitliche Idents und Namen für die Variablen, die in EEP Protokollen benötigt werden, in allen Modulen:
     public const EEP_VARIABLES = [
-        "Humidity"      => ["Ident" => "varHumidity",             "Name" => "Luftfeuchtigkeit"],
-        "Temperature"   => ["Ident" => "varTemperature",          "Name" => "Temperatur"],
-        "Motion"        => ["Ident" => "varMotion",               "Name" => "PIR-Status"],
-        "Illumination"  => ["Ident" => "varIllumination",         "Name" => "Helligkeit"],
-        "Voltage"       => ["Ident" => "varVoltage",              "Name" => "Versorgungsspannung"],
-        "Button"        => ["Ident" => "varButton",               "Name" => "Taster-Status"]
+        self::HUMIDITY      => ["Ident" => "Humidity",       "Name" => "Luftfeuchtigkeit",       "BackupValue" => 40.0,     "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Humidity.F'],
+        self::TEMPERATURE   => ["Ident" => "Temperature",    "Name" => "Temperatur",             "BackupValue" => 20.0,     "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Temperature'],
+        self::MOTION        => ["Ident" => "Motion",         "Name" => "PIR-Status",             "BackupValue" => false,    "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Motion'],
+        self::ILLUMINATION  => ["Ident" => "Illumination",   "Name" => "Helligkeit",             "BackupValue" => 240,      "Type" => VARIABLETYPE_INTEGER,  "Profile" => '~Illumination'],
+        self::VOLTAGE       => ["Ident" => "Voltage",        "Name" => "Versorgungsspannung",    "BackupValue" => 3.3,      "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Voltage'],
+        self::BUTTON        => ["Ident" => "Button",         "Name" => "Taster-Status",          "BackupValue" => false,    "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Button']
     ];
 
     public const EEP_VARIABLE_PROFILES = 
     [
         EEPProfiles::A5_02_13 => [
-            self::EEP_VARIABLES["Temperature"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Temperature"]["Ident"],  "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Temperature',   "Name"    => self::EEP_VARIABLES["Temperature"]["Name"]]
+            self::EEP_VARIABLES[self::TEMPERATURE]
         ],
         EEPProfiles::A5_04_01 => [
-            self::EEP_VARIABLES["Temperature"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Temperature"]["Ident"],  "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Temperature',   "Name"    => self::EEP_VARIABLES["Temperature"]["Name"]],
-            self::EEP_VARIABLES["Humidity"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Humidity"]["Ident"],     "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Humidity.F',    "Name"    => self::EEP_VARIABLES["Humidity"]["Name"]]
+            self::EEP_VARIABLES[self::TEMPERATURE], self::EEP_VARIABLES[self::HUMIDITY]
         ],
         EEPProfiles::A5_04_02 => [
-            self::EEP_VARIABLES["Temperature"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Temperature"]["Ident"],  "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Temperature',   "Name"    => self::EEP_VARIABLES["Temperature"]["Name"]],
-            self::EEP_VARIABLES["Humidity"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Humidity"]["Ident"],     "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Humidity.F',    "Name"    => self::EEP_VARIABLES["Humidity"]["Name"]]
+            self::EEP_VARIABLES[self::TEMPERATURE], self::EEP_VARIABLES[self::HUMIDITY]
         ],
         EEPProfiles::A5_04_03 => [
-            self::EEP_VARIABLES["Temperature"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Temperature"]["Ident"],  "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Temperature',   "Name"    => self::EEP_VARIABLES["Temperature"]["Name"]],
-            self::EEP_VARIABLES["Humidity"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Humidity"]["Ident"],     "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Humidity.F',    "Name"    => self::EEP_VARIABLES["Humidity"]["Name"]]
+            self::EEP_VARIABLES[self::TEMPERATURE], self::EEP_VARIABLES[self::HUMIDITY]
         ],
         EEPProfiles::A5_04_04 => [
-            self::EEP_VARIABLES["Temperature"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Temperature"]["Ident"],  "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Temperature',   "Name"    => self::EEP_VARIABLES["Temperature"]["Name"]],
-            self::EEP_VARIABLES["Humidity"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Humidity"]["Ident"],     "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Humidity.F',    "Name"    => self::EEP_VARIABLES["Humidity"]["Name"]]
+            self::EEP_VARIABLES[self::TEMPERATURE], self::EEP_VARIABLES[self::HUMIDITY]
         ],
         EEPProfiles::A5_07_01 => [
-            self::EEP_VARIABLES["Motion"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Motion"]["Ident"],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Motion',        "Name"    => self::EEP_VARIABLES["Motion"]["Name"]],
-            self::EEP_VARIABLES["Voltage"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Voltage"]["Ident"],      "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Volt',          "Name"    => self::EEP_VARIABLES["Voltage"]["Name"]]
+            self::EEP_VARIABLES[self::MOTION], self::EEP_VARIABLES[self::VOLTAGE]
         ],
         EEPProfiles::A5_07_02 => [
-            self::EEP_VARIABLES["Motion"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Motion"]["Ident"],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Motion',        "Name"    => self::EEP_VARIABLES["Motion"]["Name"]],
-            self::EEP_VARIABLES["Voltage"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Voltage"]["Ident"],      "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Volt',          "Name"    => self::EEP_VARIABLES["Voltage"]["Name"]]
+            self::EEP_VARIABLES[self::MOTION], self::EEP_VARIABLES[self::VOLTAGE]
         ],
         EEPProfiles::A5_07_03 => [
-            self::EEP_VARIABLES["Motion"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Motion"]["Ident"],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Motion',        "Name"    => self::EEP_VARIABLES["Motion"]["Name"]],
-            self::EEP_VARIABLES["Illumination"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Illumination"]["Ident"], "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Illumination',  "Name"    => self::EEP_VARIABLES["Illumination"]["Name"]],
-            self::EEP_VARIABLES["Voltage"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Voltage"]["Ident"],      "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Volt',          "Name"    => self::EEP_VARIABLES["Voltage"]["Name"]]
+            self::EEP_VARIABLES[self::MOTION], self::EEP_VARIABLES[self::ILLUMINATION], self::EEP_VARIABLES[self::VOLTAGE]
         ],
         EEPProfiles::A5_08_01 => [
-            self::EEP_VARIABLES["Motion"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Motion"]["Ident"],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Motion',        "Name"    => self::EEP_VARIABLES["Motion"]["Name"]],
-            self::EEP_VARIABLES["Temperature"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Temperature"]["Ident"],  "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Temperature',   "Name"    => self::EEP_VARIABLES["Temperature"]["Name"]],
-            self::EEP_VARIABLES["Illumination"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Illumination"]["Ident"], "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Illumination',  "Name"    => self::EEP_VARIABLES["Illumination"]["Name"]],
-            self::EEP_VARIABLES["Voltage"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Voltage"]["Ident"],      "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Volt',          "Name"    => self::EEP_VARIABLES["Voltage"]["Name"]],
-            self::EEP_VARIABLES["Button"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Button"]["Ident"],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Switch',        "Name"    => self::EEP_VARIABLES["Button"]["Name"]]
+            self::EEP_VARIABLES[self::MOTION], self::EEP_VARIABLES[self::TEMPERATURE], self::EEP_VARIABLES[self::ILLUMINATION], self::EEP_VARIABLES[self::VOLTAGE], self::EEP_VARIABLES[self::BUTTON]
         ],
         EEPProfiles::A5_08_02 => [
-            self::EEP_VARIABLES["Motion"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Motion"]["Ident"],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Motion',        "Name"    => self::EEP_VARIABLES["Motion"]["Name"]],
-            self::EEP_VARIABLES["Temperature"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Temperature"]["Ident"],  "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Temperature',   "Name"    => self::EEP_VARIABLES["Temperature"]["Name"]],
-            self::EEP_VARIABLES["Illumination"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Illumination"]["Ident"], "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Illumination',  "Name"    => self::EEP_VARIABLES["Illumination"]["Name"]],
-            self::EEP_VARIABLES["Voltage"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Voltage"]["Ident"],      "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Volt',          "Name"    => self::EEP_VARIABLES["Voltage"]["Name"]],
-            self::EEP_VARIABLES["Button"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Button"]["Ident"],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Switch',        "Name"    => self::EEP_VARIABLES["Button"]["Name"]]
+            self::EEP_VARIABLES[self::MOTION], self::EEP_VARIABLES[self::TEMPERATURE], self::EEP_VARIABLES[self::ILLUMINATION], self::EEP_VARIABLES[self::VOLTAGE], self::EEP_VARIABLES[self::BUTTON]
         ],
         EEPProfiles::A5_08_03 => [
-            self::EEP_VARIABLES["Motion"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Motion"]["Ident"],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Motion',        "Name"    => self::EEP_VARIABLES["Motion"]["Name"]],
-            self::EEP_VARIABLES["Temperature"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Temperature"]["Ident"],  "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Temperature',   "Name"    => self::EEP_VARIABLES["Temperature"]["Name"]],
-            self::EEP_VARIABLES["Illumination"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Illumination"]["Ident"], "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Illumination',  "Name"    => self::EEP_VARIABLES["Illumination"]["Name"]],
-            self::EEP_VARIABLES["Voltage"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Voltage"]["Ident"],      "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Volt',          "Name"    => self::EEP_VARIABLES["Voltage"]["Name"]],
-            self::EEP_VARIABLES["Button"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Button"]["Ident"],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Switch',        "Name"    => self::EEP_VARIABLES["Button"]["Name"]]
+            self::EEP_VARIABLES[self::MOTION], self::EEP_VARIABLES[self::TEMPERATURE], self::EEP_VARIABLES[self::ILLUMINATION], self::EEP_VARIABLES[self::VOLTAGE], self::EEP_VARIABLES[self::BUTTON]
         ],
         EEPProfiles::A5_08_02 => [
-            self::EEP_VARIABLES["Motion"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Motion"]["Ident"],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Motion',        "Name"    => self::EEP_VARIABLES["Motion"]["Name"]],
-            self::EEP_VARIABLES["Temperature"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Temperature"]["Ident"],  "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Temperature',   "Name"    => self::EEP_VARIABLES["Temperature"]["Name"]],
-            self::EEP_VARIABLES["Illumination"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Illumination"]["Ident"], "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Illumination',  "Name"    => self::EEP_VARIABLES["Illumination"]["Name"]],
-            self::EEP_VARIABLES["Voltage"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Voltage"]["Ident"],      "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Volt',          "Name"    => self::EEP_VARIABLES["Voltage"]["Name"]],
-            self::EEP_VARIABLES["Button"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Button"]["Ident"],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Switch',        "Name"    => self::EEP_VARIABLES["Button"]["Name"]]
+            self::EEP_VARIABLES[self::MOTION], self::EEP_VARIABLES[self::TEMPERATURE], self::EEP_VARIABLES[self::ILLUMINATION], self::EEP_VARIABLES[self::VOLTAGE], self::EEP_VARIABLES[self::BUTTON]
         ],
         EEPProfiles::A5_08_03 => [
-            self::EEP_VARIABLES["Motion"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Motion"]["Ident"],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Motion',        "Name"    => self::EEP_VARIABLES["Motion"]["Name"]],
-            self::EEP_VARIABLES["Temperature"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Temperature"]["Ident"],  "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Temperature',   "Name"    => self::EEP_VARIABLES["Temperature"]["Name"]],
-            self::EEP_VARIABLES["Illumination"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Illumination"]["Ident"], "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Illumination',  "Name"    => self::EEP_VARIABLES["Illumination"]["Name"]],
-            self::EEP_VARIABLES["Voltage"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Voltage"]["Ident"],      "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Volt',          "Name"    => self::EEP_VARIABLES["Voltage"]["Name"]],
-            self::EEP_VARIABLES["Button"]["Ident"] => ["Ident" => self::EEP_VARIABLES["Button"]["Ident"],       "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Switch',        "Name"    => self::EEP_VARIABLES["Button"]["Name"]]
+            self::EEP_VARIABLES[self::MOTION], self::EEP_VARIABLES[self::TEMPERATURE], self::EEP_VARIABLES[self::ILLUMINATION], self::EEP_VARIABLES[self::VOLTAGE], self::EEP_VARIABLES[self::BUTTON]
         ]
     ];
     
+    // -----------------------------------------------
+    // Interne Funktionen für den Zugriff auf die Variablen
+    private function getECValue(array $varIdent)               { return $this->GetValue(self::VAR_PREFIX . $varIdent['Ident']);}
+    private function setECValue(array $varIdent, $value): void { $this->SetValue(self::VAR_PREFIX . $varIdent['Ident'], $value); }
+
+    // -----------------------------------------------
+    // Verwaltung der Variablen
     private function maintainECVariable(array $variable, int $position, bool $visible): void
     {
-        $this->MaintainVariable($variable['Ident'], $variable['Name'], $variable['Type'], $variable['Profile'], $position, $visible);
+        $this->MaintainVariable(self::VAR_PREFIX . $variable['Ident'], $variable['Name'], $variable['Type'], $variable['Profile'], $position, $visible);
         $this->SendDebug(__FUNCTION__, "Variable: " . $variable['Ident'] . " angelegt/aktualisiert", 0);
     }
 
@@ -370,42 +366,92 @@ trait VariableHelper{
         foreach (IPS_GetChildrenIDs($this->InstanceID) as $childID) {
             if (IPS_VariableExists($childID)) {
                 $ident = IPS_GetObject($childID)['ObjectIdent'];
-                $this->SendDebug(__FUNCTION__, "Lösche Variable: " . $ident, 0);
                 IPS_DeleteVariable($childID);
             }
         }
     }
-    private function getBufferKeyFromVarIdent(string $varIdent): ?string
+    
+    // -----------------------------------------------
+    // Hilfsfunktionen für Backup-Variablen
+    private function registerECBackupProperties(array $variables): void
     {
-        foreach (self::EEP_VARIABLES as $key => $def) {
-            if ($def['Ident'] === $varIdent) {
-                return $key; // z.B. "Temperature"
+        foreach ($variables as $variable) {
+            switch ($variable['Type']) {
+                case VARIABLETYPE_BOOLEAN:
+                    $this->RegisterPropertyBoolean(self::PROP_PREFIX_BACKUP . $variable['Ident'], (bool)$variable['BackupValue']);
+                    break;
+                case VARIABLETYPE_INTEGER:
+                    $this->RegisterPropertyInteger(self::PROP_PREFIX_BACKUP . $variable['Ident'], (int)$variable['BackupValue']);
+                    break;
+                case VARIABLETYPE_FLOAT:
+                    $this->RegisterPropertyFloat(self::PROP_PREFIX_BACKUP . $variable['Ident'], (float)$variable['BackupValue']);
+                    break;
+                case VARIABLETYPE_STRING:
+                    $this->RegisterPropertyString(self::PROP_PREFIX_BACKUP . $variable['Ident'], (string)$variable['BackupValue']);
+                    break;
+                default:
+                    $this->SendDebug(__FUNCTION__, "Unbekannter Variablentyp für Backup-Variable: " . $variable['Type'], 0);
+                    break;
             }
         }
-        return null; // falls nicht gefunden
-    }    
+    }
+
+    private function readECBackupProperty(array $variable): mixed
+    {
+        switch ($variable['Type']) {
+            case VARIABLETYPE_BOOLEAN:
+                return (bool)$this->ReadPropertyBoolean(self::PROP_PREFIX_BACKUP . $variable['Ident']);
+            case VARIABLETYPE_INTEGER:
+                return (int)$this->ReadPropertyInteger(self::PROP_PREFIX_BACKUP . $variable['Ident']);
+            case VARIABLETYPE_FLOAT:
+                return (float)$this->ReadPropertyFloat(self::PROP_PREFIX_BACKUP . $variable['Ident']);
+            case VARIABLETYPE_STRING:
+                return (string)$this->ReadPropertyString(self::PROP_PREFIX_BACKUP . $variable['Ident']);
+            default:
+                $this->SendDebug(__FUNCTION__, "Unbekannter Variablentyp für Backup-Variable: " . $variable['Type'], 0);
+                return null;
+        }
+    }
+
+    private function analyseSourceAndWriteIdToBuffers(int $sourceID): void
+    {
+		if ($sourceID > 1) { // 0=root, 1=none
+			$variables = IPS_GetChildrenIDs($sourceID);
+			foreach ($variables as $vid) {
+				$vinfo = IPS_GetVariable($vid);
+				// nach Profil erkennen
+				if (str_contains(strtoupper($vinfo['VariableProfile']), '_PIRS') || str_contains(strtoupper($vinfo['VariableProfile']), 'MOTION') || str_contains(strtoupper($vinfo['VariableProfile']), 'PRESENCE')) {
+					$this->SetECBuffer(self::EEP_VARIABLES[self::MOTION], (string)$vid);
+				}
+				if (str_contains(strtoupper($vinfo['VariableProfile']), '_ILL') || str_contains(strtoupper($vinfo['VariableProfile']), 'ILLUMINATION')) {
+					$this->SetECBuffer(self::EEP_VARIABLES[self::ILLUMINATION], (string)$vid);
+				}
+				if (str_contains(strtoupper($vinfo['VariableProfile']), '_SVC') || str_contains(strtoupper($vinfo['VariableProfile']), 'VOLT')) {
+					$this->SetECBuffer(self::EEP_VARIABLES[self::VOLTAGE], (string)$vid);
+				}
+				if (str_contains(strtoupper($vinfo['VariableProfile']), '_TMP') || str_contains(strtoupper($vinfo['VariableProfile']), 'TEMPERATURE')) {
+					$this->SetECBuffer(self::EEP_VARIABLES[self::TEMPERATURE], (string)$vid);
+				}
+				if (str_contains(strtoupper($vinfo['VariableProfile']), '_HUM') || str_contains(strtoupper($vinfo['VariableProfile']), 'HUMIDITY')) {
+					$this->SetECBuffer(self::EEP_VARIABLES[self::HUMIDITY], (string)$vid);
+				}
+			}
+		}
+    }
 }
 
 trait BufferHelper{
 
-    public const EEP_BUFFERS = [
-        "Humidity"      => ["Ident" => "bufferHumidity",             "Name" => "Luftfeuchtigkeit"],
-        "Temperature"   => ["Ident" => "bufferTemperature",          "Name" => "Temperatur"],
-        "Motion"        => ["Ident" => "bufferMotion",               "Name" => "PIR-Status"],
-        "Illumination"  => ["Ident" => "bufferIllumination",         "Name" => "Helligkeit"],
-        "Voltage"       => ["Ident" => "bufferVoltage",              "Name" => "Versorgungsspannung"],
-        "Button"        => ["Ident" => "bufferButton",               "Name" => "Taster-Status"]
-    ];
+    // Einheitliches Prefix für alle Variablen:
+    private const VAR_PREFIX = "buffer";
 
-    private function maintainECBuffer(array $buffer): void
-    {
-        $this->SetBuffer($buffer['Ident'], "0");
-    }
+    private function getECBuffer(array $buffer): string                     { return $this->GetBuffer(self::VAR_PREFIX . $buffer['Ident']);}
+    private function setECBuffer(array $buffer, string $value = "0"): void  { $this->SetBuffer(self::VAR_PREFIX . $buffer['Ident'], $value);}
 
     private function maintainECBuffers(array $buffers): void
     {
         foreach ($buffers as $buffer) {
-            $this->maintainECBuffer($buffer);
+            $this->setECBuffer($buffer);
         }
     }
 }

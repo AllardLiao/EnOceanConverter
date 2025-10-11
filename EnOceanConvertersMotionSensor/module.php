@@ -9,6 +9,12 @@ if (substr(__DIR__,0, 10) == "/Users/kai") {
 	include_once __DIR__ . '/../.ips_stubs/autoload.php';
 }
 
+/**
+ * Include Controme helper classes.
+ */
+require_once __DIR__ . '/../libs/EnOceanConverterConstants.php';
+require_once __DIR__ . '/../libs/EnOceanConverterHelper.php';
+
 use EnOceanConverter\BufferHelper;
 use EnOceanConverter\DeviceIDHelper;
 use EnOceanConverter\EEPProfiles;
@@ -16,12 +22,6 @@ use EnOceanConverter\EEPConverter;
 use EnOceanConverter\GUIDs;
 use EnOceanConverter\MessagesHelper;
 use EnOceanConverter\variableHelper;
-
-/**
- * Include Controme helper classes.
- */
-require_once __DIR__ . '/../libs/EnOceanConverterConstants.php';
-require_once __DIR__ . '/../libs/EnOceanConverterHelper.php';
 
 class EnOceanConvertersMotionSensor extends IPSModuleStrict
 {
@@ -36,31 +36,28 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 	private const propertySourceEEP = "SourceEEP";
 	private const propertyResendActive = "ResendActive";
 
-//	private const bufferPIR = "BufferPIR";
-//	private const bufferIllumination = "BufferIllumination";
-//	private const bufferVoltage = "BufferVoltage";
-//	private const bufferTemperature = "BufferTemperature";
-
 	private const timerPrefix = "ECMSSendDelayed";
 
 	public function Create():void
 	{
 		//Never delete this line!
 		parent::Create();
-
+		// Module-Propoerties anlegen
 		$this->RegisterPropertyInteger(self::propertyDeviceID, 0);
 		$this->RegisterPropertyInteger(self::propertySourceDevice, 0);
 		$this->RegisterPropertyString(self::propertyTargetEEP, EEPProfiles::A5_07_01);
 		$this->RegisterPropertyString(self::propertySourceEEP, EEPProfiles::A5_08_01);
 		$this->RegisterPropertyBoolean(self::propertyResendActive, false);
-
+		//Alle Backup-Werte als Property anlegen
+		$this->registerECBackupProperties(self::EEP_VARIABLES);
+		// Variablen anlegen
+		$this->MaintainECVariables(self::EEP_VARIABLE_PROFILES[$this->ReadPropertyString(self::propertyTargetEEP)]); // immer alle anlegen
 		// Alle Buffer vorbelegen
-		$this->maintainECBuffers(self::EEP_BUFFERS);
+		$this->maintainECBuffers(self::EEP_VARIABLES);
 		// Die benötigten Variablen (initial) anlegen
 		$this->MaintainECVariables(self::EEP_VARIABLE_PROFILES[$this->ReadPropertyString(self::propertyTargetEEP)]); // immer alle anlegen
 		// Timer für verzögertes Senden anlegen
 		$this->RegisterTimer(self::timerPrefix . $this->InstanceID, 0, 'IPS_RequestAction(' . $this->InstanceID . ', "SendTelegramDelayed", true);');
-
 		$this->SetStatus(104);
 	}
 
@@ -74,59 +71,21 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 	{
 		//Never delete this line!
 		parent::ApplyChanges();
-		
-        // Alte Nachrichten abmelden
-        $this->unregisterAllECMessages();
-
-        $sourceID = $this->ReadPropertyInteger(self::propertySourceDevice);
-		//$this->SendDebug(__FUNCTION__, 'ApplyChanges: SourceDevice=' . $sourceID, 0);
-
+		// Standard-Status (104 = Quelle nicht verbunden)
+		$status = 104;
 		// Alle Buffer vorbelegen
-		$this->maintainECBuffers(self::EEP_BUFFERS);
-
+		$this->maintainECBuffers(self::EEP_VARIABLES);
 		// Variablen anlegen/löschen je nach ausgewähltem EEP
 		$this->MaintainECVariables(self::EEP_VARIABLE_PROFILES[$this->ReadPropertyString(self::propertyTargetEEP)]); // immer alle anlegen
-		$this->SendDebug(__FUNCTION__, 'Created with EEP=' . print_r(self::EEP_VARIABLE_PROFILES[$this->ReadPropertyString(self::propertyTargetEEP)], true), 0);
-
+        // Quelle auslesen
+		$sourceID = $this->ReadPropertyInteger(self::propertySourceDevice);
 		// Source Device auslesen und Variable(n) suchen
-		if ($sourceID > 1) { // 0=root, 1=none
-			$variables = IPS_GetChildrenIDs($sourceID);
-			foreach ($variables as $vid) {
-				$vinfo = IPS_GetVariable($vid);
-				// nach Profil erkennen
-				if (str_contains(strtoupper($vinfo['VariableProfile']), '_PIRS') || str_contains(strtoupper($vinfo['VariableProfile']), 'MOTION') || str_contains(strtoupper($vinfo['VariableProfile']), 'PRESENCE')) {
-					$this->SetBuffer(self::EEP_BUFFERS['Motion']['Ident'], (string)$vid);
-				}
-				if (str_contains(strtoupper($vinfo['VariableProfile']), '_ILL') || str_contains(strtoupper($vinfo['VariableProfile']), 'ILLUMINATION')) {
-					$this->SetBuffer(self::EEP_BUFFERS['Illumination']['Ident'], (string)$vid);
-				}
-				if (str_contains(strtoupper($vinfo['VariableProfile']), '_SVC') || str_contains(strtoupper($vinfo['VariableProfile']), 'VOLT')) {
-					$this->SetBuffer(self::EEP_BUFFERS['Voltage']['Ident'], (string)$vid);
-				}
-				if (str_contains(strtoupper($vinfo['VariableProfile']), '_TMP') || str_contains(strtoupper($vinfo['VariableProfile']), 'TEMPERATURE')) {
-					$this->SetBuffer(self::EEP_BUFFERS['Temperature']['Ident'], (string)$vid);
-				}
-				if (str_contains(strtoupper($vinfo['VariableProfile']), '_HUM') || str_contains(strtoupper($vinfo['VariableProfile']), 'HUMIDITY')) {
-					$this->SetBuffer(self::EEP_BUFFERS['Humidity']['Ident'], (string)$vid);
-				}
-			}
-		}
-
-		// Update Messages registrieren
-		$status = 104; // Standard: Quelle nicht gesetzt
-		// Werte in Variablen schreiben
-		$variables = self::EEP_VARIABLE_PROFILES[$this->ReadPropertyString(self::propertyTargetEEP)];
-		foreach ($variables as $varIdent => $definition) {
-			$bufferKey = $this->getBufferKeyFromVarIdent($varIdent);
-			if ($bufferKey === null) {
-				continue; // nichts gefunden
-			}
-			if ($this->GetBuffer(self::EEP_BUFFERS[$bufferKey]['Ident']) == '0') {
-				$this->SetValue($varIdent, $this->ReadPropertyFloat("Backup" . $bufferKey));
-			} else {
-				$status = $this->registerECMessage($varIdent, intval($this->GetBuffer(self::EEP_BUFFERS[$bufferKey]['Ident'])), $status);
-			}
-		}	
+		$this->analyseSourceAndWriteIdToBuffers($sourceID);
+        // Alte Nachrichten abmelden
+        $this->unregisterAllECMessages();
+		// Gesuchte Werte (target EEP) in Variablen schreiben und gleichzeitig Messages registrieren
+		// Dabei auch Backup-Werte setzen, wenn keine Variable in der Source gefunden wurde
+		$this->readValuesFromSourceAndRegisterMessage(self::EEP_VARIABLE_PROFILES[$this->ReadPropertyString(self::propertyTargetEEP)]);
 		// Status setzen
 		if ($status == 102) {
 			if (!$this->ReadPropertyBoolean('ResendActive')) {
@@ -139,7 +98,6 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 
     public function RequestAction(string $ident, mixed $value): void
     {
-		//$this->SendDebug(__FUNCTION__, 'RequestAction: ' . $ident . ' → ' . print_r($value, true), 0);
         switch($ident) {
 			case 'SendTelegramDelayed':
 				$this->SendTelegramDelayed();
@@ -163,10 +121,10 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 	 */
 	public function sendTestTelegram(): void
 	{
-		$PIR = $this->GetValue(self::EEP_VARIABLES['Motion']['Ident']);
-		$ILL = $this->GetValue(self::EEP_VARIABLES['Illumination']['Ident']);
-		$TEMP = $this->GetValue(self::EEP_VARIABLES['Temperature']['Ident']);
-		$VOL = $this->GetValue(self::EEP_VARIABLES['Voltage']['Ident']);
+		$PIR = $this->GetECValue(self::EEP_VARIABLES[self::MOTION]);
+		$ILL = $this->GetECValue(self::EEP_VARIABLES[self::ILLUMINATION]);
+		$TEMP = $this->GetECValue(self::EEP_VARIABLES[self::TEMPERATURE]);
+		$VOL = $this->GetECValue(self::EEP_VARIABLES[self::VOLTAGE]);
 		$this->UpdateFormField('ResultSendTest', 'caption', 'Send test telegram (PIR=' . $PIR . ', ILL=' . $ILL . 'lx, TEMP=' . $TEMP . '°C, VOLT=' . $VOL . 'V)');
 		$this->SendDebug(__FUNCTION__, "sending test: PIR=" . $PIR . ", ILL=" . $ILL . "lx, TEMP=" . $TEMP . "°C, VOLT=" . $VOL . "V", 0);
 		$this->SendEnOceanTelegram($PIR, $ILL, $TEMP, $VOL, false);
@@ -189,10 +147,10 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
     public function MessageSink($TimeStamp, $SenderID, $Message, $Data): void
     {
 		$senderIdInt = (int)$SenderID;
-		$tempVarId   = (int)$this->GetBuffer(self::EEP_BUFFERS['Temperature']['Ident']);
-		$illVarId    = (int)$this->GetBuffer(self::EEP_BUFFERS['Illumination']['Ident']);
-		$pirVarId    = (int)$this->GetBuffer(self::EEP_BUFFERS['Motion']['Ident']);
-		$volVarId    = (int)$this->GetBuffer(self::EEP_BUFFERS['Voltage']['Ident']);
+		$tempVarId   = (int)$this->GetBuffer(self::EEP_VARIABLES[self::TEMPERATURE]);
+		$illVarId    = (int)$this->GetBuffer(self::EEP_VARIABLES[self::ILLUMINATION]);
+		$pirVarId    = (int)$this->GetBuffer(self::EEP_VARIABLES[self::MOTION]);
+		$volVarId    = (int)$this->GetBuffer(self::EEP_VARIABLES[self::VOLTAGE]);
 
 		$this->SendDebug(__FUNCTION__, "sender={$senderIdInt} (tempVar={$tempVarId}, illVar={$illVarId}, pirVar={$pirVarId}, volVar={$volVarId}) with DATA-0: " . print_r($Data[0], true), 0);
 		// Save received values in own variables
@@ -200,10 +158,10 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 			$value = $Data[0];
 			// Wert entsprechend zuordnen
 			if ($senderIdInt === $tempVarId) {
-				$this->SetValue(self::EEP_VARIABLES['Temperature']['Ident'], (float)$value);
+				$this->SetECValue(self::EEP_VARIABLES[self::TEMPERATURE], (float)$value);
 			}
 			if ($senderIdInt === $illVarId) {
-				$this->SetValue(self::EEP_VARIABLES['Illumination']['Ident'], (int)$value);
+				$this->SetECValue(self::EEP_VARIABLES[self::ILLUMINATION], (int)$value);
 			}
 			if ($senderIdInt === $pirVarId) {
 				$targetEEP  = $this->ReadPropertyString(self::propertyTargetEEP);
@@ -213,10 +171,10 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 					// A05-07 und A05-08 haben inverse PIR-Codierungen!
 					$valueNew = (!$valueNew);
 				}
-				$this->SetValue(self::EEP_VARIABLES['Motion']['Ident'], $valueNew);
+				$this->SetECValue(self::EEP_VARIABLES[self::MOTION], $valueNew);
 			}
 			if ($senderIdInt === $volVarId) {
-				$this->SetValue(self::EEP_VARIABLES['Voltage']['Ident'], (float)$value);
+				$this->SetECValue(self::EEP_VARIABLES[self::VOLTAGE], (float)$value);
 			}
 			// Timer setzen (2 Sekunden warten, dann send) - verhindert das doppelte Senden des Telegramms, wenn beide Variablen fast gleichzeitig aktualisiert werden
             $this->SetTimerInterval(self::timerPrefix . $this->InstanceID, 2 * 1000);
@@ -227,25 +185,24 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 	{
 		$this->SetTimerInterval(self::timerPrefix . $this->InstanceID, 0); // Timer wieder stoppen
 		$temp = 0.0;
-		$ill  = 0.0;
+		$ill  = 0;
 		$pir  = false;
 		$vol  = 0.0;
 		$variables = self::EEP_VARIABLE_PROFILES[$this->ReadPropertyString(self::propertyTargetEEP)];
 		foreach ($variables as $varIdent => $definition) {
-			if ($varIdent === self::EEP_VARIABLES['Temperature']['Ident']) {
-				$temp = $this->GetValue($varIdent);
+			if ($varIdent === self::EEP_VARIABLES[self::TEMPERATURE]['Ident']) {
+				$temp = $this->GetECValue(self::EEP_VARIABLES[$varIdent]);
 			}
-			if ($varIdent === self::EEP_VARIABLES['Illumination']['Ident']) {
-				$ill = $this->GetValue($varIdent);
+			if ($varIdent === self::EEP_VARIABLES[self::ILLUMINATION]['Ident']) {
+				$ill = $this->GetECValue(self::EEP_VARIABLES[$varIdent]);
 			}
-			if ($varIdent === self::EEP_VARIABLES['Motion']['Ident']) {
-				$pir = $this->GetValue($varIdent);
+			if ($varIdent === self::EEP_VARIABLES[self::MOTION]['Ident']) {
+				$pir = $this->GetECValue(self::EEP_VARIABLES[$varIdent]);
 			}
-			if ($varIdent === self::EEP_VARIABLES['Voltage']['Ident']) {
-				$vol = $this->GetValue($varIdent);
+			if ($varIdent === self::EEP_VARIABLES[self::VOLTAGE]['Ident']) {
+				$vol = $this->GetECValue(self::EEP_VARIABLES[$varIdent]);
 			}
 		}
-
 		$this->SendDebug(__FUNCTION__, 'Send telegram for ' . $this->InstanceID . '/' . $this->ReadPropertyInteger(self::propertyDeviceID) . ': temp=' . $temp . ', ill=' . $ill . ', pir=' . $pir . ', vol=' . $vol, 0);
 		$this->SendEnOceanTelegram($pir, $ill, $temp, $vol);
 	}
