@@ -149,7 +149,7 @@
                     "onChange": "",
                     "suffix": "V",
                     "value": 3.3,
-                    "visible": false,
+                    "visible": true,
                     "width": "300px"
                 },
                 {
