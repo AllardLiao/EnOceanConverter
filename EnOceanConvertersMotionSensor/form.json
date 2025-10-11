@@ -18,7 +18,7 @@
                     "suffix": "",
                     "value": 0,
                     "visible": true,
-                    "width": "300px"                },
+                    "width": "450px"                },
                 {
                     "type": "Button",
                     "caption": "Select available device id",
@@ -49,7 +49,7 @@
                     "validModules": <!---VALID_MODULES-->,
                     "value": 0,
                     "visible": true,
-                    "width": "600px"
+                    "width": "450px"
                 },                
                 {
                     "type": "Button",
@@ -81,7 +81,7 @@
                     "onChange": "",
                     "value": "A5-08-02",
                     "visible": true,
-                    "width": "300px"
+                    "width": "450px"
                 },
                 {
                     "type": "Label",
@@ -109,7 +109,7 @@
             "onChange": "",
             "value": "A5-07-03",
             "visible": true,
-            "width": "300px"
+            "width": "450px"
         },
         {
             "type": "ExpansionPanel",
