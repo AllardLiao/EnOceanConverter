@@ -81,7 +81,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		// Backup-Formularfelder ein-/ausblenden in Abhängigkeit von der Source und dem Target-EEP
 		$formFields = $this->checkECBuffersVsEepProfile($this->ReadPropertyString(self::propertyTargetEEP));
 		foreach ($formFields as $field => $visible) {
-			$this->UpdateFormField(self::PROP_PREFIX_BACKUP . $field, 'visible', !$visible);
+			$this->UpdateFormField(self::PROP_PREFIX_BACKUP . $field, 'visible', (!$visible ? 'true' : 'false'));
 			$this->SendDebug(__FUNCTION__, 'Set form field ' . self::PROP_PREFIX_BACKUP . $field . ' to visible=' . (!$visible ? 'true' : 'false'), 0);
 		}
 		// Status setzen
