@@ -419,18 +419,23 @@ trait VariableHelper{
 				// nach Profil erkennen
 				if (str_contains(strtoupper($vinfo['VariableProfile']), '_PIRS') || str_contains(strtoupper($vinfo['VariableProfile']), 'MOTION') || str_contains(strtoupper($vinfo['VariableProfile']), 'PRESENCE')) {
 					$this->SetECBuffer(self::EEP_VARIABLES[self::MOTION], (string)$vid);
+                    $this->setECValue(self::EEP_VARIABLES[self::MOTION], GetValue($vid)); // Default-Wert setzen
 				}
 				if (str_contains(strtoupper($vinfo['VariableProfile']), '_ILL') || str_contains(strtoupper($vinfo['VariableProfile']), 'ILLUMINATION')) {
 					$this->SetECBuffer(self::EEP_VARIABLES[self::ILLUMINATION], (string)$vid);
+                    $this->setECValue(self::EEP_VARIABLES[self::ILLUMINATION], GetValue($vid)); // Default-Wert setzen
 				}
 				if (str_contains(strtoupper($vinfo['VariableProfile']), '_SVC') || str_contains(strtoupper($vinfo['VariableProfile']), 'VOLT')) {
 					$this->SetECBuffer(self::EEP_VARIABLES[self::VOLTAGE], (string)$vid);
+                    $this->setECValue(self::EEP_VARIABLES[self::VOLTAGE], GetValue($vid)); // Default-Wert setzen
 				}
 				if (str_contains(strtoupper($vinfo['VariableProfile']), '_TMP') || str_contains(strtoupper($vinfo['VariableProfile']), 'TEMPERATURE')) {
 					$this->SetECBuffer(self::EEP_VARIABLES[self::TEMPERATURE], (string)$vid);
+                    $this->setECValue(self::EEP_VARIABLES[self::TEMPERATURE], GetValue($vid)); // Default-Wert setzen
 				}
 				if (str_contains(strtoupper($vinfo['VariableProfile']), '_HUM') || str_contains(strtoupper($vinfo['VariableProfile']), 'HUMIDITY')) {
 					$this->SetECBuffer(self::EEP_VARIABLES[self::HUMIDITY], (string)$vid);
+                    $this->setECValue(self::EEP_VARIABLES[self::HUMIDITY], GetValue($vid)); // Default-Wert setzen
 				}
 			}
 		}

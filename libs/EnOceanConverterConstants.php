@@ -95,7 +95,7 @@ class GUIDs
     public const IPS_BUILDIN_FWS61    = '{9E4572C0-C306-4F00-B536-E75B4950F094}'; // A5-13-01
 
     /**
-     * Liefert alle unterstützten Input-GUIDs als Array
+     * Liefert alle unterstützten Input-GUIDs für Temperaturen als Array
      *
      * @return string[]
      */
@@ -114,7 +114,7 @@ class GUIDs
     }
 
     /**
-     * Liefert alle unterstützten EEP als Array
+     * Liefert alle unterstützten EEP für Motion als Array
      *
      * @return string[]
      */
