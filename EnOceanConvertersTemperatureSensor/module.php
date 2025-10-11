@@ -119,6 +119,10 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 	 */
 	public function sendTestTelegram(): void
 	{
+		if ($this->ReadPropertyInteger(self::propertyDeviceID) == 0) {
+			$this->UpdateFormField('ResultSendTest', 'caption', 'Please select Device ID first!');
+			return;
+		}
 		$temp = $this->GetECValue(self::EEP_VARIABLES[self::TEMPERATURE]);   // °C
 		$hum  = $this->GetECValue(self::EEP_VARIABLES[self::HUMIDITY]);   // %
 		$this->UpdateFormField('ResultSendTest', 'caption', 'Send test telegram (Temp=' . $temp . '°C, Hum=' . $hum . '%)');
@@ -131,6 +135,10 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 	 */
 	public function sendTeachInTelegram(): void
 	{
+		if ($this->ReadPropertyInteger(self::propertyDeviceID) == 0) {
+			$this->UpdateFormField('ResultTeachIn', 'caption', 'Please select Device ID first!');
+			return;
+		}
 		$temp = 18.6;   // °C
 		$hum  = 68.1;   // %
 		$this->UpdateFormField('ResultTeachIn', 'caption', 'Send teach-in telegram (with Temp=' . $temp . '°C, Hum=' . $hum . '%)');

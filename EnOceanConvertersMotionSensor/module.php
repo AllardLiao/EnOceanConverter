@@ -124,6 +124,10 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 	 */
 	public function sendTestTelegram(): void
 	{
+		if ($this->ReadPropertyInteger(self::propertyDeviceID) == 0) {
+			$this->UpdateFormField('ResultSendTest', 'caption', 'Please select Device ID first!');
+			return;
+		}
 		$PIR = $this->GetECValue(self::EEP_VARIABLES[self::MOTION]);
 		$ILL = $this->GetECValue(self::EEP_VARIABLES[self::ILLUMINATION]);
 		$TEMP = $this->GetECValue(self::EEP_VARIABLES[self::TEMPERATURE]);
@@ -138,6 +142,10 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 	 */
 	public function sendTeachInTelegram(): void
 	{
+		if ($this->ReadPropertyInteger(self::propertyDeviceID) == 0) {
+			$this->UpdateFormField('ResultTeachIn', 'caption', 'Please select Device ID first!');
+			return;
+		}
 		$PIR = true;
 		$ILL = 12;
 		$TEMP = 18.6;
