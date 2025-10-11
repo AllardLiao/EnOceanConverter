@@ -419,23 +419,48 @@ trait VariableHelper{
 				// nach Profil erkennen
 				if (str_contains(strtoupper($vinfo['VariableProfile']), '_PIRS') || str_contains(strtoupper($vinfo['VariableProfile']), 'MOTION') || str_contains(strtoupper($vinfo['VariableProfile']), 'PRESENCE')) {
 					$this->SetECBuffer(self::EEP_VARIABLES[self::MOTION], (string)$vid);
-                    $this->setECValue(self::EEP_VARIABLES[self::MOTION], GetValue($vid)); // Default-Wert setzen
+                    try {
+                        $this->setECValue(self::EEP_VARIABLES[self::MOTION], GetValue($vid)); // Default-Wert setzen
+                    } catch (\Exception $e) {
+                        //$this->SendDebug(__FUNCTION__, "Fehler beim Setzen des Default-Werts für Motion: " . $e->getMessage(), 0);
+                        //ok - dann wird die Var nicht benötigt.
+                    }
 				}
 				if (str_contains(strtoupper($vinfo['VariableProfile']), '_ILL') || str_contains(strtoupper($vinfo['VariableProfile']), 'ILLUMINATION')) {
 					$this->SetECBuffer(self::EEP_VARIABLES[self::ILLUMINATION], (string)$vid);
-                    $this->setECValue(self::EEP_VARIABLES[self::ILLUMINATION], GetValue($vid)); // Default-Wert setzen
+                    try {
+                        $this->setECValue(self::EEP_VARIABLES[self::ILLUMINATION], GetValue($vid)); // Default-Wert setzen
+                    } catch (\Exception $e) {
+                        //$this->SendDebug(__FUNCTION__, "Fehler beim Setzen des Default-Werts für Illumination: " . $e->getMessage(), 0);
+                        //ok - dann wird die Var nicht benötigt.
+                    }
 				}
 				if (str_contains(strtoupper($vinfo['VariableProfile']), '_SVC') || str_contains(strtoupper($vinfo['VariableProfile']), 'VOLT')) {
 					$this->SetECBuffer(self::EEP_VARIABLES[self::VOLTAGE], (string)$vid);
-                    $this->setECValue(self::EEP_VARIABLES[self::VOLTAGE], GetValue($vid)); // Default-Wert setzen
+                    try {
+                        $this->setECValue(self::EEP_VARIABLES[self::VOLTAGE], GetValue($vid)); // Default-Wert setzen
+                    } catch (\Exception $e) {
+                        //$this->SendDebug(__FUNCTION__, "Fehler beim Setzen des Default-Werts für Voltage: " . $e->getMessage(), 0);
+                        //ok - dann wird die Var nicht benötigt.
+                    }
 				}
 				if (str_contains(strtoupper($vinfo['VariableProfile']), '_TMP') || str_contains(strtoupper($vinfo['VariableProfile']), 'TEMPERATURE')) {
 					$this->SetECBuffer(self::EEP_VARIABLES[self::TEMPERATURE], (string)$vid);
-                    $this->setECValue(self::EEP_VARIABLES[self::TEMPERATURE], GetValue($vid)); // Default-Wert setzen
+                    try {
+                        $this->setECValue(self::EEP_VARIABLES[self::TEMPERATURE], GetValue($vid)); // Default-Wert setzen
+                    } catch (\Exception $e) {
+                        //$this->SendDebug(__FUNCTION__, "Fehler beim Setzen des Default-Werts für Temperature: " . $e->getMessage(), 0);
+                        //ok - dann wird die Var nicht benötigt.
+                    }
 				}
 				if (str_contains(strtoupper($vinfo['VariableProfile']), '_HUM') || str_contains(strtoupper($vinfo['VariableProfile']), 'HUMIDITY')) {
 					$this->SetECBuffer(self::EEP_VARIABLES[self::HUMIDITY], (string)$vid);
-                    $this->setECValue(self::EEP_VARIABLES[self::HUMIDITY], GetValue($vid)); // Default-Wert setzen
+                    try {
+                        $this->setECValue(self::EEP_VARIABLES[self::HUMIDITY], GetValue($vid)); // Default-Wert setzen
+                    } catch (\Exception $e) {
+                        //$this->SendDebug(__FUNCTION__, "Fehler beim Setzen des Default-Werts für Humidity: " . $e->getMessage(), 0);
+                        //ok - dann wird die Var nicht benötigt.
+                    }
 				}
 			}
 		}
