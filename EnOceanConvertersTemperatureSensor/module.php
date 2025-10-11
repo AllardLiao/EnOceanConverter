@@ -45,6 +45,8 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		$this->RegisterPropertyString(self::propertyTargetEEP, EEPProfiles::A5_04_01);
 		$this->RegisterPropertyBoolean(self::propertyResendActive, false);
 		$this->RegisterPropertyInteger(self::propertyDeviceID, 0);
+		//Alle Backup-Werte als Property anlegen
+		$this->registerECBackupProperties(self::EEP_VARIABLES);
 		// Alle Buffer vorbelegen
 		$this->maintainECBuffers(self::EEP_VARIABLES);
 		// Die benötigten Variablen (initial) anlegen

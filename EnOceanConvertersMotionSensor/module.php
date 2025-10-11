@@ -50,11 +50,9 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 		$this->RegisterPropertyBoolean(self::propertyResendActive, false);
 		//Alle Backup-Werte als Property anlegen
 		$this->registerECBackupProperties(self::EEP_VARIABLES);
-		// Variablen anlegen
-		$this->MaintainECVariables(self::EEP_VARIABLE_PROFILES[$this->ReadPropertyString(self::propertyTargetEEP)]); // immer alle anlegen
 		// Alle Buffer vorbelegen
 		$this->maintainECBuffers(self::EEP_VARIABLES);
-		// Die benötigten Variablen (initial) anlegen
+		// Variablen anlegen
 		$this->MaintainECVariables(self::EEP_VARIABLE_PROFILES[$this->ReadPropertyString(self::propertyTargetEEP)]); // immer alle anlegen
 		// Timer für verzögertes Senden anlegen
 		$this->RegisterTimer(self::timerPrefix . $this->InstanceID, 0, 'IPS_RequestAction(' . $this->InstanceID . ', "SendTelegramDelayed", true);');
