@@ -293,8 +293,8 @@ trait VariableHelper{
         self::TEMPERATURE   => ["Ident" => "Temperature",    "Name" => "Temperatur",             "BackupValue" => 20.0,     "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Temperature'],
         self::MOTION        => ["Ident" => "Motion",         "Name" => "PIR-Status",             "BackupValue" => false,    "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Motion'],
         self::ILLUMINATION  => ["Ident" => "Illumination",   "Name" => "Helligkeit",             "BackupValue" => 240,      "Type" => VARIABLETYPE_INTEGER,  "Profile" => '~Illumination'],
-        self::VOLTAGE       => ["Ident" => "Voltage",        "Name" => "Versorgungsspannung",    "BackupValue" => 3.3,      "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Voltage'],
-        self::BUTTON        => ["Ident" => "Button",         "Name" => "Taster-Status",          "BackupValue" => false,    "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Button']
+        self::VOLTAGE       => ["Ident" => "Voltage",        "Name" => "Versorgungsspannung",    "BackupValue" => 3.3,      "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Volt'],
+        self::BUTTON        => ["Ident" => "Button",         "Name" => "Taster-Status",          "BackupValue" => false,    "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Switch']
     ];
 
     public const EEP_VARIABLE_PROFILES = 
