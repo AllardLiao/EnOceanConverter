@@ -111,6 +111,9 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 			case "checkSourceVariables":
 				$this->CheckSourceVariables(self::propertySourceDevice, self::propertyTargetEEP);
 				break;
+			case "showEepDefinition":
+				$this->ShowEepDefinition($this->ReadPropertyString(self::propertyTargetEEP));
+				break;
             default:
                 parent::RequestAction($ident, $value);
         }
