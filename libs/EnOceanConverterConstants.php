@@ -101,6 +101,7 @@ class GUIDs
      */
     public static function allTemperatureIpsGuids(): array
     {
+        return [];
         return [
             self::IPS_BUILDIN_A50401,
             self::IPS_BUILDIN_A50402,
