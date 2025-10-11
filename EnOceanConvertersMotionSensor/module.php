@@ -132,6 +132,16 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 		$ILL = $this->GetECValue(self::EEP_VARIABLES[self::ILLUMINATION]);
 		$TEMP = $this->GetECValue(self::EEP_VARIABLES[self::TEMPERATURE]);
 		$VOL = $this->GetECValue(self::EEP_VARIABLES[self::VOLTAGE]);
+		// Default-Werte, falls Variable nicht benötigt wird für gewähltes EEP (dann gibt es auch keinen Backup und der Wert wird bei Senden ignoriert)
+		if (!is_int($ILL)) {
+			$ILL = 0;
+		}
+		if (!is_float($TEMP)) {
+			$TEMP = 0.0;
+		}
+		if (!is_float($VOL)) {
+			$VOL = 0.0;
+		}
 		$this->UpdateFormField('ResultSendTest', 'caption', 'Send test telegram (PIR=' . $PIR . ', ILL=' . $ILL . 'lx, TEMP=' . $TEMP . '°C, VOLT=' . $VOL . 'V)');
 		$this->SendDebug(__FUNCTION__, "sending test: PIR=" . $PIR . ", ILL=" . $ILL . "lx, TEMP=" . $TEMP . "°C, VOLT=" . $VOL . "V", 0);
 		$this->SendEnOceanTelegram($PIR, $ILL, $TEMP, $VOL, false);
@@ -213,6 +223,16 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 			if ($varIdent === self::EEP_VARIABLES[self::VOLTAGE]['Ident']) {
 				$vol = $this->GetECValue(self::EEP_VARIABLES[$varIdent]);
 			}
+		}
+		// Default-Werte, falls Variable nicht benötigt wird für gewähltes EEP (dann gibt es auch keinen Backup und der Wert wird bei Senden ignoriert)
+		if (!is_int($ill)) {
+			$ill = 0;
+		}
+		if (!is_float($temp)) {
+			$temp = 0.0;
+		}
+		if (!is_float($vol)) {
+			$vol = 0.0;
 		}
 		$this->SendDebug(__FUNCTION__, 'Send telegram for ' . $this->InstanceID . '/' . $this->ReadPropertyInteger(self::propertyDeviceID) . ': temp=' . $temp . ', ill=' . $ill . ', pir=' . $pir . ', vol=' . $vol, 0);
 		$this->SendEnOceanTelegram($pir, $ill, $temp, $vol);
