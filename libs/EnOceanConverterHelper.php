@@ -321,9 +321,9 @@ trait DeviceIDHelper
     {
         $lines = ["Source variables checked..."];
         if (count($foundVars) == 0) {
-            $lines[] = ["\nNo variables found."];
+            $lines[] = "\nNo variables found.";
         } else {
-            $lines[] = ["\nFound variables:"];
+            $lines[] = "\nFound variables:";
             foreach ($foundVars as $idx => $var) {
                 $lines[] = sprintf(
                     "%d) %s (ID: %d)",
