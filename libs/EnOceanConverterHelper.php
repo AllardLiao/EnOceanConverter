@@ -220,7 +220,7 @@ class EEPConverter
         }
     }
 
-    private function FormatEepProfile(string $profile): string
+    static function FormatEepProfile(string $profile): string
     {
         if (!isset(self::PROFILE_DATA[$profile])) {
             return "Profile $profile is not defined.";
@@ -449,11 +449,11 @@ trait VariableHelper{
 		$foundVars = $this->GetActiveVariables($this->ReadPropertyString($propertyTargetEEP));
 		$this->ShowFormPopup($this->FormatFoundVariables($foundVars));
 	}
-    
+
 	private function ShowEepDefinition(string $propertyTargetEEP): void
 	{
-		// Popup mit EEP-Definition anzeigen
-		$this->ShowFormPopup($this->FormatEepProfile($propertyTargetEEP));
+        // Popup mit EEP-Definition anzeigen
+        $this->ShowFormPopup(EEPConverter::FormatEepProfile($propertyTargetEEP));
 	}
 }
 
