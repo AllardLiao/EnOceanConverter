@@ -342,7 +342,7 @@ trait VariableHelper{
     use EnOceanConverterConstants;
     // -----------------------------------------------
     // Interne Funktionen für den Zugriff auf die Variablen
-    private function getECValue(array $varIdent)               { return $this->GetValue(self::VAR_PREFIX . $varIdent['Ident']);}
+    private function getECValue(array $varIdent)               { return @$this->GetValue(self::VAR_PREFIX . $varIdent['Ident']);}
     private function setECValue(array $varIdent, $value): void { $this->SetValue(self::VAR_PREFIX . $varIdent['Ident'], $value); }
 
     // -----------------------------------------------
