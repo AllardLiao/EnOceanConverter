@@ -36,7 +36,7 @@
         },
         {
             "type": "RowLayout",
-            "name": "Target",
+            "name": "Source",
             "items": [
                 {
                     "type": "SelectInstance",
@@ -66,8 +66,6 @@
             ],
             "visible": true
         },
-
-
         {
             "type": "Select",
             "caption": "Target EEP",
