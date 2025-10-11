@@ -125,7 +125,7 @@
                     "onChange": "",
                     "suffix": "%",
                     "value": 40,
-                    "visible": true,
+                    "visible": <!---BACKUP_HUMIDITY_VISIBLE-->,
                     "width": "300px"
                 },
                 {
@@ -137,7 +137,7 @@
                     "name": "BackupMotion",
                     "onChange": "",
                     "value": false,
-                    "visible": true,
+                    "visible": <!---BACKUP_MOTION_VISIBLE-->,
                     "width": "300px"
                 },
                 {
@@ -153,7 +153,7 @@
                     "onChange": "",
                     "suffix": "lx",
                     "value": 240,
-                    "visible": true,
+                    "visible": <!---BACKUP_ILLUMINATION_VISIBLE-->,
                     "width": "300px"
                 },
                 {
@@ -169,7 +169,7 @@
                     "onChange": "",
                     "suffix": "V",
                     "value": 3.3,
-                    "visible": true,
+                    "visible": <!---BACKUP_VOLTAGE_VISIBLE-->,
                     "width": "300px"
                 },
                 {
@@ -181,7 +181,7 @@
                     "name": "BackupButton",
                     "onChange": "",
                     "value": false,
-                    "visible": true,
+                    "visible": <!---BACKUP_BUTTON_VISIBLE-->,
                     "width": "300px"
                 }
             ]
