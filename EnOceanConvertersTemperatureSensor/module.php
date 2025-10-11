@@ -108,11 +108,26 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 			case "selectFreeDeviceID":
 				$this->UpdateFormField('DeviceID', 'value', $this->selectFreeDeviceID());
 				break;
+			case "checkSourceVariables":
+				$this->CheckSourceVariables();
+				break;
             default:
                 parent::RequestAction($ident, $value);
         }
     }
 
+	private function CheckSourceVariables(): void
+	{
+		$sourceID = $this->ReadPropertyInteger(self::propertySourceDevice);
+		if ($sourceID == 0) {
+			return;
+		}
+		$this->analyseSourceAndWriteIdToBuffers($sourceID);
+		// Backup-Formularfelder ein-/ausblenden in Abhängigkeit von der Source und dem Target-EEP
+		$foundVars = $this->GetActiveVariables($this->ReadPropertyString(self::propertyTargetEEP));
+		$this->ShowFormPopup("Source variables checked. Found variables:\n" . implode("\n", $foundVars));
+		
+	}
 	/**
 	 * Sendet ein Test-Telegramm mit den aktuellen Werten der Quell-Variablen
 	 */

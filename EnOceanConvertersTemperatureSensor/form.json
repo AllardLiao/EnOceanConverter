@@ -33,20 +33,41 @@
                 }
             ],
             "visible": true
-        },        
-        {
-            "type": "SelectInstance",
-            "caption": "Source Device",
-            "download": "",
-            "enabled": true,
-            "link": false,
-            "name": "SourceDevice",
-            "onChange": "",
-            "validModules": <!---VALID_MODULES-->,
-            "value": 0,
-            "visible": true,
-            "width": "600px"
         },
+        {
+            "type": "RowLayout",
+            "name": "Target",
+            "items": [
+                {
+                    "type": "SelectInstance",
+                    "caption": "Source Device",
+                    "download": "",
+                    "enabled": true,
+                    "link": false,
+                    "name": "SourceDevice",
+                    "onChange": "",
+                    "validModules": <!---VALID_MODULES-->,
+                    "value": 0,
+                    "visible": true,
+                    "width": "600px"
+                },                
+                {
+                    "type": "Button",
+                    "caption": "Check source variables",
+                    "confirm": "",
+                    "download": "",
+                    "enabled": true,
+                    "link": false,
+                    "name": "",
+                    "onClick": "IPS_RequestAction($id,'checkSourceVariables', true);",
+                    "visible": true,
+                    "width": ""
+                }
+            ],
+            "visible": true
+        },
+
+
         {
             "type": "Select",
             "caption": "Target EEP",
@@ -241,6 +262,21 @@
                 }
             ],
             "visible": true
+        },
+        {
+            "name": "EchoPopup",
+            "type": "PopupAlert",
+            "visible": false,
+            "popup": {
+                "closeCaption": "OK",
+                "items": [
+                    {
+                        "type": "Label",
+                        "name": "EchoPopupMessage",
+                        "caption": ""
+                    }
+                ]
+            }
         }
     ],
     "status": [

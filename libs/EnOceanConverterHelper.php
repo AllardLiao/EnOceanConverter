@@ -273,6 +273,14 @@ trait DeviceIDHelper
 		for($ID = 1; $ID<=256; $ID++)if(!in_array($ID,$DeviceArray))break;
 		return $ID == 256?0:$ID;
 	}
+
+    private function ShowFormPopup(string $text): void
+    {
+        // 1) Caption des Labels im Popup setzen
+        $this->UpdateFormField("EchoPopupMessage", "caption", $text);
+        // 2) Popup öffnen
+        $this->UpdateFormField("EchoPopup", "visible", true);
+    }    
 }
 
 trait VariableHelper{
@@ -410,6 +418,29 @@ trait BufferHelper{
             $ident = $variableDef['Ident'];
             $bufferValue = $this->getECBuffer(self::EEP_VARIABLES[$ident]);
             $result[$ident] = ($bufferValue !== "0");
+        }
+        return $result;
+    }
+
+    private function GetActiveVariables(string $eepProfile): array
+    {
+        $result = [];
+        $index  = 1;
+        // alle Variablen, die zu diesem Profil gehören
+        if (!isset(self::EEP_VARIABLE_PROFILES[$eepProfile])) {
+            return $result;
+        }
+        foreach (self::EEP_VARIABLE_PROFILES[$eepProfile] as $variableDef) {
+            $ident = $variableDef['Ident'];
+            $bufferValue = $this->GetBuffer('buffer' . $ident);
+            // nur wenn Buffer != "0"
+            if ($bufferValue !== "0" && $bufferValue !== null) {
+                $varID = @IPS_GetObjectIDByIdent($ident, $this->InstanceID);
+                $result[$index++] = [
+                    "Ident" => $ident,
+                    "VarID" => $varID
+                ];
+            }
         }
         return $result;
     }
