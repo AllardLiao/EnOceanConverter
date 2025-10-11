@@ -81,7 +81,8 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		// Backup-Formularfelder ein-/ausblenden in Abhängigkeit von der Source und dem Target-EEP
 		$formFields = $this->checkECBuffersVsEepProfile($this->ReadPropertyString(self::propertyTargetEEP));
 		foreach ($formFields as $field => $visible) {
-			$this->UpdateFormField(self::PROP_PREFIX_BACKUP . $field, 'visible', (!$visible ? 'true' : 'false'));
+			$this->UpdateFormField("BackupValues", "items." . self::PROP_PREFIX_BACKUP . $field . ".visible", (!$visible ? 'true' : 'false'));
+			//$this->UpdateFormField(self::PROP_PREFIX_BACKUP . $field, 'visible', (!$visible ? 'true' : 'false'));
 		}
 		// Status setzen
 		if ($status == 102) {
@@ -161,11 +162,6 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 				$this->SetTimerInterval(self::timerPrefix . $this->InstanceID, 2 * 1000);
 			}
 		}
-		// Backup-Formularfelder ein-/ausblenden in Abhängigkeit von der Source und dem Target-EEP
-		$formFields = $this->checkECBuffersVsEepProfile($this->ReadPropertyString(self::propertyTargetEEP));
-		foreach ($formFields as $field => $visible) {
-			$this->UpdateFormField(self::PROP_PREFIX_BACKUP . $field, 'visible', (!$visible ? 'true' : 'false'));
-		}		
     }
 
 	public function SendTelegramDelayed()
