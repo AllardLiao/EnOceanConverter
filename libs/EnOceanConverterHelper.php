@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace EnOceanConverter;
 
+use EnOceanConverter\EnOceanConverterConstants;
+
+
 class EEPConverter
 {
     private const PROFILE_DATA = [
@@ -274,72 +277,7 @@ trait DeviceIDHelper
 }
 
 trait VariableHelper{
-
-    // Einheitliches Prefix für alle Variablen:
-    private const VAR_PREFIX = "Variable";
-    private const PROP_PREFIX_BACKUP = "Backup";
-
-    // Verwaltete Variablen (Im Code NUR Constanten verwenden!):
-    private const HUMIDITY = "Humidity";
-    private const TEMPERATURE = "Temperature";
-    private const MOTION = "Motion";
-    private const ILLUMINATION = "Illumination";
-    private const VOLTAGE = "Voltage";
-    private const BUTTON = "Button";
-
-    // Einheitliche Idents und Namen für die Variablen, die in EEP Protokollen benötigt werden, in allen Modulen:
-    public const EEP_VARIABLES = [
-        self::HUMIDITY      => ["Ident" => "Humidity",       "Name" => "Luftfeuchtigkeit",       "BackupValue" => 40.0,     "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Humidity.F'],
-        self::TEMPERATURE   => ["Ident" => "Temperature",    "Name" => "Temperatur",             "BackupValue" => 20.0,     "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Temperature'],
-        self::MOTION        => ["Ident" => "Motion",         "Name" => "PIR-Status",             "BackupValue" => false,    "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Motion'],
-        self::ILLUMINATION  => ["Ident" => "Illumination",   "Name" => "Helligkeit",             "BackupValue" => 240,      "Type" => VARIABLETYPE_INTEGER,  "Profile" => '~Illumination'],
-        self::VOLTAGE       => ["Ident" => "Voltage",        "Name" => "Versorgungsspannung",    "BackupValue" => 3.3,      "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Volt'],
-        self::BUTTON        => ["Ident" => "Button",         "Name" => "Taster-Status",          "BackupValue" => false,    "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Switch']
-    ];
-
-    public const EEP_VARIABLE_PROFILES = 
-    [
-        EEPProfiles::A5_02_13 => [
-            self::EEP_VARIABLES[self::TEMPERATURE]
-        ],
-        EEPProfiles::A5_04_01 => [
-            self::EEP_VARIABLES[self::TEMPERATURE], self::EEP_VARIABLES[self::HUMIDITY]
-        ],
-        EEPProfiles::A5_04_02 => [
-            self::EEP_VARIABLES[self::TEMPERATURE], self::EEP_VARIABLES[self::HUMIDITY]
-        ],
-        EEPProfiles::A5_04_03 => [
-            self::EEP_VARIABLES[self::TEMPERATURE], self::EEP_VARIABLES[self::HUMIDITY]
-        ],
-        EEPProfiles::A5_04_04 => [
-            self::EEP_VARIABLES[self::TEMPERATURE], self::EEP_VARIABLES[self::HUMIDITY]
-        ],
-        EEPProfiles::A5_07_01 => [
-            self::EEP_VARIABLES[self::MOTION], self::EEP_VARIABLES[self::VOLTAGE]
-        ],
-        EEPProfiles::A5_07_02 => [
-            self::EEP_VARIABLES[self::MOTION], self::EEP_VARIABLES[self::VOLTAGE]
-        ],
-        EEPProfiles::A5_07_03 => [
-            self::EEP_VARIABLES[self::MOTION], self::EEP_VARIABLES[self::ILLUMINATION], self::EEP_VARIABLES[self::VOLTAGE]
-        ],
-        EEPProfiles::A5_08_01 => [
-            self::EEP_VARIABLES[self::MOTION], self::EEP_VARIABLES[self::TEMPERATURE], self::EEP_VARIABLES[self::ILLUMINATION], self::EEP_VARIABLES[self::VOLTAGE], self::EEP_VARIABLES[self::BUTTON]
-        ],
-        EEPProfiles::A5_08_02 => [
-            self::EEP_VARIABLES[self::MOTION], self::EEP_VARIABLES[self::TEMPERATURE], self::EEP_VARIABLES[self::ILLUMINATION], self::EEP_VARIABLES[self::VOLTAGE], self::EEP_VARIABLES[self::BUTTON]
-        ],
-        EEPProfiles::A5_08_03 => [
-            self::EEP_VARIABLES[self::MOTION], self::EEP_VARIABLES[self::TEMPERATURE], self::EEP_VARIABLES[self::ILLUMINATION], self::EEP_VARIABLES[self::VOLTAGE], self::EEP_VARIABLES[self::BUTTON]
-        ],
-        EEPProfiles::A5_08_02 => [
-            self::EEP_VARIABLES[self::MOTION], self::EEP_VARIABLES[self::TEMPERATURE], self::EEP_VARIABLES[self::ILLUMINATION], self::EEP_VARIABLES[self::VOLTAGE], self::EEP_VARIABLES[self::BUTTON]
-        ],
-        EEPProfiles::A5_08_03 => [
-            self::EEP_VARIABLES[self::MOTION], self::EEP_VARIABLES[self::TEMPERATURE], self::EEP_VARIABLES[self::ILLUMINATION], self::EEP_VARIABLES[self::VOLTAGE], self::EEP_VARIABLES[self::BUTTON]
-        ]
-    ];
-    
+    use EnOceanConverterConstants;
     // -----------------------------------------------
     // Interne Funktionen für den Zugriff auf die Variablen
     private function getECValue(array $varIdent)               { return $this->GetValue(self::VAR_PREFIX . $varIdent['Ident']);}

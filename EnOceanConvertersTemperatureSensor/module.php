@@ -8,26 +8,22 @@ if (substr(__DIR__,0, 10) == "/Users/kai") {
     // Development
 	include_once __DIR__ . '/../.ips_stubs/autoload.php';
 }
-
+use EnOceanConverter\EEPProfiles;
+use EnOceanConverter\EEPConverter;
+use EnOceanConverter\GUIDs;
 /**
  * Include Controme helper classes.
  */
 require_once __DIR__ . '/../libs/EnOceanConverterConstants.php';
 require_once __DIR__ . '/../libs/EnOceanConverterHelper.php';
 
-use EnOceanConverter\BufferHelper;
-use EnOceanConverter\DeviceIDHelper;
-use EnOceanConverter\EEPProfiles;
-use EnOceanConverter\EEPConverter;
-use EnOceanConverter\GUIDs;
-use EnOceanConverter\MessagesHelper;
-use EnOceanConverter\VariableHelper;
 class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 {
-	use MessagesHelper;
-	use DeviceIDHelper;
-	use VariableHelper;
-	use BufferHelper;
+	use EnOceanConverter\MessagesHelper;
+	use EnOceanConverter\VariableHelper;
+	use EnOceanConverter\BufferHelper;
+	use EnOceanConverter\DeviceIDHelper;
+	use EnOceanConverter\EnOceanConverterConstants;
 
 	private const propertyDeviceID = "DeviceID";
 	private const propertySourceDevice = "SourceDevice";
