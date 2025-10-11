@@ -400,6 +400,23 @@ trait VariableHelper{
 			}
 		}
     }
+
+	private function CheckSourceVariables(string $propertySourceDevice, string $propertyTargetEEP): void
+	{
+		$sourceID = $this->ReadPropertyInteger($propertySourceDevice);
+		if ($sourceID == 0) {
+			return;
+		}
+		$this->analyseSourceAndWriteIdToBuffers($sourceID);
+		// Backup-Formularfelder ein-/ausblenden in Abhängigkeit von der Source und dem Target-EEP
+		$formFields = $this->checkECBuffersVsEepProfile($this->ReadPropertyString($propertyTargetEEP));
+		foreach ($formFields as $field => $visible) {
+			$this->UpdateFormField(self::PROP_PREFIX_BACKUP . $field, 'visible', (!$visible ? 'true' : 'false'));
+		}
+		// Popup mit gefundenen Variablen anzeigen
+		$foundVars = $this->GetActiveVariables($this->ReadPropertyString($propertyTargetEEP));
+		$this->ShowFormPopup($this->FormatFoundVariables($foundVars));
+	}
 }
 
 trait BufferHelper{

@@ -108,11 +108,15 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 			case "selectFreeDeviceID":
 				$this->UpdateFormField('DeviceID', 'value', $this->selectFreeDeviceID());
 				break;
+			case "checkSourceVariables":
+				$this->CheckSourceVariables(self::propertySourceDevice, self::propertyTargetEEP);
+				break;
             default:
                 parent::RequestAction($ident, $value);
         }
     }
 
+	
 	/**
 	 * Sendet ein Test-Telegramm mit den aktuellen Werten der Quell-Variablen
 	 */
