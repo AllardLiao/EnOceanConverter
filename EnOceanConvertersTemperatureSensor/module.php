@@ -125,6 +125,11 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		$this->analyseSourceAndWriteIdToBuffers($sourceID);
 		// Backup-Formularfelder ein-/ausblenden in Abhängigkeit von der Source und dem Target-EEP
 		$foundVars = $this->GetActiveVariables($this->ReadPropertyString(self::propertyTargetEEP));
+		$formFields = $this->checkECBuffersVsEepProfile($this->ReadPropertyString(self::propertyTargetEEP));
+		// Backup-Felder ein-/Ausblenden
+		foreach ($formFields as $field => $visible) {
+			$this->UpdateFormField(self::PROP_PREFIX_BACKUP . $field, 'visible', (!$visible ? 'true' : 'false'));
+		}
 		$this->ShowFormPopup($this->FormatFoundVariables($foundVars));
 	}
 	/**
