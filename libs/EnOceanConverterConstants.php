@@ -16,6 +16,7 @@ trait EnOceanConverterConstants{
     private const ILLUMINATION = "Illumination";
     private const VOLTAGE = "Voltage";
     private const BUTTON = "Button";
+    private const CONTACT = "Contact";
 
     // Einheitliche Idents und Namen für die Variablen, die in EEP Protokollen benötigt werden, in allen Modulen:
     public const EEP_VARIABLES = [
@@ -133,6 +134,8 @@ class GUIDs
 }
 class EEPProfiles
 {
+    // D5-00: Contacts and Switches
+    public const D5_00_01 = 'D5-00-01'; /** Range: 0..1 (1 Bit) */
     // A5-02: Temperature Sensors
     public const A5_02_13 = 'A5-02-13'; /** Range: -30°C to +50°C (8 Bit) */
     
@@ -185,6 +188,17 @@ class EEPProfiles
         ];
     }
 
+    /**
+     * Liefert alle Contact-Profile als Array
+     *
+     * @return string[]
+     */
+    public static function allContactProfiles(): array
+    {
+        return [
+            self::D5_00_01
+        ];
+    }
     /**
      * Liefert alle unterstützten EEP als Json für die Options-Liste im Formular
      */
