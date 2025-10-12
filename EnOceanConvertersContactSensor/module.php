@@ -240,7 +240,7 @@ class EnOceanConvertersContactSensor extends IPSModuleStrict
         // Json Template laden & Platzhalter ersetzen
         $form = file_get_contents(__DIR__ . '/form.json');
         // Unterstützte Devices einfügnen
-		$validModules = GUIDs::allTemperatureIpsGuids();
+		$validModules = GUIDs::allContactIpsGuids();
 		$form = str_replace('<!---VALID_MODULES-->', json_encode($validModules), $form);
 		$form = str_replace('<!---VALID_EEP_OPTIONS-->', EEPProfiles::createFormularJsonFromAvailableEEP(EEPProfiles::allTemperatureProfiles()), $form);
 		$form = str_replace('<!---BACKUP_TEMPERATURE_VISIBLE-->', ($this->getECBuffer(self::EEP_VARIABLES[self::TEMPERATURE])==="0" ? 'true' : 'false'), $form);
@@ -249,6 +249,7 @@ class EnOceanConvertersContactSensor extends IPSModuleStrict
 		$form = str_replace('<!---BACKUP_ILLUMINATION_VISIBLE-->', ($this->getECBuffer(self::EEP_VARIABLES[self::ILLUMINATION])==="0" ? 'true' : 'false'), $form);
 		$form = str_replace('<!---BACKUP_VOLTAGE_VISIBLE-->', ($this->getECBuffer(self::EEP_VARIABLES[self::VOLTAGE])==="0" ? 'true' : 'false'), $form);
 		$form = str_replace('<!---BACKUP_BUTTON_VISIBLE-->', ($this->getECBuffer(self::EEP_VARIABLES[self::BUTTON])==="0" ? 'true' : 'false'), $form);
+		$form = str_replace('<!---BACKUP_CONTACT_VISIBLE-->', ($this->getECBuffer(self::EEP_VARIABLES[self::CONTACT])==="0" ? 'true' : 'false'), $form);
 		return $form;
 	}
 }
