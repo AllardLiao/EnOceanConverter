@@ -17,7 +17,7 @@ use EnOceanConverter\GUIDs;
 require_once __DIR__ . '/../libs/EnOceanConverterConstants.php';
 require_once __DIR__ . '/../libs/EnOceanConverterHelper.php';
 
-class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
+class EnOceanConvertersContactSensor extends IPSModuleStrict
 {
 	use EnOceanConverter\MessagesHelper;
 	use EnOceanConverter\VariableHelper;
@@ -30,7 +30,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 	private const propertyTargetEEP = "TargetEEP";
 	private const propertyResendActive = "ResendActive";
 
-	private const timerPrefix = "ECTSSendDelayed";
+	private const timerPrefix = "ECCSSendDelayed";
 
 	public function Create():void
 	{
@@ -38,7 +38,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		parent::Create();
 		// Modul-Properties anlegen
 		$this->RegisterPropertyInteger(self::propertySourceDevice, 0);
-		$this->RegisterPropertyString(self::propertyTargetEEP, EEPProfiles::A5_04_01);
+		$this->RegisterPropertyString(self::propertyTargetEEP, EEPProfiles::D5_00_01);
 		$this->RegisterPropertyBoolean(self::propertyResendActive, false);
 		$this->RegisterPropertyInteger(self::propertyDeviceID, 0);
 		//Alle Backup-Werte als Property anlegen
@@ -123,15 +123,10 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 			$this->UpdateFormField('ResultSendTest', 'caption', 'Please select Device ID first!');
 			return;
 		}
-		$temp = $this->GetECValue(self::EEP_VARIABLES[self::TEMPERATURE]);   // °C
-		$hum  = $this->GetECValue(self::EEP_VARIABLES[self::HUMIDITY]);   // %
-		// Default-Werte, falls Variable nicht benötigt wird für gewähltes EEP (dann gibt es auch keinen Backup und der Wert wird bei Senden ignoriert)
-		if (!is_float($hum)) {
-			$hum = 0.0;
-		}
-		$this->UpdateFormField('ResultSendTest', 'caption', 'Send test telegram (Temp=' . $temp . '°C, Hum=' . $hum . '%)');
-		$this->SendDebug(__FUNCTION__, "sending test: temp=" . $temp . ", hum=" . $hum, 0);
-		$this->SendEnOceanTelegram($temp, $hum, false);
+		$contact = $this->GetECValue(self::EEP_VARIABLES[self::CONTACT]);   // °C
+		$this->UpdateFormField('ResultSendTest', 'caption', 'Send test telegram (Contact=' . ($contact ? "closed" : "open") . ')');
+		$this->SendDebug(__FUNCTION__, "sending test: contact=" . $contact, 0);
+		$this->SendEnOceanTelegram($contact, false);
 	}
 
 	/**
@@ -143,28 +138,23 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 			$this->UpdateFormField('ResultTeachIn', 'caption', 'Please select Device ID first!');
 			return;
 		}
-		$temp = 18.6;   // °C
-		$hum  = 68.1;   // %
-		$this->UpdateFormField('ResultTeachIn', 'caption', 'Send teach-in telegram (with Temp=' . $temp . '°C, Hum=' . $hum . '%)');
-		$this->SendDebug(__FUNCTION__, "sending teach-in with: temp=" . $temp . ", hum=" . $hum, 0);
-		$this->SendEnOceanTelegram($temp, $hum, true);
+		$contact = true;   // closed
+		$this->UpdateFormField('ResultTeachIn', 'caption', 'Send teach-in telegram (with Contact=' . ($contact ? "closed" : "open") . ')');
+		$this->SendDebug(__FUNCTION__, "sending teach-in with: contact=" . $contact, 0);
+		$this->SendEnOceanTelegram($contact, true);
 	}
 
     public function MessageSink($TimeStamp, $SenderID, $Message, $Data): void
     {
 		$senderIdInt = (int)$SenderID;
-		$tempVarId   = (int)$this->GetECBuffer(self::EEP_VARIABLES[self::TEMPERATURE]);
-		$humVarId    = (int)$this->GetECBuffer(self::EEP_VARIABLES[self::HUMIDITY]);
-		$this->SendDebug(__FUNCTION__, "sender={$senderIdInt} (tempVar={$tempVarId}, humVar={$humVarId}) with DATA-0: " . print_r($Data[0], true), 0);
+		$contactVarId   = (int)$this->GetECBuffer(self::EEP_VARIABLES[self::CONTACT]);
+		$this->SendDebug(__FUNCTION__, "sender={$senderIdInt} (contactVar={$contactVarId}) with DATA-0: " . print_r($Data[0], true), 0);
 		// Save received values in own variables
 		if ($Message == VM_UPDATE) {
 			$value = $Data[0];
 			// Wert entsprechend zuordnen
-			if ($senderIdInt === $tempVarId) {
+			if ($senderIdInt === $contactVarId) {
 				$this->SetECValue(self::EEP_VARIABLES[self::TEMPERATURE], (float)$value);
-			}
-			if ($senderIdInt === $humVarId) {
-				$this->SetECValue(self::EEP_VARIABLES[self::HUMIDITY], (float)$value);
 			}
 			// Timer setzen (2 Sekunden warten, dann send) - verhindert das doppelte Senden des Telegramms, wenn beide Variablen fast gleichzeitig aktualisiert werden
             if ($this->ReadPropertyBoolean(self::propertyResendActive)) {
@@ -176,23 +166,15 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 	public function SendTelegramDelayed()
 	{
 		$this->SetTimerInterval(self::timerPrefix . $this->InstanceID, 0); // Timer wieder stoppen
-		$temp = 0.0;
-		$hum  = 0.0;
+		$contact = true;
 		$variables = self::EEP_VARIABLE_PROFILES[$this->ReadPropertyString(self::propertyTargetEEP)];
 		foreach ($variables as $varIdent => $definition) {
-			if ($varIdent === self::EEP_VARIABLES[self::TEMPERATURE]['Ident']) {
-				$temp = $this->GetECValue(self::EEP_VARIABLES[$varIdent]);
-			}
-			if ($varIdent === self::EEP_VARIABLES[self::HUMIDITY]['Ident']) {
-				$hum = $this->GetECValue(self::EEP_VARIABLES[$varIdent]);
+			if ($varIdent === self::EEP_VARIABLES[self::CONTACT]['Ident']) {
+				$contact = $this->GetECValue(self::EEP_VARIABLES[$varIdent]);
 			}
 		}
-		// Default-Werte, falls Variable nicht benötigt wird für gewähltes EEP (dann gibt es auch keinen Backup und der Wert wird bei Senden ignoriert)
-		if (!is_float($hum)) {
-			$hum = 0.0;
-		}
-		$this->SendDebug(__FUNCTION__, 'Send telegram for ' . $this->InstanceID . '/' . $this->ReadPropertyInteger(self::propertyDeviceID) . ': temp=' . $temp . ', hum=' . $hum, 0);
-		$this->SendEnOceanTelegram($temp, $hum);
+		$this->SendDebug(__FUNCTION__, 'Send telegram for ' . $this->InstanceID . '/' . $this->ReadPropertyInteger(self::propertyDeviceID) . ': contact=' . $contact, 0);
+		$this->SendEnOceanTelegram($contact);
 	}
 
 	private function isGatewayActive(): bool
@@ -206,7 +188,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 	}
 
 	// SendEnOceanTelegram: sanitizing device id + sauberes Packing mit encode*-Funktionen
-	private function SendEnOceanTelegram(float $temperature, float $humidity, bool $teachIn = false): void
+	private function SendEnOceanTelegram(bool $contact, bool $teachIn = false): void
 	{
 		if (!$this->isGatewayActive()) {
 			$this->SendDebug(__FUNCTION__, 'Gateway nicht verbunden oder nicht aktiv - Telegramm nicht gesendet.', 0);
@@ -215,71 +197,27 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 
 		$targetEEP  = $this->ReadPropertyString(self::propertyTargetEEP);
 
-		// Parameter in Ziel-Protokoll umwandeln
-		try {
-			$rawTemp = EEPConverter::encodeTemperature($targetEEP, $temperature);
-			$rawHum  = EEPConverter::encodeHumidity($targetEEP, $humidity);
-		} catch (\Exception $e) {
-			$this->SendDebug(__FUNCTION__, 'Encode Fehler: ' . $e->getMessage(), 0);
-			return;
-		}
-
 		$data = EEPProfiles::gatewayBaseData();
 		$data['DeviceID'] = $this->ReadPropertyInteger(self::propertyDeviceID); 
-		$DB0 = 8;
-		$DB1 = 0;
-		$DB2 = 0;
-		$DB3 = 0;
-		if ($teachIn) {
-			$DB0 = 0; // Status-Byte = Teach-in
-		}
+		$data['Device'] = 213; // 0xD5 = Contacts and Switches
+		$data['DataLength'] = 1; //1BS Kommunikation
+		$DB0 = 0;
 
 		switch ($targetEEP) {
-			case EEPProfiles::A5_02_13: // 8 Bit Temp
-				// Temperatur linear auf 0...255 skaliert, aber invertiert
-				// Formel aus Spec: val = (255 - raw) * (Range / 255) + Tmin
-				// Umkehrung zum Kodieren:
-				// raw = 255 - round((TEMP - Tmin) * 255 / Range)
-				$Tmin = -30.0;
-				$Tmax = 50.0;
-				$range = $Tmax - $Tmin; // 80 K
-				$rawTemp = 255 - (int)round((($temperature - $Tmin) * 255) / $range);
-				if ($rawTemp < 0) $rawTemp = 0;
-				if ($rawTemp > 255) $rawTemp = 255;
-				$DB1 = $rawTemp;
+			case EEPProfiles::D5_00_01: // 1 Bit contact
+				// Contact: 0=open, 1=closed
+				$rawContact = $contact ? 1 : 0;
+				// LRN Bit: 0=pressed (teach-in), 1=not pressed (data telegram)
 				$lrnBit = $teachIn ? 0 : 1;
-				$DB0 = ($lrnBit << 3); // Bit 3 = LRN, Rest 0
+				// Byte DB0 zusammensetzen
+				$DB0 |= ($lrnBit << 3);      // Bit 3
+				$DB0 |= ($rawContact << 0);  // Bit 0
 				break;
-			case EEPProfiles::A5_04_01: // 8 Bit Temp, 8 Bit Hum
-			case EEPProfiles::A5_04_02: // 8 Bit Temp, 8 Bit Hum
-				$DB1 = ((int)$rawTemp) & 0xFF;
-				$DB2 = ((int)$rawHum) & 0xFF;
-				break;
-
-			case EEPProfiles::A5_04_03: // 10 Bit Temp, 7 Bit Hum
-				$rawTempFull = (int)$rawTemp; // 0..1023
-				$rawHum7     = (int)$rawHum;  // 0..127
-				$DB3 = $rawTempFull & 0xFF;                // low 8 bits
-				$upper2 = ($rawTempFull >> 8) & 0x03;      // upper 2 bits (0..3)
-				// DB2: bits 0..6 = humidity (7 bit), bits 7..6 = upper2  -> shift left by 6
-				$DB2 = ($rawHum7 & 0x7F) | (($upper2 & 0x03) << 6);
-				break;
-
-			case EEPProfiles::A5_04_04: // 12 Bit Temp, 8 Bit Hum
-				$rawTemp12 = (int)$rawTemp; // 0..4095
-				$DB3 = $rawTemp12 & 0xFF;            // lower 8 bit
-				$DB2 = ((int)$rawHum) & 0xFF;        // humidity full 8 bit
-				$DB1 = ($rawTemp12 >> 8) & 0x0F;     // upper 4 bit of 12-bit temp into DB1
-				break;
-
 			default:
 				$this->SendDebug(__FUNCTION__, 'Unknown TargetEEP: ' . $targetEEP, 0);
 				return;
 		}
 		$data['DataByte0'] = $DB0;
-		$data['DataByte1'] = $DB1;
-		$data['DataByte2'] = $DB2;
-		$data['DataByte3'] = $DB3;
 
 		try {
 			@$this->SendDataToParent(json_encode($data));
@@ -293,15 +231,16 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
         // Json Template laden & Platzhalter ersetzen
         $form = file_get_contents(__DIR__ . '/form.json');
         // Unterstützte Devices einfügnen
-		$validModules = GUIDs::allTemperatureIpsGuids();
+		$validModules = GUIDs::allContactIpsGuids();
 		$form = str_replace('<!---VALID_MODULES-->', json_encode($validModules), $form);
-		$form = str_replace('<!---VALID_EEP_OPTIONS-->', EEPProfiles::createFormularJsonFromAvailableEEP(EEPProfiles::allTemperatureProfiles()), $form);
+		$form = str_replace('<!---VALID_EEP_OPTIONS-->', EEPProfiles::createFormularJsonFromAvailableEEP(EEPProfiles::allContactProfiles()), $form);
 		$form = str_replace('<!---BACKUP_TEMPERATURE_VISIBLE-->', ($this->getECBuffer(self::EEP_VARIABLES[self::TEMPERATURE])==="0" ? 'true' : 'false'), $form);
 		$form = str_replace('<!---BACKUP_HUMIDITY_VISIBLE-->', ($this->getECBuffer(self::EEP_VARIABLES[self::HUMIDITY])==="0" ? 'true' : 'false'), $form);
 		$form = str_replace('<!---BACKUP_MOTION_VISIBLE-->', ($this->getECBuffer(self::EEP_VARIABLES[self::MOTION])==="0" ? 'true' : 'false'), $form);
 		$form = str_replace('<!---BACKUP_ILLUMINATION_VISIBLE-->', ($this->getECBuffer(self::EEP_VARIABLES[self::ILLUMINATION])==="0" ? 'true' : 'false'), $form);
 		$form = str_replace('<!---BACKUP_VOLTAGE_VISIBLE-->', ($this->getECBuffer(self::EEP_VARIABLES[self::VOLTAGE])==="0" ? 'true' : 'false'), $form);
 		$form = str_replace('<!---BACKUP_BUTTON_VISIBLE-->', ($this->getECBuffer(self::EEP_VARIABLES[self::BUTTON])==="0" ? 'true' : 'false'), $form);
+		$form = str_replace('<!---BACKUP_CONTACT_VISIBLE-->', ($this->getECBuffer(self::EEP_VARIABLES[self::CONTACT])==="0" ? 'true' : 'false'), $form);
 		return $form;
 	}
 }

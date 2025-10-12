@@ -7,6 +7,9 @@ Any sensor (instance) available in IP-Symcon can be used as a source.
 
 Currently supported EEPs:
 
+__Contacts and Switches__ ([Documentation](EnOceanConvertersContactSensor))
+* EnOcean EEP D5-00-01
+
 __Temperature Sensors__ ([Documentation](EnOceanConvertersTemperatureSensor))  
 * EnOcean EEP A5-02-13
 * EnOcean EEP A5-04-01

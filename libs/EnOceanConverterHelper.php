@@ -10,6 +10,7 @@ use EnOceanConverter\EnOceanConverterConstants;
 class EEPConverter
 {
     private const PROFILE_DATA = [
+        EEPProfiles::D5_00_01 => [  'contactNo' => 0, 'contactYes' => 1,    'bitsContact' => 1],
         EEPProfiles::A5_02_13 => [  'minTemp' => -30, 'maxTemp' => 50,      'bitsTemp' => 8],
         EEPProfiles::A5_04_01 => [  'minTemp' => 0,   'maxTemp' => 40,      'bitsTemp' => 8,
                                     'minHum' => 0,    'maxHum' => 100,      'bitsHum' => 8],
@@ -220,6 +221,24 @@ class EEPConverter
         }
     }
 
+    static function decodeContact(string $profile, int $raw): bool {
+        switch($profile) {
+            case EEPProfiles::D5_00_01:
+                return $raw == 1;
+            default:
+                return false;
+        }
+    }
+
+    static function encodeContact(string $profile, bool $contact): int {
+        switch ($profile) {
+            case EEPProfiles::D5_00_01:
+                return $contact ? 8 : 0; // DB0 Bit 3
+            default:
+                return 0;
+        }
+    }
+
     static function FormatEepProfile(string $profile): string
     {
         if (!isset(self::PROFILE_DATA[$profile])) {
@@ -248,6 +267,9 @@ class EEPConverter
                     break;
                 case 'minVolt':
                     $lines[] = "Voltage: {$data['minVolt']} … {$data['maxVolt']} V ({$data['bitsVolt']} bits)";
+                    break;
+                case 'contactNo':
+                    $lines[] = "Contact: {$data['contactNo']} = open, {$data['contactYes']} = closed ({$data['bitsContact']} bits)";
                     break;
             }
         }
@@ -464,6 +486,15 @@ trait VariableHelper{
                         @$this->setECValue(self::EEP_VARIABLES[self::HUMIDITY], GetValue($vid)); // Default-Wert setzen
                     } catch (\Exception $e) {
                         //$this->SendDebug(__FUNCTION__, "Fehler beim Setzen des Default-Werts für Humidity: " . $e->getMessage(), 0);
+                        //ok - dann wird die Var nicht benötigt.
+                    }
+				}
+				if (str_contains(strtoupper($vinfo['VariableProfile']), 'DOOR') || str_contains(strtoupper($vinfo['VariableProfile']), 'WINDOW') || str_contains(strtoupper($vinfo['VariableProfile']), 'LOCK') || str_contains(strtoupper($vinfo['VariableProfile']), 'CONTACT')) {
+					$this->SetECBuffer(self::EEP_VARIABLES[self::CONTACT], (string)$vid);
+                    try {
+                        @$this->setECValue(self::EEP_VARIABLES[self::CONTACT], GetValue($vid)); // Default-Wert setzen
+                    } catch (\Exception $e) {
+                        //$this->SendDebug(__FUNCTION__, "Fehler beim Setzen des Default-Werts für Contact: " . $e->getMessage(), 0);
                         //ok - dann wird die Var nicht benötigt.
                     }
 				}
