@@ -218,9 +218,8 @@ class EnOceanConvertersContactSensor extends IPSModuleStrict
 				// LRN Bit: 0=pressed (teach-in), 1=not pressed (data telegram)
 				$lrnBit = $teachIn ? 0 : 1;
 				// Byte DB0 zusammensetzen
-				$db0 = 0;
-				$db0 |= ($lrnBit << 3);      // Bit 3
-				$db0 |= ($rawContact << 0);  // Bit 0
+				$DB0 |= ($lrnBit << 3);      // Bit 3
+				$DB0 |= ($rawContact << 0);  // Bit 0
 				break;
 			default:
 				$this->SendDebug(__FUNCTION__, 'Unknown TargetEEP: ' . $targetEEP, 0);
