@@ -128,6 +128,7 @@ class GUIDs
      */
     public static function allOccupancyIpsGuids(): array
     {
+        return [];
         return [
             self::IPS_BUILDIN_A50701,
             self::IPS_BUILDIN_A50702,
@@ -145,6 +146,7 @@ class GUIDs
      */
     public static function allContactIpsGuids(): array
     {
+        return [];
         return [
             self::IPS_BUILDIN_D50001
         ];
