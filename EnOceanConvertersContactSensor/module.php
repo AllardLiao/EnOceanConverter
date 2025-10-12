@@ -197,14 +197,6 @@ class EnOceanConvertersContactSensor extends IPSModuleStrict
 
 		$targetEEP  = $this->ReadPropertyString(self::propertyTargetEEP);
 
-		// Parameter in Ziel-Protokoll umwandeln
-		try {
-			$rawContact = EEPConverter::encodeContact($targetEEP, $contact);
-		} catch (\Exception $e) {
-			$this->SendDebug(__FUNCTION__, 'Encode Fehler: ' . $e->getMessage(), 0);
-			return;
-		}
-
 		$data = EEPProfiles::gatewayBaseData();
 		$data['DeviceID'] = $this->ReadPropertyInteger(self::propertyDeviceID); 
 		$data['Device'] = 213; // 0xD5 = Contacts and Switches
