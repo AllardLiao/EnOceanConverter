@@ -188,9 +188,9 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 			}
 		}
 		// Default-Werte, falls Variable nicht benötigt wird für gewähltes EEP (dann gibt es auch keinen Backup und der Wert wird bei Senden ignoriert)
-		if (!is_int($hum)) {
-			$hum = 0;
-		}		
+		if (!is_float($hum)) {
+			$hum = 0.0;
+		}
 		$this->SendDebug(__FUNCTION__, 'Send telegram for ' . $this->InstanceID . '/' . $this->ReadPropertyInteger(self::propertyDeviceID) . ': temp=' . $temp . ', hum=' . $hum, 0);
 		$this->SendEnOceanTelegram($temp, $hum);
 	}
