@@ -126,9 +126,8 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		$temp = $this->GetECValue(self::EEP_VARIABLES[self::TEMPERATURE]);   // °C
 		$hum  = $this->GetECValue(self::EEP_VARIABLES[self::HUMIDITY]);   // %
 		// Default-Werte, falls Variable nicht benötigt wird für gewähltes EEP (dann gibt es auch keinen Backup und der Wert wird bei Senden ignoriert)
-		if (!is_int($hum)) {
-			$this->SendDebug(__FUNCTION__, "alterning hum=" . $hum . " to 0.", 0);
-			$hum = 0;
+		if (!is_float($hum)) {
+			$hum = 0.0;
 		}
 		$this->UpdateFormField('ResultSendTest', 'caption', 'Send test telegram (Temp=' . $temp . '°C, Hum=' . $hum . '%)');
 		$this->SendDebug(__FUNCTION__, "sending test: temp=" . $temp . ", hum=" . $hum, 0);
