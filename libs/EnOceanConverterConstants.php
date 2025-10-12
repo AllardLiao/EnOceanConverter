@@ -26,7 +26,7 @@ trait EnOceanConverterConstants{
         self::ILLUMINATION  => ["Ident" => "Illumination",   "Name" => "Helligkeit",             "BackupValue" => 240,      "Type" => VARIABLETYPE_INTEGER,  "Profile" => '~Illumination'],
         self::VOLTAGE       => ["Ident" => "Voltage",        "Name" => "Versorgungsspannung",    "BackupValue" => 3.3,      "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Volt'],
         self::BUTTON        => ["Ident" => "Button",         "Name" => "Taster-Status",          "BackupValue" => false,    "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Switch'],
-        self::CONTACT       => ["Ident" => "Contact",        "Name" => "Kontakt",                "BackupValue" => false,    "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Door']
+        self::CONTACT       => ["Ident" => "Contact",        "Name" => "Kontakt",                "BackupValue" => false,    "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Door.Reversed']
     ];
 
     public const EEP_VARIABLE_PROFILES = 

@@ -130,7 +130,7 @@ class EnOceanConvertersContactSensor extends IPSModuleStrict
 	}
 
 	/**
-	 * Sendet ein Teach-in-Telegramm mit Temperatur 18,6°C und Luftfeuchtigkeit 68,1%
+	 * Sendet ein Teach-in-Telegramm mit einem festen Wert (Kontakt geschlossen)
 	 */
 	public function sendTeachInTelegram(): void
 	{
@@ -154,7 +154,7 @@ class EnOceanConvertersContactSensor extends IPSModuleStrict
 			$value = $Data[0];
 			// Wert entsprechend zuordnen
 			if ($senderIdInt === $contactVarId) {
-				$this->SetECValue(self::EEP_VARIABLES[self::TEMPERATURE], (float)$value);
+				$this->SetECValue(self::EEP_VARIABLES[self::CONTACT], (float)$value);
 			}
 			// Timer setzen (2 Sekunden warten, dann send) - verhindert das doppelte Senden des Telegramms, wenn beide Variablen fast gleichzeitig aktualisiert werden
             if ($this->ReadPropertyBoolean(self::propertyResendActive)) {
