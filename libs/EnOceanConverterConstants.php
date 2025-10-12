@@ -25,11 +25,15 @@ trait EnOceanConverterConstants{
         self::MOTION        => ["Ident" => "Motion",         "Name" => "PIR-Status",             "BackupValue" => false,    "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Motion'],
         self::ILLUMINATION  => ["Ident" => "Illumination",   "Name" => "Helligkeit",             "BackupValue" => 240,      "Type" => VARIABLETYPE_INTEGER,  "Profile" => '~Illumination'],
         self::VOLTAGE       => ["Ident" => "Voltage",        "Name" => "Versorgungsspannung",    "BackupValue" => 3.3,      "Type" => VARIABLETYPE_FLOAT,    "Profile" => '~Volt'],
-        self::BUTTON        => ["Ident" => "Button",         "Name" => "Taster-Status",          "BackupValue" => false,    "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Switch']
+        self::BUTTON        => ["Ident" => "Button",         "Name" => "Taster-Status",          "BackupValue" => false,    "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Switch'],
+        self::CONTACT       => ["Ident" => "Contact",        "Name" => "Kontakt",                "BackupValue" => false,    "Type" => VARIABLETYPE_BOOLEAN,  "Profile" => '~Door']
     ];
 
     public const EEP_VARIABLE_PROFILES = 
     [
+        EEPProfiles::D5_00_01 => [
+            self::EEP_VARIABLES[self::CONTACT]
+        ],
         EEPProfiles::A5_02_13 => [
             self::EEP_VARIABLES[self::TEMPERATURE]
         ],
@@ -82,6 +86,7 @@ class GUIDs
     public const EC_LIBRARY           = '{63647422-FE17-88E4-252A-402E8E58C4AD}';
     public const EC_TEMPERATUR        = '{029B9532-A614-BBC3-B9D6-904F648DC5F1}';
     public const EC_MOTION            = '{62BFBBBC-589E-0613-1794-6D21F34DC54F}';
+    public const EC_CONTACT           = '{F512DF39-EE14-5CB5-DE38-71644EE5FE64}';
     // --- IPS BuildIn Variable Profile GUIDs ---
     public const IPS_BUILDIN_A50401   = '{432FF87E-4497-48D6-8ED9-EE7104A50401}';
     public const IPS_BUILDIN_A50402   = '{432FF87E-4497-48D6-8ED9-EE7104A50402}';
@@ -93,7 +98,8 @@ class GUIDs
     public const IPS_BUILDIN_A50801   = '{432FF87E-4497-48D6-8ED9-EE7104A50801}';
     public const IPS_BUILDIN_A50802   = '{432FF87E-4497-48D6-8ED9-EE7104A50802}';
     public const IPS_BUILDIN_A50803   = '{432FF87E-4497-48D6-8ED9-EE7104A50803}';
-    public const IPS_BUILDIN_FWS61    = '{9E4572C0-C306-4F00-B536-E75B4950F094}'; // A5-13-01
+    public const IPS_BUILDIN_FWS61    = '{9E4572C0-C306-4F00-B536-E75B4950F094}'; // A5-01-13
+    public const IPS_BUILDIN_D50001   = '{D4FC9D38-F7C7-8486-C940-AE5705A60E33}'; // D5-00-01
 
     /**
      * Liefert alle unterstützten Input-GUIDs für Temperaturen als Array
@@ -131,7 +137,20 @@ class GUIDs
             self::IPS_BUILDIN_A50803
         ];
     }
+
+    /**
+     * Liefert alle unterstützten EEP für Contact als Array
+     *
+     * @return string[]
+     */
+    public static function allContactIpsGuids(): array
+    {
+        return [
+            self::IPS_BUILDIN_D50001
+        ];
+    }
 }
+
 class EEPProfiles
 {
     // D5-00: Contacts and Switches
