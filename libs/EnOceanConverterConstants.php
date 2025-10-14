@@ -103,6 +103,8 @@ class GUIDs
 
     /**
      * Liefert alle unterstützten Input-GUIDs für Temperaturen als Array
+     * Momentan werden alle Instanzen erlaubt (Rückgabe leer)
+     * Dadurch kann auch ein nicht-EnOcean Device als Input dienen
      *
      * @return string[]
      */
@@ -123,6 +125,8 @@ class GUIDs
 
     /**
      * Liefert alle unterstützten EEP für Motion als Array
+     * Momentan werden alle Instanzen erlaubt (Rückgabe leer)
+     * Dadurch kann auch ein nicht-EnOcean Device als Input dienen
      *
      * @return string[]
      */
@@ -141,6 +145,8 @@ class GUIDs
 
     /**
      * Liefert alle unterstützten EEP für Contact als Array
+     * Momentan werden alle Instanzen erlaubt (Rückgabe leer)
+     * Dadurch kann auch ein nicht-EnOcean Device als Input dienen
      *
      * @return string[]
      */
@@ -159,25 +165,26 @@ class EEPProfiles
     public const D5_00_01 = 'D5-00-01'; /** Range: 0..1 (1 Bit) */
     // A5-02: Temperature Sensors
     public const A5_02_13 = 'A5-02-13'; /** Range: -30°C to +50°C (8 Bit) */
-    
     // A5-04: Temperature and Humidity Sensor
     public const A5_04_01 = 'A5-04-01'; /** Range: 0…40 °C (8 Bit),     0…100 % (8 Bit) */
     public const A5_04_02 = 'A5-04-02'; /** Range: -20…60 °C (8 Bit),   0…100 % (8 Bit) */
     public const A5_04_03 = 'A5-04-03'; /** Range: -20…60 °C (10 Bit),  0…100 % (7 Bit) */
     public const A5_04_04 = 'A5-04-04'; /** Range: -40…120 °C (12 Bit), 0…100 % (8 Bit) */
-
     // A5-07: Occupancy Sensor
     public const A5_07_01 = 'A5-07-01'; /** Range: 0...127 PIR off / 128-255 PIR on (8 Bit),    0..5 V (8 Bit) */
     public const A5_07_02 = 'A5-07-02'; /** Range: 0 Uncertain / 1 Motion detected (1 Bit),     0..5 V (8 Bit) */
     public const A5_07_03 = 'A5-07-03'; /** Range: 0 Uncertain / 1 Motion detected (1 Bit),     0..5 V (8 Bit),     0..1000 Lux (10 Bit) */
-    
     // A5-08: Light, Temperature and Occupancy Sensor
     public const A5_08_01 = 'A5-08-01'; /** Range: 0..1 Button (1 Bit), 0..1 PIR (1 Bit), 0..51°C (8 Bit),      0..510lx (8 Bit),  0..5,1V (8 Bit) */
     public const A5_08_02 = 'A5-08-02'; /** Range: 0..1 Button (1 Bit), 0..1 PIR (1 Bit), 0..51°C (8 Bit),      0..1020lx (8 Bit), 0..5,1V (8 Bit) */
     public const A5_08_03 = 'A5-08-03'; /** Range: 0..1 Button (1 Bit), 0..1 PIR (1 Bit), -30..50°C (10 Bit),   0..1530lx (8 Bit), 0..5,1V (8 Bit) */
-
+    // Device Types
+    public const DEVICE_TYPE = [
+        "A5" => 165,   // 0xA5 = Temperature & Motion Sensors
+        "D5" => 213    // 0xD5 = Contacts and Switches
+    ];
     /**
-     * Liefert alle Temperature-Profile als Array
+     * Liefert alle Temperature-EEP-Profile als Array
      *
      * @return string[]
      */
@@ -193,7 +200,7 @@ class EEPProfiles
     }
 
     /**
-     * Liefert alle Bewegungsmelder-Profile als Array
+     * Liefert alle Bewegungsmelder-EEP-Profile als Array
      *
      * @return string[]
      */
@@ -210,7 +217,7 @@ class EEPProfiles
     }
 
     /**
-     * Liefert alle Contact-Profile als Array
+     * Liefert alle Contact-EEP-Profile als Array
      *
      * @return string[]
      */
@@ -234,7 +241,11 @@ class EEPProfiles
         }
         return json_encode($result);
     }
-
+    /**
+     * Liefert Standard-JSON für Kommunikation mit Gateway
+     * Device = 165 = 0xA5 (e.g. Temperature & Motion Sensors)
+     * Device = 213 = 0xD5 (e.g. Contacts and Switches)
+     */
     private const GatewayBaseData      = '{
         "DataID":"' . GUIDS::DATAFLOW_TRANSMIT . '",
         "Device":165, 
