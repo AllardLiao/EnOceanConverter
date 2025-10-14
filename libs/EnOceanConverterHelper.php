@@ -583,20 +583,6 @@ trait BufferHelper{
 trait FormHelper{
     use EnOceanConverterConstants;
 
-    private function UpdateFormField(string $fieldName, string $property, mixed $value): void
-    {
-        $form = json_decode($this->GetConfigurationForParent(), true);
-        if (isset($form['elements'])) {
-            foreach ($form['elements'] as &$element) {
-                if (isset($element['name']) && $element['name'] === $fieldName) {
-                    $element[$property] = $value;
-                    break;
-                }
-            }
-            $this->SetConfigurationForParent(json_encode($form));
-        }
-    }
-
     private function ReplacePlaceholdersInForm(string $Form, array $validModules, array $validEEPOptions):string
     {
 		$Form = str_replace('"<!---VALID_MODULES-->"', json_encode($validModules), $Form);
