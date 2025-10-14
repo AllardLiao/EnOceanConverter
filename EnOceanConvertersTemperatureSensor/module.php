@@ -179,10 +179,10 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		$variables = self::EEP_VARIABLE_PROFILES[$this->ReadPropertyString(self::propertyTargetEEP)];
 		foreach ($variables as $varIdent => $definition) {
 			if ($definition["Ident"] === self::EEP_VARIABLES[self::TEMPERATURE]['Ident']) {
-				$temp = $this->GetECValue($definition["Ident"]);
+				$temp = $this->GetECValue($definition);
 			}
 			if ($definition["Ident"] === self::EEP_VARIABLES[self::HUMIDITY]['Ident']) {
-				$hum = $this->GetECValue($definition["Ident"]);
+				$hum = $this->GetECValue($definition);
 			}
 		}
 		// Default-Werte, falls Variable nicht benötigt wird für gewähltes EEP (dann gibt es auch keinen Backup und der Wert wird bei Senden ignoriert)
