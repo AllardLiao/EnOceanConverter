@@ -46,7 +46,7 @@
                     "link": false,
                     "name": "SourceDevice",
                     "onChange": "",
-                    "validModules": <!---VALID_MODULES-->,
+                    "validModules": "<!---VALID_MODULES-->",
                     "value": 0,
                     "visible": true,
                     "width": "450px"
@@ -65,7 +65,7 @@
                     "enabled": true,
                     "link": false,
                     "name": "TargetEEP",
-                    "options": <!---VALID_EEP_OPTIONS-->,
+                    "options": "<!---VALID_EEP_OPTIONS-->",
                     "onChange": "",
                     "value": "A5-04-02",
                     "visible": true,
@@ -103,7 +103,7 @@
                     "onChange": "",
                     "suffix": "°C",
                     "value": 20,
-                    "visible": <!---BACKUP_TEMPERATURE_VISIBLE-->,
+                    "visible": "<!---BACKUP_TEMPERATURE_VISIBLE-->",
                     "width": "300px"
                 },
                 {
@@ -119,7 +119,7 @@
                     "onChange": "",
                     "suffix": "%",
                     "value": 40,
-                    "visible": <!---BACKUP_HUMIDITY_VISIBLE-->,
+                    "visible": "<!---BACKUP_HUMIDITY_VISIBLE-->",
                     "width": "300px"
                 },
                 {
@@ -131,7 +131,7 @@
                     "name": "BackupMotion",
                     "onChange": "",
                     "value": false,
-                    "visible": <!---BACKUP_MOTION_VISIBLE-->,
+                    "visible": "<!---BACKUP_MOTION_VISIBLE-->",
                     "width": "300px"
                 },
                 {
@@ -147,7 +147,7 @@
                     "onChange": "",
                     "suffix": "lx",
                     "value": 240,
-                    "visible": <!---BACKUP_ILLUMINATION_VISIBLE-->,
+                    "visible": "<!---BACKUP_ILLUMINATION_VISIBLE-->",
                     "width": "300px"
                 },
                 {
@@ -163,7 +163,7 @@
                     "onChange": "",
                     "suffix": "V",
                     "value": 3.3,
-                    "visible": <!---BACKUP_VOLTAGE_VISIBLE-->,
+                    "visible": "<!---BACKUP_VOLTAGE_VISIBLE-->",
                     "width": "300px"
                 },
                 {
@@ -175,7 +175,7 @@
                     "name": "BackupButton",
                     "onChange": "",
                     "value": false,
-                    "visible": <!---BACKUP_BUTTON_VISIBLE-->,
+                    "visible": "<!---BACKUP_BUTTON_VISIBLE-->",
                     "width": "300px"
                 }
             ]
