@@ -203,17 +203,17 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 		$vol  = 0.0;
 		$variables = self::EEP_VARIABLE_PROFILES[$this->ReadPropertyString(self::propertyTargetEEP)];
 		foreach ($variables as $varIdent => $definition) {
-			if ($varIdent === self::EEP_VARIABLES[self::TEMPERATURE]['Ident']) {
-				$temp = $this->GetECValue(self::EEP_VARIABLES[$varIdent]);
+			if ($definition["Ident"] === self::EEP_VARIABLES[self::TEMPERATURE]['Ident']) {
+				$temp = $this->GetECValue($definition["Ident"]);
 			}
-			if ($varIdent === self::EEP_VARIABLES[self::ILLUMINATION]['Ident']) {
-				$ill = $this->GetECValue(self::EEP_VARIABLES[$varIdent]);
+			if ($definition["Ident"] === self::EEP_VARIABLES[self::ILLUMINATION]['Ident']) {
+				$ill = $this->GetECValue($definition["Ident"]);
 			}
-			if ($varIdent === self::EEP_VARIABLES[self::MOTION]['Ident']) {
-				$pir = $this->GetECValue(self::EEP_VARIABLES[$varIdent]);
+			if ($definition["Ident"] === self::EEP_VARIABLES[self::MOTION]['Ident']) {
+				$pir = $this->GetECValue($definition["Ident"]);
 			}
-			if ($varIdent === self::EEP_VARIABLES[self::VOLTAGE]['Ident']) {
-				$vol = $this->GetECValue(self::EEP_VARIABLES[$varIdent]);
+			if ($definition["Ident"] === self::EEP_VARIABLES[self::VOLTAGE]['Ident']) {
+				$vol = $this->GetECValue($definition["Ident"]);
 			}
 		}
 		// Default-Werte, falls Variable nicht benötigt wird für gewähltes EEP (dann gibt es auch keinen Backup und der Wert wird bei Senden ignoriert)
