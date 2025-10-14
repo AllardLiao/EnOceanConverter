@@ -177,6 +177,7 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		$temp = 0.0;
 		$hum  = 0.0;
 		$variables = self::EEP_VARIABLE_PROFILES[$this->ReadPropertyString(self::propertyTargetEEP)];
+		$this->SendDebug(__FUNCTION__, 'Variables for EEP ' . print_r(self::EEP_VARIABLE_PROFILES[$this->ReadPropertyString(self::propertyTargetEEP)], true), 0);
 		foreach ($variables as $varIdent => $definition) {
 			$this->SendDebug(__FUNCTION__, 'Check varIdent=' . $varIdent . " Check Ident: " . self::EEP_VARIABLES[self::TEMPERATURE]['Ident'], 0);
 			if ($varIdent === self::EEP_VARIABLES[self::TEMPERATURE]['Ident']) {
