@@ -217,15 +217,9 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 			}
 		}
 		// Default-Werte, falls Variable nicht benötigt wird für gewähltes EEP (dann gibt es auch keinen Backup und der Wert wird bei Senden ignoriert)
-		if (!is_int($ill)) {
-			$ill = 0;
-		}
-		if (!is_float($temp)) {
-			$temp = 0.0;
-		}
-		if (!is_float($vol)) {
-			$vol = 0.0;
-		}
+		if (!is_int($ill)) {	$ill = 0;	}
+		if (!is_float($temp)) {	$temp = 0.0;}
+		if (!is_float($vol)) {	$vol = 0.0;	}
 		$this->SendDebug(__FUNCTION__, 'Send telegram for ' . $this->InstanceID . '/' . $this->ReadPropertyInteger(self::propertyDeviceID) . ': temp=' . $temp . ', ill=' . $ill . ', pir=' . $pir . ', vol=' . $vol, 0);
 		$this->SendEnOceanTelegram($pir, $ill, $temp, $vol);
 	}
