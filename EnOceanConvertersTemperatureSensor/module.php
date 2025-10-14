@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 // IPS-Stubs nur in der Entwicklungsumgebung laden
-
 if (substr(__DIR__,0, 10) == "/Users/kai") {
     // Development
 	include_once __DIR__ . '/../.ips_stubs/autoload.php';
@@ -11,9 +10,8 @@ if (substr(__DIR__,0, 10) == "/Users/kai") {
 use EnOceanConverter\EEPProfiles;
 use EnOceanConverter\EEPConverter;
 use EnOceanConverter\GUIDs;
-/**
- * Include Controme helper classes.
- */
+
+// Include Helper classes/traits.
 require_once __DIR__ . '/../libs/EnOceanConverterConstants.php';
 require_once __DIR__ . '/../libs/EnOceanConverterHelper.php';
 
@@ -26,12 +24,11 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 	use EnOceanConverter\EnOceanConverterConstants;
 	use EnOceanConverter\FormHelper;
 
-	private const propertyDeviceID = "DeviceID";
-	private const propertySourceDevice = "SourceDevice";
-	private const propertyTargetEEP = "TargetEEP";
-	private const propertyResendActive = "ResendActive";
-
-	private const timerPrefix = "ECTSSendDelayed";
+	private const propertyDeviceID = 		"DeviceID";
+	private const propertySourceDevice = 	"SourceDevice";
+	private const propertyTargetEEP = 		"TargetEEP";
+	private const propertyResendActive = 	"ResendActive";
+	private const timerPrefix = 			"ECTSSendDelayed";
 
 	public function Create():void
 	{
@@ -226,7 +223,8 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		}
 
 		$data = EEPProfiles::gatewayBaseData();
-		$data['DeviceID'] = $this->ReadPropertyInteger(self::propertyDeviceID); 
+		$data['DeviceID'] = $this->ReadPropertyInteger(self::propertyDeviceID);
+		$data['Device'] = EEPProfiles::DEVICE_TYPE["A5"]; // 0xA5 = Temperature & Motion Sensors
 		$DB0 = 8;
 		$DB1 = 0;
 		$DB2 = 0;

@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 // IPS-Stubs nur in der Entwicklungsumgebung laden
-
 if (substr(__DIR__,0, 10) == "/Users/kai") {
     // Development
 	include_once __DIR__ . '/../.ips_stubs/autoload.php';
@@ -11,9 +10,8 @@ if (substr(__DIR__,0, 10) == "/Users/kai") {
 use EnOceanConverter\EEPProfiles;
 use EnOceanConverter\EEPConverter;
 use EnOceanConverter\GUIDs;
-/**
- * Include Controme helper classes.
- */
+
+// Include Helper classes/traits.
 require_once __DIR__ . '/../libs/EnOceanConverterConstants.php';
 require_once __DIR__ . '/../libs/EnOceanConverterHelper.php';
 class EnOceanConvertersMotionSensor extends IPSModuleStrict
@@ -25,13 +23,12 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 	use EnOceanConverter\EnOceanConverterConstants;
 	use EnOceanConverter\FormHelper;
 
-	private const propertyDeviceID = "DeviceID";
-	private const propertySourceDevice = "SourceDevice";
-	private const propertyTargetEEP = "TargetEEP";
-	private const propertySourceEEP = "SourceEEP";
-	private const propertyResendActive = "ResendActive";
-
-	private const timerPrefix = "ECMSSendDelayed";
+	private const propertyDeviceID = 		"DeviceID";
+	private const propertySourceDevice = 	"SourceDevice";
+	private const propertyTargetEEP = 		"TargetEEP";
+	private const propertySourceEEP = 		"SourceEEP";
+	private const propertyResendActive = 	"ResendActive";
+	private const timerPrefix = 			"ECMSSendDelayed";
 
 	public function Create():void
 	{
@@ -134,15 +131,9 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 		$TEMP = $this->GetECValue(self::EEP_VARIABLES[self::TEMPERATURE]);
 		$VOL = $this->GetECValue(self::EEP_VARIABLES[self::VOLTAGE]);
 		// Default-Werte, falls Variable nicht benötigt wird für gewähltes EEP (dann gibt es auch keinen Backup und der Wert wird bei Senden ignoriert)
-		if (!is_int($ILL)) {
-			$ILL = 0;
-		}
-		if (!is_float($TEMP)) {
-			$TEMP = 0.0;
-		}
-		if (!is_float($VOL)) {
-			$VOL = 0.0;
-		}
+		if (!is_int($ILL)) {	$ILL = 0;	}
+		if (!is_float($TEMP)) {	$TEMP = 0.0;}
+		if (!is_float($VOL)) {	$VOL = 0.0;	}
 		$this->UpdateFormField('ResultSendTest', 'caption', 'Send test telegram (PIR=' . $PIR . ', ILL=' . $ILL . 'lx, TEMP=' . $TEMP . '°C, VOLT=' . $VOL . 'V)');
 		$this->SendDebug(__FUNCTION__, "sending test: PIR=" . $PIR . ", ILL=" . $ILL . "lx, TEMP=" . $TEMP . "°C, VOLT=" . $VOL . "V", 0);
 		$this->SendEnOceanTelegram($PIR, $ILL, $TEMP, $VOL, false);
@@ -273,6 +264,7 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 		//4bs = 4 Databytes. DB0 enthält im byte 3 das Lern-Flag (0=Teach-in, 8=Normal)
 		$data = EEPProfiles::gatewayBaseData();
 		$data['DeviceID'] = $this->ReadPropertyInteger(self::propertyDeviceID);
+		$data['Device'] = EEPProfiles::DEVICE_TYPE["A5"]; // 0xA5 = Temperature & Motion Sensors
 		$DB0 = 8;
 		$DB1 = 0;
 		$DB2 = 0;
