@@ -167,8 +167,8 @@ class EnOceanConvertersContactSensor extends IPSModuleStrict
 		$contact = true;
 		$variables = self::EEP_VARIABLE_PROFILES[$this->ReadPropertyString(self::propertyTargetEEP)];
 		foreach ($variables as $varIdent => $definition) {
-			if ($varIdent === self::EEP_VARIABLES[self::CONTACT]['Ident']) {
-				$contact = $this->GetECValue(self::EEP_VARIABLES[$varIdent]);
+			if ($definition["Ident"] === self::EEP_VARIABLES[self::CONTACT]['Ident']) {
+				$contact = $this->GetECValue($definition);
 			}
 		}
 		$this->SendDebug(__FUNCTION__, 'Send telegram for ' . $this->InstanceID . '/' . $this->ReadPropertyInteger(self::propertyDeviceID) . ': contact=' . $contact, 0);

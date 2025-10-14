@@ -203,29 +203,23 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 		$vol  = 0.0;
 		$variables = self::EEP_VARIABLE_PROFILES[$this->ReadPropertyString(self::propertyTargetEEP)];
 		foreach ($variables as $varIdent => $definition) {
-			if ($varIdent === self::EEP_VARIABLES[self::TEMPERATURE]['Ident']) {
-				$temp = $this->GetECValue(self::EEP_VARIABLES[$varIdent]);
+			if ($definition["Ident"] === self::EEP_VARIABLES[self::TEMPERATURE]['Ident']) {
+				$temp = $this->GetECValue($definition);
 			}
-			if ($varIdent === self::EEP_VARIABLES[self::ILLUMINATION]['Ident']) {
-				$ill = $this->GetECValue(self::EEP_VARIABLES[$varIdent]);
+			if ($definition["Ident"] === self::EEP_VARIABLES[self::ILLUMINATION]['Ident']) {
+				$ill = $this->GetECValue($definition);
 			}
-			if ($varIdent === self::EEP_VARIABLES[self::MOTION]['Ident']) {
-				$pir = $this->GetECValue(self::EEP_VARIABLES[$varIdent]);
+			if ($definition["Ident"] === self::EEP_VARIABLES[self::MOTION]['Ident']) {
+				$pir = $this->GetECValue($definition);
 			}
-			if ($varIdent === self::EEP_VARIABLES[self::VOLTAGE]['Ident']) {
-				$vol = $this->GetECValue(self::EEP_VARIABLES[$varIdent]);
+			if ($definition["Ident"] === self::EEP_VARIABLES[self::VOLTAGE]['Ident']) {
+				$vol = $this->GetECValue($definition);
 			}
 		}
 		// Default-Werte, falls Variable nicht benötigt wird für gewähltes EEP (dann gibt es auch keinen Backup und der Wert wird bei Senden ignoriert)
-		if (!is_int($ill)) {
-			$ill = 0;
-		}
-		if (!is_float($temp)) {
-			$temp = 0.0;
-		}
-		if (!is_float($vol)) {
-			$vol = 0.0;
-		}
+		if (!is_int($ill)) {	$ill = 0;	}
+		if (!is_float($temp)) {	$temp = 0.0;}
+		if (!is_float($vol)) {	$vol = 0.0;	}
 		$this->SendDebug(__FUNCTION__, 'Send telegram for ' . $this->InstanceID . '/' . $this->ReadPropertyInteger(self::propertyDeviceID) . ': temp=' . $temp . ', ill=' . $ill . ', pir=' . $pir . ', vol=' . $vol, 0);
 		$this->SendEnOceanTelegram($pir, $ill, $temp, $vol);
 	}
