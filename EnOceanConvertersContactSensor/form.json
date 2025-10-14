@@ -46,7 +46,7 @@
                     "link": false,
                     "name": "SourceDevice",
                     "onChange": "",
-                    "validModules": <!---VALID_MODULES-->,
+                    "validModules": "<!---VALID_MODULES-->",
                     "value": 0,
                     "visible": true,
                     "width": "450px"
@@ -65,7 +65,7 @@
                     "enabled": true,
                     "link": false,
                     "name": "TargetEEP",
-                    "options": <!---VALID_EEP_OPTIONS-->,
+                    "options": "<!---VALID_EEP_OPTIONS-->",
                     "onChange": "",
                     "value": "D5-00-01",
                     "visible": true,

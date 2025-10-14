@@ -579,3 +579,34 @@ trait BufferHelper{
         return $result;
     }
 }
+
+trait FormHelper{
+    use EnOceanConverterConstants;
+
+    private function UpdateFormField(string $fieldName, string $property, mixed $value): void
+    {
+        $form = json_decode($this->GetConfigurationForParent(), true);
+        if (isset($form['elements'])) {
+            foreach ($form['elements'] as &$element) {
+                if (isset($element['name']) && $element['name'] === $fieldName) {
+                    $element[$property] = $value;
+                    break;
+                }
+            }
+            $this->SetConfigurationForParent(json_encode($form));
+        }
+    }
+
+    private function ReplacePlaceholdersInForm(string $Form, array $validModules, array $validEEPOptions):string
+    {
+		$Form = str_replace('"<!---VALID_MODULES-->"', json_encode($validModules), $Form);
+		$Form = str_replace('"<!---VALID_EEP_OPTIONS-->"', EEPProfiles::createFormularJsonFromAvailableEEP($validEEPOptions, $Form), $Form);
+		$Form = str_replace('"<!---BACKUP_TEMPERATURE_VISIBLE-->"', ($this->getECBuffer(self::EEP_VARIABLES[self::TEMPERATURE])==="0" ? 'true' : 'false'), $Form);
+		$Form = str_replace('"<!---BACKUP_HUMIDITY_VISIBLE-->"', ($this->getECBuffer(self::EEP_VARIABLES[self::HUMIDITY])==="0" ? 'true' : 'false'), $Form);
+		$Form = str_replace('"<!---BACKUP_MOTION_VISIBLE-->"', ($this->getECBuffer(self::EEP_VARIABLES[self::MOTION])==="0" ? 'true' : 'false'), $Form);
+		$Form = str_replace('"<!---BACKUP_ILLUMINATION_VISIBLE-->"', ($this->getECBuffer(self::EEP_VARIABLES[self::ILLUMINATION])==="0" ? 'true' : 'false'), $Form);
+		$Form = str_replace('"<!---BACKUP_VOLTAGE_VISIBLE-->"', ($this->getECBuffer(self::EEP_VARIABLES[self::VOLTAGE])==="0" ? 'true' : 'false'), $Form);
+		$Form = str_replace('"<!---BACKUP_BUTTON_VISIBLE-->"', ($this->getECBuffer(self::EEP_VARIABLES[self::BUTTON])==="0" ? 'true' : 'false'), $Form);
+		return $Form;
+    }
+}
