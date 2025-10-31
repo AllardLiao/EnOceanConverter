@@ -361,6 +361,7 @@ trait DeviceIDHelper
 }
 
 trait VariableHelper{
+
     use EnOceanConverterConstants;
     // -----------------------------------------------
     // Interne Funktionen für den Zugriff auf die Variablen
@@ -444,7 +445,7 @@ trait VariableHelper{
 			foreach ($variables as $vid) {
 				$vinfo = IPS_GetVariable($vid);
 				// nach Profil erkennen
-				if (str_contains(strtoupper($vinfo['VariableProfile']), '_PIRS') || str_contains(strtoupper($vinfo['VariableProfile']), 'MOTION') || str_contains(strtoupper($vinfo['VariableProfile']), 'PRESENCE')) {
+                if ($this->IsVariableType($vinfo, self::MOTION)){
 					$this->SetECBuffer(self::EEP_VARIABLES[self::MOTION], (string)$vid);
                     try {
                         @$this->setECValue(self::EEP_VARIABLES[self::MOTION], GetValue($vid)); // Default-Wert setzen
@@ -453,7 +454,7 @@ trait VariableHelper{
                         //ok - dann wird die Var nicht benötigt.
                     }
 				}
-				if (str_contains(strtoupper($vinfo['VariableProfile']), '_ILL') || str_contains(strtoupper($vinfo['VariableProfile']), 'ILLUMINATION')) {
+                if ($this->IsVariableType($vinfo, self::ILLUMINATION)){
 					$this->SetECBuffer(self::EEP_VARIABLES[self::ILLUMINATION], (string)$vid);
                     try {
                         @$this->setECValue(self::EEP_VARIABLES[self::ILLUMINATION], GetValue($vid)); // Default-Wert setzen
@@ -462,7 +463,7 @@ trait VariableHelper{
                         //ok - dann wird die Var nicht benötigt.
                     }
 				}
-				if (str_contains(strtoupper($vinfo['VariableProfile']), '_SVC') || str_contains(strtoupper($vinfo['VariableProfile']), 'VOLT')) {
+                if ($this->IsVariableType($vinfo, self::VOLTAGE)){
 					$this->SetECBuffer(self::EEP_VARIABLES[self::VOLTAGE], (string)$vid);
                     try {
                         @$this->setECValue(self::EEP_VARIABLES[self::VOLTAGE], GetValue($vid)); // Default-Wert setzen
@@ -471,7 +472,7 @@ trait VariableHelper{
                         //ok - dann wird die Var nicht benötigt.
                     }
 				}
-				if (str_contains(strtoupper($vinfo['VariableProfile']), '_TMP') || str_contains(strtoupper($vinfo['VariableProfile']), 'TEMPERATURE')) {
+                if ($this->IsVariableType($vinfo, self::TEMPERATURE)){
 					$this->SetECBuffer(self::EEP_VARIABLES[self::TEMPERATURE], (string)$vid);
                     try {
                         @$this->setECValue(self::EEP_VARIABLES[self::TEMPERATURE], GetValue($vid)); // Default-Wert setzen
@@ -480,7 +481,7 @@ trait VariableHelper{
                         //ok - dann wird die Var nicht benötigt.
                     }
 				}
-				if (str_contains(strtoupper($vinfo['VariableProfile']), '_HUM') || str_contains(strtoupper($vinfo['VariableProfile']), 'HUMIDITY')) {
+                if ($this->IsVariableType($vinfo, self::HUMIDITY)){
 					$this->SetECBuffer(self::EEP_VARIABLES[self::HUMIDITY], (string)$vid);
                     try {
                         @$this->setECValue(self::EEP_VARIABLES[self::HUMIDITY], GetValue($vid)); // Default-Wert setzen
@@ -489,7 +490,7 @@ trait VariableHelper{
                         //ok - dann wird die Var nicht benötigt.
                     }
 				}
-				if (str_contains(strtoupper($vinfo['VariableProfile']), 'DOOR') || str_contains(strtoupper($vinfo['VariableProfile']), 'WINDOW') || str_contains(strtoupper($vinfo['VariableProfile']), 'LOCK') || str_contains(strtoupper($vinfo['VariableProfile']), 'CONTACT')) {
+                if ($this->IsVariableType($vinfo, self::CONTACT)){
 					$this->SetECBuffer(self::EEP_VARIABLES[self::CONTACT], (string)$vid);
                     try {
                         @$this->setECValue(self::EEP_VARIABLES[self::CONTACT], GetValue($vid)); // Default-Wert setzen
@@ -500,6 +501,42 @@ trait VariableHelper{
 				}
 			}
 		}
+    }
+
+    private function IsVariableType(array $vinfo, string $type): bool
+    {
+        $profile = strtoupper($vinfo['VariableProfile']);
+        $customProfile = strtoupper($vinfo['VariableCustomProfile']);
+        $icon = isset($vinfo['VariableCustomPresentation']['ICON']) ? strtoupper($vinfo['VariableCustomPresentation']['ICON']) : '';
+
+        switch ($type){
+            case self::MOTION:
+				return (str_contains($profile, '_PIRS') || str_contains($profile, 'MOTION') || str_contains($profile, 'PRESENCE') ||
+                        str_contains($customProfile, '_PIRS') || str_contains($customProfile, 'MOTION') || str_contains($customProfile, 'PRESENCE') ||
+                        str_contains($icon, 'MOTION') || str_contains($icon, 'PRESENCE') || str_contains($icon, 'PERSON-CIRCLE') || str_contains($icon, 'HOUSE-PERSON'));
+            case self::CONTACT:
+				return (str_contains($profile, 'DOOR') || str_contains($profile, 'WINDOW') || str_contains($profile, 'LOCK') || str_contains($profile, 'CONTACT') ||
+                        str_contains($customProfile, 'DOOR') || str_contains($customProfile, 'WINDOW') || str_contains($customProfile, 'LOCK') || str_contains($customProfile, 'CONTACT') ||
+                        str_contains($icon, 'DOOR') || str_contains($icon, 'WINDOW') || str_contains($icon, 'LOCK') || str_contains($icon, 'CONTACT') || str_contains($icon, 'GARAGE') || str_contains($icon, 'BLINDS'));
+            case self::TEMPERATURE:
+				return (str_contains($profile, '_TMP') || str_contains($profile, 'TEMPERATURE') ||
+                        str_contains($customProfile, '_TMP') || str_contains($customProfile, 'TEMPERATURE') ||
+                        str_contains($icon, 'TEMPERATURE') || str_contains($icon, 'HEAT') );
+            case self::HUMIDITY:
+				return (str_contains($profile, '_HUM') || str_contains($profile, 'HUMIDITY') ||
+                        str_contains($customProfile, '_HUM') || str_contains($customProfile, 'HUMIDITY') ||
+                        str_contains($icon, 'HUMIDITY') || str_contains($icon, 'DROPLET'));
+            case self::ILLUMINATION:
+				return (str_contains($profile, '_ILL') || str_contains($profile, 'ILLUMINATION') ||
+                        str_contains($customProfile, '_ILL') || str_contains($customProfile, 'ILLUMINATION') ||
+                        str_contains($icon, 'ILLUMINATION') || str_contains($icon, 'LIGHT') || str_contains($icon, 'BRIGHTNESS') || str_contains($icon, 'SUN'));
+            case self::VOLTAGE:
+				return (str_contains($profile, '_SVC') || str_contains($profile, 'VOLT') ||
+                        str_contains($customProfile, '_SVC') || str_contains($customProfile, 'VOLT') ||
+                        str_contains($icon, 'VOLT') || str_contains($icon, 'BATTERY') || str_contains($icon, 'BOLT') || str_contains($icon, 'OUTLET') || str_contains($icon, 'SOLAR'));
+            default:
+                return false;
+        }
     }
 
     // -----------------------------------------------

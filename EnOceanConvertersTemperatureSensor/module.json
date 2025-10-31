@@ -1,9 +1,9 @@
 {
     "id": "{029B9532-A614-BBC3-B9D6-904F648DC5F1}",
-    "name": "EnOceanConvertersTemperatureSensor",
+    "name": "EnOcean Converters Temperature Sensor",
     "type": 3,
     "vendor": "EnOcean",
-    "aliases": ["EnOcean Converter Temperature Sensor"],
+    "aliases": ["EnOcean Converter Temperatursensor"],
     "parentRequirements": ["{70E3075F-A35D-4DEB-AC20-C929A156FE48}"], 
     "childRequirements": [],
     "implemented": ["{DE2DA2C0-7A28-4D23-A9AA-6D1C7609C7EC}"],
