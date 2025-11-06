@@ -341,7 +341,7 @@ trait DeviceIDHelper
 
     private function FormatFoundVariables(array $foundVars): string
     {
-        $lines = ["Source variables checked..."];
+        $lines = ["Source variables needed for selected EEP checked..."];
         if (count($foundVars) == 0) {
             $lines[] = "\nNo variables found.";
         } else {
