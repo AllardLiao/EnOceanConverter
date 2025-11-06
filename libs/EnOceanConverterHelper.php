@@ -508,6 +508,7 @@ trait VariableHelper{
         $profile = strtoupper($vinfo['VariableProfile']);
         $customProfile = strtoupper($vinfo['VariableCustomProfile']);
         $icon = isset($vinfo['VariableCustomPresentation']['ICON']) ? strtoupper($vinfo['VariableCustomPresentation']['ICON']) : '';
+        $varTemplate = isset($vinfo['VariableCustomPresentation']['TEMPLATE']) ? $vinfo['VariableCustomPresentation']['TEMPLATE'] : '';
 
         switch ($type){
             case self::MOTION:
@@ -519,7 +520,8 @@ trait VariableHelper{
                         str_contains($customProfile, 'DOOR') || str_contains($customProfile, 'WINDOW') || str_contains($customProfile, 'LOCK') || str_contains($customProfile, 'CONTACT') ||
                         str_contains($icon, 'DOOR') || str_contains($icon, 'WINDOW') || str_contains($icon, 'LOCK') || str_contains($icon, 'CONTACT') || str_contains($icon, 'GARAGE') || str_contains($icon, 'BLINDS'));
             case self::TEMPERATURE:
-				return (str_contains($profile, '_TMP') || str_contains($profile, 'TEMPERATURE') ||
+				return ($varTemplate == VARIABLE_TEMPLATE_SLIDER_ROOM_TEMPERATURE || 
+                        $varTemplate == VARIABLE_TEMPLATE_VALUE_PRESENTATION_ROOM_TEMPERATURE || 
                         str_contains($customProfile, '_TMP') || str_contains($customProfile, 'TEMPERATURE') ||
                         str_contains($icon, 'TEMPERATURE') || str_contains($icon, 'HEAT') );
             case self::HUMIDITY:
@@ -531,7 +533,12 @@ trait VariableHelper{
                         str_contains($customProfile, '_ILL') || str_contains($customProfile, 'ILLUMINATION') ||
                         str_contains($icon, 'ILLUMINATION') || str_contains($icon, 'LIGHT') || str_contains($icon, 'BRIGHTNESS') || str_contains($icon, 'SUN'));
             case self::VOLTAGE:
-				return (str_contains($profile, '_SVC') || str_contains($profile, 'VOLT') ||
+				return ($varTemplate == VARIABLE_TEMPLATE_VALUE_PRESENTATION_ENERGY ||
+                        $varTemplate == VARIABLE_TEMPLATE_VALUE_PRESENTATION_POWER ||
+                        $varTemplate == VARIABLE_TEMPLATE_VALUE_PRESENTATION_BATTERY ||
+                        $varTemplate == VARIABLE_TEMPLATE_SLIDER_ENERGY ||
+                        $varTemplate == VARIABLE_TEMPLATE_SLIDER_POWER ||
+                        str_contains($profile, '_SVC') || str_contains($profile, 'VOLT') ||
                         str_contains($customProfile, '_SVC') || str_contains($customProfile, 'VOLT') ||
                         str_contains($icon, 'VOLT') || str_contains($icon, 'BATTERY') || str_contains($icon, 'BOLT') || str_contains($icon, 'OUTLET') || str_contains($icon, 'SOLAR'));
             default:

@@ -3,10 +3,18 @@
     "name": "EnOcean Converters Temperature Sensor",
     "type": 3,
     "vendor": "EnOcean",
-    "aliases": ["EnOcean Converter Temperatursensor"],
+    "aliases": [""],
     "parentRequirements": ["{70E3075F-A35D-4DEB-AC20-C929A156FE48}"], 
     "childRequirements": [],
     "implemented": ["{DE2DA2C0-7A28-4D23-A9AA-6D1C7609C7EC}"],
     "prefix": "ECTS",
-    "url": ""
+    "url": "",
+    "translations": {
+        "de": {
+            "EnOcean Converters Temperature Sensor": "EnOcean-Wandler Temperatursensor"
+        },
+        "es": {
+            "EnOcean Converters Temperature Sensor": "Convertidor EnOcean Sensor de Temperatura"
+        }
+    }
 }

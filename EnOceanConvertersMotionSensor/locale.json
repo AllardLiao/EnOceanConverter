@@ -1,6 +1,7 @@
 {
     "translations": {
         "de": {
+            "EnOcean Converters Motion Sensor": "EnOcean-Wandler Bewegungssensor",
             "Select available device id": "Verfügbare Geräte-ID auswählen",
             "Source Device": "Quellgerät",
             "Source EEP": "Quell-EEP",
@@ -26,6 +27,7 @@
             "Could not connect to source device": "Verbindung zum Quellgerät konnte nicht hergestellt werden"
         },
         "es": {
+            "EnOcean Converters Motion Sensor": "Convertidor EnOcean Sensor de Movimiento",
             "Select available device id": "Seleccionar ID de dispositivo disponible",
             "Source Device": "Dispositivo de origen",
             "Source EEP": "EEP de origen",
