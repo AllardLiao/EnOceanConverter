@@ -55,7 +55,7 @@ __Configuration Page__:
 
 Status variables are automatically created depending on the selected target EEP. Deleting individual variables may cause malfunctions.
 
-When identifying source variables of the source device, the standard IPS variable profiles are evaluated.
+When identifying source variables of the source device, the module checks the standard IPS variable profiles as well as the resolved variable presentation (`IPS_GetVariablePresentation`). For temperature, a Slider presentation with usage type "Temperature", a Value display with usage type "Temperature", or a suffix of °C/°F/°K is recognized, in addition to the classic `~Temperature` profile.
 
 #### Status Variables
 
