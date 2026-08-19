@@ -445,7 +445,7 @@ trait VariableHelper{
 			foreach ($variables as $vid) {
 				$vinfo = IPS_GetVariable($vid);
 				// nach Profil erkennen
-                if ($this->IsVariableType($vinfo, self::MOTION)){
+                if ($this->IsVariableType($vid, $vinfo, self::MOTION)){
 					$this->SetECBuffer(self::EEP_VARIABLES[self::MOTION], (string)$vid);
                     try {
                         @$this->setECValue(self::EEP_VARIABLES[self::MOTION], GetValue($vid)); // Default-Wert setzen
@@ -454,7 +454,7 @@ trait VariableHelper{
                         //ok - dann wird die Var nicht benötigt.
                     }
 				}
-                if ($this->IsVariableType($vinfo, self::ILLUMINATION)){
+                if ($this->IsVariableType($vid, $vinfo, self::ILLUMINATION)){
 					$this->SetECBuffer(self::EEP_VARIABLES[self::ILLUMINATION], (string)$vid);
                     try {
                         @$this->setECValue(self::EEP_VARIABLES[self::ILLUMINATION], GetValue($vid)); // Default-Wert setzen
@@ -463,7 +463,7 @@ trait VariableHelper{
                         //ok - dann wird die Var nicht benötigt.
                     }
 				}
-                if ($this->IsVariableType($vinfo, self::VOLTAGE)){
+                if ($this->IsVariableType($vid, $vinfo, self::VOLTAGE)){
 					$this->SetECBuffer(self::EEP_VARIABLES[self::VOLTAGE], (string)$vid);
                     try {
                         @$this->setECValue(self::EEP_VARIABLES[self::VOLTAGE], GetValue($vid)); // Default-Wert setzen
@@ -472,7 +472,7 @@ trait VariableHelper{
                         //ok - dann wird die Var nicht benötigt.
                     }
 				}
-                if ($this->IsVariableType($vinfo, self::TEMPERATURE)){
+                if ($this->IsVariableType($vid, $vinfo, self::TEMPERATURE)){
 					$this->SetECBuffer(self::EEP_VARIABLES[self::TEMPERATURE], (string)$vid);
                     try {
                         @$this->setECValue(self::EEP_VARIABLES[self::TEMPERATURE], GetValue($vid)); // Default-Wert setzen
@@ -481,7 +481,7 @@ trait VariableHelper{
                         //ok - dann wird die Var nicht benötigt.
                     }
 				}
-                if ($this->IsVariableType($vinfo, self::HUMIDITY)){
+                if ($this->IsVariableType($vid, $vinfo, self::HUMIDITY)){
 					$this->SetECBuffer(self::EEP_VARIABLES[self::HUMIDITY], (string)$vid);
                     try {
                         @$this->setECValue(self::EEP_VARIABLES[self::HUMIDITY], GetValue($vid)); // Default-Wert setzen
@@ -490,7 +490,7 @@ trait VariableHelper{
                         //ok - dann wird die Var nicht benötigt.
                     }
 				}
-                if ($this->IsVariableType($vinfo, self::CONTACT)){
+                if ($this->IsVariableType($vid, $vinfo, self::CONTACT)){
 					$this->SetECBuffer(self::EEP_VARIABLES[self::CONTACT], (string)$vid);
                     try {
                         @$this->setECValue(self::EEP_VARIABLES[self::CONTACT], GetValue($vid)); // Default-Wert setzen
@@ -503,12 +503,22 @@ trait VariableHelper{
 		}
     }
 
-    private function IsVariableType(array $vinfo, string $type): bool
+    private function IsVariableType(int $vid, array $vinfo, string $type): bool
     {
         $profile = strtoupper($vinfo['VariableProfile']);
         $customProfile = strtoupper($vinfo['VariableCustomProfile']);
         $icon = isset($vinfo['VariableCustomPresentation']['ICON']) ? strtoupper($vinfo['VariableCustomPresentation']['ICON']) : '';
-        $varTemplate = isset($vinfo['VariableCustomPresentation']['TEMPLATE']) ? $vinfo['VariableCustomPresentation']['TEMPLATE'] : '';
+
+        // Aufgelöste Darstellung holen: löst Templates auf und füllt Default-Werte,
+        // damit z.B. USAGE_TYPE/SUFFIX auch bei Vorlagen ausgewertet werden können,
+        // die wir nicht namentlich kennen (statt starrer VARIABLE_TEMPLATE_*-Vergleiche).
+        $presentation = @IPS_GetVariablePresentation($vid);
+        if (!is_array($presentation)) {
+            $presentation = [];
+        }
+        $presentationType = $presentation['PRESENTATION'] ?? '';
+        $usageType = array_key_exists('USAGE_TYPE', $presentation) ? $presentation['USAGE_TYPE'] : null;
+        $suffix = isset($presentation['SUFFIX']) ? strtoupper(trim($presentation['SUFFIX'])) : '';
 
         switch ($type){
             case self::MOTION:
@@ -520,9 +530,20 @@ trait VariableHelper{
                         str_contains($customProfile, 'DOOR') || str_contains($customProfile, 'WINDOW') || str_contains($customProfile, 'LOCK') || str_contains($customProfile, 'CONTACT') ||
                         str_contains($icon, 'DOOR') || str_contains($icon, 'WINDOW') || str_contains($icon, 'LOCK') || str_contains($icon, 'CONTACT') || str_contains($icon, 'GARAGE') || str_contains($icon, 'BLINDS'));
             case self::TEMPERATURE:
-				return ($varTemplate == VARIABLE_TEMPLATE_SLIDER_ROOM_TEMPERATURE || 
-                        $varTemplate == VARIABLE_TEMPLATE_VALUE_PRESENTATION_ROOM_TEMPERATURE || 
-                        str_contains($customProfile, '_TMP') || str_contains($customProfile, 'TEMPERATURE') ||
+                // Schieberegler: USAGE_TYPE 0 = Temperatur
+                if ($presentationType === VARIABLE_PRESENTATION_SLIDER && $usageType === 0) {
+                    return true;
+                }
+                // Wertanzeige: USAGE_TYPE 1 = Temperatur
+                if ($presentationType === VARIABLE_PRESENTATION_VALUE_PRESENTATION && $usageType === 1) {
+                    return true;
+                }
+                // Werteingabe kennt kein USAGE_TYPE - und als generischer Fallback: über den SUFFIX erkennen
+                if (in_array($suffix, ['°C', '°F', '°K'], true)) {
+                    return true;
+                }
+                // Legacy-Profile / Icon-Fallback
+				return (str_contains($customProfile, '_TMP') || str_contains($customProfile, 'TEMPERATURE') ||
                         str_contains($icon, 'TEMPERATURE') || str_contains($icon, 'HEAT') );
             case self::HUMIDITY:
 				return (str_contains($profile, '_HUM') || str_contains($profile, 'HUMIDITY') ||
@@ -531,14 +552,16 @@ trait VariableHelper{
             case self::ILLUMINATION:
 				return (str_contains($profile, '_ILL') || str_contains($profile, 'ILLUMINATION') ||
                         str_contains($customProfile, '_ILL') || str_contains($customProfile, 'ILLUMINATION') ||
-                        str_contains($icon, 'ILLUMINATION') || str_contains($icon, 'LIGHT') || str_contains($icon, 'BRIGHTNESS') || str_contains($icon, 'SUN'));
+                        str_contains($icon, 'ILLUMINATION') || str_contains($icon, 'LIGHT') || str_contains($icon, 'BRIGHTNESS') || str_contains($icon, 'SUN') ||
+                        in_array($suffix, ['LX', 'LUX'], true));
             case self::VOLTAGE:
-				return ($varTemplate == VARIABLE_TEMPLATE_VALUE_PRESENTATION_ENERGY ||
-                        $varTemplate == VARIABLE_TEMPLATE_VALUE_PRESENTATION_POWER ||
-                        $varTemplate == VARIABLE_TEMPLATE_VALUE_PRESENTATION_BATTERY ||
-                        $varTemplate == VARIABLE_TEMPLATE_SLIDER_ENERGY ||
-                        $varTemplate == VARIABLE_TEMPLATE_SLIDER_POWER ||
-                        str_contains($profile, '_SVC') || str_contains($profile, 'VOLT') ||
+                // Weder Schieberegler noch Wertanzeige kennen einen eigenen USAGE_TYPE für Spannung/Energie/Batterie
+                // -> über den SUFFIX (Werteingabe/Wertanzeige) erkennen
+                if (in_array($suffix, ['V', 'MV', 'KWH', 'WH', 'W', 'KW'], true)) {
+                    return true;
+                }
+                // Legacy-Profile / Icon-Fallback
+				return (str_contains($profile, '_SVC') || str_contains($profile, 'VOLT') ||
                         str_contains($customProfile, '_SVC') || str_contains($customProfile, 'VOLT') ||
                         str_contains($icon, 'VOLT') || str_contains($icon, 'BATTERY') || str_contains($icon, 'BOLT') || str_contains($icon, 'OUTLET') || str_contains($icon, 'SOLAR'));
             default:
