@@ -33,7 +33,14 @@ __Motion Sensors__ ([Documentation](EnOceanConvertersMotionSensor))
 * Fixed: the Temperature Sensor converter's EEP A5-04-03 encoding packed humidity and the upper temperature bits into overlapping bits of the same data byte, corrupting both values for certain temperature/humidity combinations.
 
 ### 1.0.3
-* Initial release
+* Identification of temperature and voltage by presentation template
+
+### 1.0.2
+* Improved identification of variables
+* Support of dummy-modules as source
+
+### 1.0
+* Initial version
 
 ## License
 
