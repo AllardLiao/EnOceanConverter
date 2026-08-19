@@ -157,15 +157,25 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		// Save received values in own variables
 		if ($Message == VM_UPDATE) {
 			$value = $Data[0];
+			$changed = false;
 			// Wert entsprechend zuordnen
 			if ($senderIdInt === $tempVarId) {
-				$this->SetECValue(self::EEP_VARIABLES[self::TEMPERATURE], (float)$value);
+				$newValue = (float)$value;
+				if ($this->GetECValue(self::EEP_VARIABLES[self::TEMPERATURE]) !== $newValue) {
+					$this->SetECValue(self::EEP_VARIABLES[self::TEMPERATURE], $newValue);
+					$changed = true;
+				}
 			}
 			if ($senderIdInt === $humVarId) {
-				$this->SetECValue(self::EEP_VARIABLES[self::HUMIDITY], (float)$value);
+				$newValue = (float)$value;
+				if ($this->GetECValue(self::EEP_VARIABLES[self::HUMIDITY]) !== $newValue) {
+					$this->SetECValue(self::EEP_VARIABLES[self::HUMIDITY], $newValue);
+					$changed = true;
+				}
 			}
 			// Timer setzen (2 Sekunden warten, dann send) - verhindert das doppelte Senden des Telegramms, wenn beide Variablen fast gleichzeitig aktualisiert werden
-            if ($this->ReadPropertyBoolean(self::propertyResendActive)) {
+			// Nur wenn sich tatsächlich ein Wert geändert hat und Resend aktiv ist
+            if ($changed && $this->ReadPropertyBoolean(self::propertyResendActive)) {
 				$this->SetTimerInterval(self::timerPrefix . $this->InstanceID, 2 * 1000);
 			}
 		}
@@ -255,13 +265,14 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 				$DB2 = ((int)$rawHum) & 0xFF;
 				break;
 
-			case EEPProfiles::A5_04_03: // 10 Bit Temp, 7 Bit Hum
+			case EEPProfiles::A5_04_03: // 10 Bit Temp, 8 Bit Hum
 				$rawTempFull = (int)$rawTemp; // 0..1023
-				$rawHum7     = (int)$rawHum;  // 0..127
 				$DB3 = $rawTempFull & 0xFF;                // low 8 bits
 				$upper2 = ($rawTempFull >> 8) & 0x03;      // upper 2 bits (0..3)
-				// DB2: bits 0..6 = humidity (7 bit), bits 7..6 = upper2  -> shift left by 6
-				$DB2 = ($rawHum7 & 0x7F) | (($upper2 & 0x03) << 6);
+				// DB2: bits 7..6 = upper 2 temperature bits, bits 5..0 unused
+				$DB2 = ($upper2 & 0x03) << 6;
+				// DB1: humidity (full byte, scaled 0..255 to match encodeHumidity/decodeHumidity for this profile)
+				$DB1 = ((int)$rawHum) & 0xFF;
 				break;
 
 			case EEPProfiles::A5_04_04: // 12 Bit Temp, 8 Bit Hum
