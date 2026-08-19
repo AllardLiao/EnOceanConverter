@@ -58,6 +58,8 @@ __Configuration Page__:
 
 Status variables are automatically created depending on the selected target EEP. Deleting individual variables may cause malfunctions.
 
+When identifying source variables of the source device, the module checks the standard IPS variable profiles as well as the resolved variable presentation (`IPS_GetVariablePresentation`). For voltage, a suffix of V/mV/kWh/Wh/W/kW is recognized in addition to the classic `~Volt` profile; for illumination, a suffix of Lux is recognized in addition to the classic `~Illumination` profile.
+
 The source EEP mainly affects how the PIR status bit is interpreted.  
 According to the EEP, PIR status in A5-07 and A5-08 is encoded inversely. If no EEP source device is selected, the interpretation of the PIR status bit can be inverted here.
 
