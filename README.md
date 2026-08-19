@@ -25,6 +25,13 @@ __Motion Sensors__ ([Documentation](EnOceanConvertersMotionSensor))
 * EnOcean EEP A5-08-02
 * EnOcean EEP A5-08-03
 
+## Changelog
+
+### 1.0.4
+* Fixed: telegrams were resent whenever the source variable updated, even if its value hadn't actually changed (e.g. periodic/heartbeat updates from the source). `MessageSink` now compares the new value against the stored one and only triggers a resend on a real change.
+* Fixed: the Contact Sensor converter compared its boolean contact value as a float, which defeated the above fix for that module.
+* Fixed: the Temperature Sensor converter's EEP A5-04-03 encoding packed humidity and the upper temperature bits into overlapping bits of the same data byte, corrupting both values for certain temperature/humidity combinations.
+
 ## License
 
 This project is licensed under the [CC BY-NC-SA 4.0 License](https://creativecommons.org/licenses/by-nc-sa/4.0/).

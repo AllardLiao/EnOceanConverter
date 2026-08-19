@@ -153,7 +153,7 @@ class EnOceanConvertersContactSensor extends IPSModuleStrict
 			$changed = false;
 			// Wert entsprechend zuordnen
 			if ($senderIdInt === $contactVarId) {
-				$newValue = (float)$value;
+				$newValue = (bool)$value;
 				if ($this->GetECValue(self::EEP_VARIABLES[self::CONTACT]) !== $newValue) {
 					$this->SetECValue(self::EEP_VARIABLES[self::CONTACT], $newValue);
 					$changed = true;
