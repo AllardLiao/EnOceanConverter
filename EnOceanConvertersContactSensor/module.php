@@ -150,12 +150,18 @@ class EnOceanConvertersContactSensor extends IPSModuleStrict
 		// Save received values in own variables
 		if ($Message == VM_UPDATE) {
 			$value = $Data[0];
+			$changed = false;
 			// Wert entsprechend zuordnen
 			if ($senderIdInt === $contactVarId) {
-				$this->SetECValue(self::EEP_VARIABLES[self::CONTACT], (float)$value);
+				$newValue = (float)$value;
+				if ($this->GetECValue(self::EEP_VARIABLES[self::CONTACT]) !== $newValue) {
+					$this->SetECValue(self::EEP_VARIABLES[self::CONTACT], $newValue);
+					$changed = true;
+				}
 			}
 			// Timer setzen (2 Sekunden warten, dann send) - verhindert das doppelte Senden des Telegramms, wenn beide Variablen fast gleichzeitig aktualisiert werden
-            if ($this->ReadPropertyBoolean(self::propertyResendActive)) {
+			// Nur wenn sich tatsächlich ein Wert geändert hat und Resend aktiv ist
+            if ($changed && $this->ReadPropertyBoolean(self::propertyResendActive)) {
 				$this->SetTimerInterval(self::timerPrefix . $this->InstanceID, 2 * 1000);
 			}
 		}

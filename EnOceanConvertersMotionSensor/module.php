@@ -169,12 +169,21 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 		// Save received values in own variables
 		if ($Message == VM_UPDATE) {
 			$value = $Data[0];
+			$changed = false;
 			// Wert entsprechend zuordnen
 			if ($senderIdInt === $tempVarId) {
-				$this->SetECValue(self::EEP_VARIABLES[self::TEMPERATURE], (float)$value);
+				$newValue = (float)$value;
+				if ($this->GetECValue(self::EEP_VARIABLES[self::TEMPERATURE]) !== $newValue) {
+					$this->SetECValue(self::EEP_VARIABLES[self::TEMPERATURE], $newValue);
+					$changed = true;
+				}
 			}
 			if ($senderIdInt === $illVarId) {
-				$this->SetECValue(self::EEP_VARIABLES[self::ILLUMINATION], (int)$value);
+				$newValue = (int)$value;
+				if ($this->GetECValue(self::EEP_VARIABLES[self::ILLUMINATION]) !== $newValue) {
+					$this->SetECValue(self::EEP_VARIABLES[self::ILLUMINATION], $newValue);
+					$changed = true;
+				}
 			}
 			if ($senderIdInt === $pirVarId) {
 				$targetEEP  = $this->ReadPropertyString(self::propertyTargetEEP);
@@ -184,13 +193,23 @@ class EnOceanConvertersMotionSensor extends IPSModuleStrict
 					// A05-07 und A05-08 haben inverse PIR-Codierungen!
 					$valueNew = (!$valueNew);
 				}
-				$this->SetECValue(self::EEP_VARIABLES[self::MOTION], $valueNew);
+				if ($this->GetECValue(self::EEP_VARIABLES[self::MOTION]) !== $valueNew) {
+					$this->SetECValue(self::EEP_VARIABLES[self::MOTION], $valueNew);
+					$changed = true;
+				}
 			}
 			if ($senderIdInt === $volVarId) {
-				$this->SetECValue(self::EEP_VARIABLES[self::VOLTAGE], (float)$value);
+				$newValue = (float)$value;
+				if ($this->GetECValue(self::EEP_VARIABLES[self::VOLTAGE]) !== $newValue) {
+					$this->SetECValue(self::EEP_VARIABLES[self::VOLTAGE], $newValue);
+					$changed = true;
+				}
 			}
 			// Timer setzen (2 Sekunden warten, dann send) - verhindert das doppelte Senden des Telegramms, wenn beide Variablen fast gleichzeitig aktualisiert werden
-            $this->SetTimerInterval(self::timerPrefix . $this->InstanceID, 2 * 1000);
+			// Nur wenn sich tatsächlich ein Wert geändert hat und Resend aktiv ist
+			if ($changed && $this->ReadPropertyBoolean(self::propertyResendActive)) {
+				$this->SetTimerInterval(self::timerPrefix . $this->InstanceID, 2 * 1000);
+			}
 		}
     }
 

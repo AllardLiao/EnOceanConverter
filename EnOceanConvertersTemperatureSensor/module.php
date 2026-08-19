@@ -157,15 +157,25 @@ class EnOceanConvertersTemperatureSensor extends IPSModuleStrict
 		// Save received values in own variables
 		if ($Message == VM_UPDATE) {
 			$value = $Data[0];
+			$changed = false;
 			// Wert entsprechend zuordnen
 			if ($senderIdInt === $tempVarId) {
-				$this->SetECValue(self::EEP_VARIABLES[self::TEMPERATURE], (float)$value);
+				$newValue = (float)$value;
+				if ($this->GetECValue(self::EEP_VARIABLES[self::TEMPERATURE]) !== $newValue) {
+					$this->SetECValue(self::EEP_VARIABLES[self::TEMPERATURE], $newValue);
+					$changed = true;
+				}
 			}
 			if ($senderIdInt === $humVarId) {
-				$this->SetECValue(self::EEP_VARIABLES[self::HUMIDITY], (float)$value);
+				$newValue = (float)$value;
+				if ($this->GetECValue(self::EEP_VARIABLES[self::HUMIDITY]) !== $newValue) {
+					$this->SetECValue(self::EEP_VARIABLES[self::HUMIDITY], $newValue);
+					$changed = true;
+				}
 			}
 			// Timer setzen (2 Sekunden warten, dann send) - verhindert das doppelte Senden des Telegramms, wenn beide Variablen fast gleichzeitig aktualisiert werden
-            if ($this->ReadPropertyBoolean(self::propertyResendActive)) {
+			// Nur wenn sich tatsächlich ein Wert geändert hat und Resend aktiv ist
+            if ($changed && $this->ReadPropertyBoolean(self::propertyResendActive)) {
 				$this->SetTimerInterval(self::timerPrefix . $this->InstanceID, 2 * 1000);
 			}
 		}
