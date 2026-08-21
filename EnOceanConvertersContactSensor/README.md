@@ -21,7 +21,7 @@ It supports the following EEPs:
 
 ### 2. Requirements
 
-* IP-Symcon version 7.1 or higher
+* IP-Symcon version 8.1 or higher
 * Existing "real" contact sensors to provide source values for temperature and humidity
 
 ### 3. Software Installation

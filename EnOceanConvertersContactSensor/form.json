@@ -265,7 +265,7 @@
         {
             "code": 201,
             "icon": "error",
-            "caption": "Could not connect to source device temperature and/or humidity variable"
+            "caption": "Could not connect to source device contact variable"
         }
     ]
 }

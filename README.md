@@ -32,6 +32,8 @@ __Motion Sensors__ ([Documentation](EnOceanConvertersMotionSensor))
 * Fixed: the Contact Sensor converter compared its boolean contact value as a float, which defeated the above fix for that module.
 * Fixed: the Temperature Sensor converter's EEP A5-04-03 encoding packed humidity and the upper temperature bits into overlapping bits of the same data byte, corrupting both values for certain temperature/humidity combinations.
 * Improved identification of temperature and voltage source variables by reading the resolved variable presentation (`IPS_GetVariablePresentation`) instead of matching a fixed list of known presentation templates.
+* Raised the minimum required IP-Symcon version to 8.1, since `IPS_GetVariablePresentation` (used by the above fix) is not available on older versions.
+* Added missing German/Spanish translations (Device ID, missing-value hint, license block, and the contact-sensor connection error, which also had an incorrect message text copy-pasted from the Temperature Sensor module).
 
 ### 1.0.3
 * Identification of temperature and voltage by presentation template
