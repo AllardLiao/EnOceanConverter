@@ -2,12 +2,14 @@
     "translations": {
         "de": {
             "EnOcean Converters Temperature Sensor": "EnOcean-Wandler Temperatursensor",
+            "Device ID": "Geräte-ID",
             "Select available device id": "Verfügbare Geräte-ID auswählen",
             "Source Device": "Quellgerät",
             "Source EEP": "Quell-EEP",
             "Please select the right profile.\\nEEP (unfortunately) defines presence as true as well as false, depending on the profile. In case it translates wrong, try another profile.": "Bitte wählen Sie das richtige Profil aus.\\nEEP definiert Anwesenheit (leider) je nach Profil als wahr oder falsch. Falls die Übersetzung nicht stimmt, probieren Sie ein anderes Profil.",
             "Target EEP": "Ziel-EEP",
             "Missing Value Handling": "Umgang mit fehlenden Werten",
+            "In case the source does not provide all values, the values set here are used to send telegrams.\nNote: You might not need all values, depending on the selected target EEP.": "Falls die Quelle nicht alle Werte liefert, werden die hier eingestellten Werte zum Senden der Telegramme verwendet.\nHinweis: Je nach gewähltem Ziel-EEP werden eventuell nicht alle Werte benötigt.",
             "Backup Temperature": "Backup-Temperatur",
             "Backup Humidity": "Backup-Luftfeuchtigkeit",
             "Backup Motion": "Backup-Bewegung",
@@ -21,19 +23,26 @@
             "Send test telegram": "Test-Telegramm senden",
             "Source code, donation and licence ...": "Quellcode, Spende und Lizenz ...",
             "The software is free of charge for non-commercial use, I would appreciate a donation if you like the module.": "Die Software ist für die nicht-kommerzielle Nutzung kostenlos. Über eine Spende würde ich mich freuen, wenn Ihnen das Modul gefällt.",
+            "\nLicense ": "\nLizenz ",
+            "Copyright (c) 2025 Kai J. Oey aka AllardLiao": "Copyright (c) 2025 Kai J. Oey aka AllardLiao",
+            "This work is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.": "Dieses Werk ist lizenziert unter einer Creative Commons Namensnennung - Nicht kommerziell - Weitergabe unter gleichen Bedingungen 4.0 International Lizenz.",
+            "See https://creativecommons.org/licenses/by-nc-sa/4.0/ for details.": "Siehe https://creativecommons.org/licenses/by-nc-sa/4.0/ für Details.",
             "Module is inactive - converted telegrams will NOT be resent": "Modul ist inaktiv – konvertierte Telegramme werden NICHT erneut gesendet",
             "Module is active - converted telegrams will be resent": "Modul ist aktiv – konvertierte Telegramme werden erneut gesendet",
             "Invalid configuration": "Ungültige Konfiguration",
-            "Could not connect to source device": "Verbindung zum Quellgerät konnte nicht hergestellt werden"
+            "Could not connect to source device": "Verbindung zum Quellgerät konnte nicht hergestellt werden",
+            "Could not connect to source device temperature and/or humidity variable": "Verbindung zur Temperatur- und/oder Luftfeuchtigkeits-Variable des Quellgeräts konnte nicht hergestellt werden"
         },
         "es": {
             "EnOcean Converters Temperature Sensor": "Convertidor EnOcean Sensor de Temperatura",
+            "Device ID": "ID de dispositivo",
             "Select available device id": "Seleccionar ID de dispositivo disponible",
             "Source Device": "Dispositivo de origen",
             "Source EEP": "EEP de origen",
             "Please select the right profile.\\nEEP (unfortunately) defines presence as true as well as false, depending on the profile. In case it translates wrong, try another profile.": "Por favor, seleccione el perfil correcto.\\nEEP (desafortunadamente) define la presencia como verdadera y falsa, dependiendo del perfil. En caso de que se traduzca incorrectamente, intente con otro perfil.",
             "Target EEP": "EEP de destino",
             "Missing Value Handling": "Manejo de valores faltantes",
+            "In case the source does not provide all values, the values set here are used to send telegrams.\nNote: You might not need all values, depending on the selected target EEP.": "En caso de que la fuente no proporcione todos los valores, se utilizarán los valores establecidos aquí para enviar los telegramas.\nNota: Es posible que no necesite todos los valores, según el EEP de destino seleccionado.",
             "Backup Temperature": "Temperatura de respaldo",
             "Backup Humidity": "Humedad de respaldo",
             "Backup Motion": "Movimiento de respaldo",
@@ -47,10 +56,15 @@
             "Send test telegram": "Enviar telegrama de prueba",
             "Source code, donation and licence ...": "Código fuente, donación y licencia ...",
             "The software is free of charge for non-commercial use, I would appreciate a donation if you like the module.": "El software es gratuito para uso no comercial. Agradecería una donación si le gusta el módulo.",
+            "\nLicense ": "\nLicencia ",
+            "Copyright (c) 2025 Kai J. Oey aka AllardLiao": "Copyright (c) 2025 Kai J. Oey aka AllardLiao",
+            "This work is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.": "Esta obra está bajo una licencia Creative Commons Atribución-NoComercial-CompartirIgual 4.0 Internacional.",
+            "See https://creativecommons.org/licenses/by-nc-sa/4.0/ for details.": "Consulte https://creativecommons.org/licenses/by-nc-sa/4.0/ para más detalles.",
             "Module is inactive - converted telegrams will NOT be resent": "El módulo está inactivo: los telegramas convertidos NO se reenviarán",
             "Module is active - converted telegrams will be resent": "El módulo está activo: los telegramas convertidos se reenviarán",
             "Invalid configuration": "Configuración inválida",
-            "Could not connect to source device": "No se pudo conectar al dispositivo de origen"
+            "Could not connect to source device": "No se pudo conectar al dispositivo de origen",
+            "Could not connect to source device temperature and/or humidity variable": "No se pudo conectar con la variable de temperatura y/o humedad del dispositivo de origen"
         }
     }        
 }

@@ -29,7 +29,7 @@ It supports the following EEPs:
 
 ### 2. Requirements
 
-* IP-Symcon version 7.1 or higher
+* IP-Symcon version 8.1 or higher
 * Existing "real" motion sensors to provide source values for PIR status, illumination, temperature, voltage, and occupancy button
 
 ### 3. Software Installation

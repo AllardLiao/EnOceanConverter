@@ -4,9 +4,9 @@
     "author": "Kai J. Oey",
     "url": "https://github.com/AllardLiao/EnOceanConverter",
     "compatibility": {
-        "version": "7.1"
+        "version": "8.1"
     },
     "version": "1.0.4",
-    "build": 2,
+    "build": 3,
     "date": 0
 }
